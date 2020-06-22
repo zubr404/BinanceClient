@@ -8,7 +8,6 @@ namespace DataBaseWork.Models
     {
         public int ID { get; set; }
         public string Login { get; set; }
-        public string Password { get; set; }
         public List<APIKey> APIKeys { get; set; }
         public List<Trade> Trades { get; set; }
         public List<TradeConfiguration> TradeConfigurations { get; set; }

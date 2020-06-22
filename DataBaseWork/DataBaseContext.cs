@@ -9,16 +9,24 @@ namespace DataBaseWork
     public class DataBaseContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Trade> Trades { get; set; }
+        public DbSet<TradeConfiguration> TradeConfigurations { get; set; }
+        public DbSet<APIKey> APIKeys { get; set; }
 
         public DataBaseContext()
         {
+            Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=BinanceDB;Username=postgres;Password=123456");
-            // Server=localhost;User Id=postgres;Port=5432;Password=123456;Database=GalaxyDB;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Trade>().HasAlternateKey(t => new { t.TradeID });
         }
     }
 }

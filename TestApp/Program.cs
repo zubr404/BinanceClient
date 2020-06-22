@@ -1,5 +1,6 @@
 ﻿using DataBaseWork;
 using DataBaseWork.Models;
+using DataBaseWork.Repositories;
 using System;
 
 namespace TestApp
@@ -8,17 +9,28 @@ namespace TestApp
     {
         static void Main(string[] args)
         {
-            using(var db = new DataBaseContext())
-            {
-                var user = new User()
-                {
-                    Login = "login",
-                    Password = "password"
-                };
+            var usersRepo = new UserRepository(new DataBaseContext());
+            
 
-                db.Users.Add(user);
-                db.SaveChanges();
+            try
+            {
+                var user = usersRepo.Create(new User() { Login = "login" });
+                usersRepo.Create(new User() { Login = "login1" });
+                //usersRepo.Update(new User() { ID = 1, Login = "login" });
+
+                foreach (var item in usersRepo.Get())
+                {
+                    Console.WriteLine(item.ID);
+                }
+
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+            }
+
+            Console.WriteLine("FINISH");
+            Console.ReadKey();
         }
     }
 }
