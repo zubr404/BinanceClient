@@ -3,9 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:BinanceClient"
         mc:Ignorable="d"
         Title="MT Terminal" Height="800" Width="1280">
+    <Window.Resources>
+        <local:ModelView x:Key="ViewModel"/>
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Source="{StaticResource ViewModel}"/>
+    </Window.DataContext>
     <Grid>
         <Grid Name="Screen1">
             <Grid.ColumnDefinitions>
@@ -19,7 +26,7 @@
             </Grid.RowDefinitions>
 
             <!--Upper panel-->
-            <Grid Grid.Column="1"  Background="#FF232323">
+            <Grid Grid.Column="1"  Background="{StaticResource DarkBrown}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -32,58 +39,58 @@
                 <StackPanel Margin="20,10,0,0">
                     <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}">
                         <Grid>
-                            <Ellipse Height="34" Width="34" Stroke="#FF79FD83" StrokeThickness="1.2">
+                            <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidGreen}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
-                                    <SolidColorBrush Color="#FF79FD83" Opacity="0.145"/>
+                                    <SolidColorBrush Color="{StaticResource ColorGreen}" Opacity="0.145"/>
                                 </Ellipse.Fill>
                             </Ellipse>
                             <Grid HorizontalAlignment="Center" Height="10" Width="10">
-                                <Polygon Fill="#FF79FD83" Points="2, 0, 2, 10, 10, 5"></Polygon>
+                                <Polygon Fill="{StaticResource SolidGreen}" Points="2, 0, 2, 10, 10, 5"></Polygon>
                             </Grid>
                         </Grid>
                     </Button>
-                    
-                    <Label Foreground="#FF79FD83">Start</Label>
+
+                    <Label Foreground="{StaticResource SolidGreen}">Start</Label>
                 </StackPanel>
-                
+
                 <!--Stop-->
                 <StackPanel Grid.Column="1" Margin="42,10,0,0">
                     <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}">
                         <Grid>
-                            <Ellipse Height="34" Width="34" Stroke="#FFCE3C3C" StrokeThickness="1.2">
+                            <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidRed}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
-                                    <SolidColorBrush Color="#FFCE3C3C" Opacity="0.145"/>
+                                    <SolidColorBrush Color="{StaticResource ColorRed}" Opacity="0.145"/>
                                 </Ellipse.Fill>
                             </Ellipse>
-                            <Rectangle Height="10" Width="10" Fill="#FFCE3C3C"></Rectangle>
+                            <Rectangle Height="10" Width="10" Fill="{StaticResource SolidRed}"></Rectangle>
                         </Grid>
                     </Button>
 
-                    <Label Foreground="#FFCE3C3C">Stop</Label>
+                    <Label Foreground="{StaticResource SolidRed}">Stop</Label>
                 </StackPanel>
-                
+
                 <!--Apply-->
                 <StackPanel Grid.Column="2" Margin="42,10,0,0">
                     <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}">
                         <Grid>
-                            <Ellipse Height="34" Width="34" Stroke="#FFF3D95B" StrokeThickness="1.2">
+                            <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
-                                    <SolidColorBrush Color="#FFF3D95B" Opacity="0.145"/>
+                                    <SolidColorBrush Color="{StaticResource ColorYellow}" Opacity="0.145"/>
                                 </Ellipse.Fill>
                             </Ellipse>
                             <Grid HorizontalAlignment="Center" Height="18" Width="16">
-                                <Polyline Points="0,9,8,18,16,9" Stroke="#FFF3D95B"></Polyline>
-                                <Line X1="8" Y1="18" X2="8" Y2="0" Stroke="#FFF3D95B"></Line>
+                                <Polyline Points="0,9,8,18,16,9" Stroke="{StaticResource SolidYellow}"></Polyline>
+                                <Line X1="8" Y1="18" X2="8" Y2="0" Stroke="{StaticResource SolidYellow}"></Line>
                             </Grid>
                         </Grid>
                     </Button>
 
-                    <Label Foreground="#FFF3D95B">Apply</Label>
+                    <Label Foreground="{StaticResource SolidYellow}">Apply</Label>
                 </StackPanel>
             </Grid>
 
             <!--Left panel-->
-            <Grid Grid.RowSpan="2" Background="#FF232323">
+            <Grid Grid.RowSpan="2" Background="{StaticResource DarkBrown}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition></RowDefinition>
@@ -95,24 +102,75 @@
 
                 <StackPanel Margin="20">
                     <Grid>
-                        <Ellipse Height="35" Width="35" Fill="#FFF4BB50"></Ellipse>
-                        <Rectangle Height="19" Width="14" Fill="#FF232323"></Rectangle>
-                        <Rectangle Height="36" Width="6" Fill="#FF232323"></Rectangle>
+                        <Ellipse Height="35" Width="35" Fill="{StaticResource SolidYellow}"></Ellipse>
+                        <Rectangle Height="19" Width="14" Fill="{StaticResource DarkBrown}"></Rectangle>
+                        <Rectangle Height="36" Width="6" Fill="{StaticResource DarkBrown}"></Rectangle>
                     </Grid>
                 </StackPanel>
 
 
             </Grid>
-            
-            
+
+
             <!--Right panel-->
-            <Grid Grid.Column="2" Grid.RowSpan="2"  Background="#FF232323">
-                
+            <Grid Grid.Column="2" Grid.RowSpan="2" Background="{StaticResource DarkBrown}">
+
             </Grid>
-            
+
             <!--Centr Panel-->
-            <Grid Grid.Column="1" Grid.Row="1"  Background="#FF313132">
-                
+            <Grid Grid.Column="1" Grid.Row="1"  Background="{StaticResource Brown}">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <!--Chart-->
+                <Grid Height="323" Width="920">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Background="#161515">
+                        <ComboBox Width="45" Foreground="#99FFFFFF">
+                            <TextBlock>1m</TextBlock>
+                            <TextBlock>5m</TextBlock>
+                            <TextBlock>10m</TextBlock>
+                            <TextBlock>1H</TextBlock>
+                            <TextBlock>1W</TextBlock>
+                        </ComboBox>
+                    </StackPanel>
+                    <lvc:CartesianChart Grid.Row="1" Name="ChartMy" Background="{StaticResource DarkBrown}">
+                        <lvc:CartesianChart.Series>
+                            <lvc:CandleSeries Values="{Binding ChartService.OhclValues}" StrokeThickness="1" Stroke="#6BBA45"/>
+                            <!--
+                            <lvc:LineSeries Values="{Binding Values2}" StrokeThickness="1" Stroke="Red"
+                                Fill="Transparent" PointGeometry="{x:Null}" StrokeDashArray="2"/>-->
+                        </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis IsMerged="True" Labels="{Binding Labels1}">
+                                <lvc:Axis.Separator>
+                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="2" Step="{Binding AxisXStep}">
+                                        <lvc:Separator.Stroke>
+                                            <SolidColorBrush Color="#404F56" />
+                                        </lvc:Separator.Stroke>
+                                    </lvc:Separator>
+                                </lvc:Axis.Separator>
+                            </lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis IsMerged="False" Position="RightTop">
+                                <lvc:Axis.Separator>
+                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4">
+                                        <lvc:Separator.Stroke>
+                                            <SolidColorBrush Color="#404F56" />
+                                        </lvc:Separator.Stroke>
+                                    </lvc:Separator>
+                                </lvc:Axis.Separator>
+                            </lvc:Axis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                </Grid>
             </Grid>
 
         </Grid>
