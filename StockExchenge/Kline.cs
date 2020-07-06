@@ -8,6 +8,12 @@ namespace StockExchenge
     public class Kline
     {
         public WebSocket WebSocket { get; private set; }
+        private readonly PublicRequester publicRequester;
+
+        public Kline()
+        {
+            publicRequester = new PublicRequester();
+        }
 
         public void SocketOpen(string pair, string interval)
         {
@@ -19,7 +25,20 @@ namespace StockExchenge
             WebSocket.Connect();
         }
 
-        // test
+        public string GetHistory(string pair, string interval)
+        {
+            try
+            {
+                return publicRequester.RequestPublicApi($"{Resources.DOMAIN}klines?symbol={pair.ToUpper()}&interval={interval}&limit=150");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            
+        }
+
+        #region// test
         private void WebSocket_OnOpen(object sender, EventArgs e)
         {
             Console.WriteLine("Socket open");
@@ -49,6 +68,6 @@ namespace StockExchenge
             }
             Console.WriteLine(DateTime.Now);
         }
-        //----- end yesy
+        #endregion
     }
 }

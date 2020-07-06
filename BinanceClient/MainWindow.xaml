@@ -132,13 +132,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal" Background="#161515">
-                        <ComboBox Width="45" Foreground="#99FFFFFF">
-                            <TextBlock>1m</TextBlock>
-                            <TextBlock>5m</TextBlock>
-                            <TextBlock>10m</TextBlock>
-                            <TextBlock>1H</TextBlock>
-                            <TextBlock>1W</TextBlock>
-                        </ComboBox>
+                        <ComboBox Width="45" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"></ComboBox>
                     </StackPanel>
                     <lvc:CartesianChart Grid.Row="1" Name="ChartMy" Background="{StaticResource DarkBrown}">
                         <lvc:CartesianChart.Series>
@@ -150,7 +144,7 @@
                         <lvc:CartesianChart.AxisX>
                             <lvc:Axis IsMerged="True" Labels="{Binding Labels1}">
                                 <lvc:Axis.Separator>
-                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="2" Step="{Binding AxisXStep}">
+                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="2" Step="{Binding ChartService.AxisXStep}">
                                         <lvc:Separator.Stroke>
                                             <SolidColorBrush Color="#404F56" />
                                         </lvc:Separator.Stroke>
@@ -161,7 +155,7 @@
                         <lvc:CartesianChart.AxisY>
                             <lvc:Axis IsMerged="False" Position="RightTop">
                                 <lvc:Axis.Separator>
-                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4">
+                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4" Step="{Binding ChartService.AxisYStep}">
                                         <lvc:Separator.Stroke>
                                             <SolidColorBrush Color="#404F56" />
                                         </lvc:Separator.Stroke>

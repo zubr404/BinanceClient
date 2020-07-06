@@ -115,4 +115,8 @@ namespace BinanceClient.Services
         /// </summary>
         public double Q { get; set; }
     }
+
+    /*
+     
+     */
 }

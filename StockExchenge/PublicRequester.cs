@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 
 namespace StockExchenge
@@ -7,16 +8,22 @@ namespace StockExchenge
     public class PublicRequester
     {
         // обобщенный запрос к публичным API
-        public T RequestPublicApi<T>(string uri) where T : class
+        public string RequestPublicApi(string uri)
         {
-            throw new NotImplementedException();
-            /*RequestPublicClient webApiClient = new RequestPublicClient();
+            try
+            {
+                RequestPublicClient webApiClient = new RequestPublicClient();
 
-            WebRequest request = webApiClient.WebRequestCreate(uri);
-            WebResponse response = webApiClient.GetWebResponse(request);
-            string line1 = webApiClient.GetResponseString(response);
+                WebRequest request = webApiClient.WebRequestCreate(uri);
+                WebResponse response = webApiClient.GetWebResponse(request);
+                string line1 = webApiClient.GetResponseString(response);
 
-            return new JConverter().JsonConver<T>(line1);*/
+                return line1;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

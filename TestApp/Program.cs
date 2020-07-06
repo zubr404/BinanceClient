@@ -17,7 +17,10 @@ namespace TestApp
             //}
 
             Kline kline = new Kline();
-            kline.SocketOpen("ethbtc", KlineType.d1);
+            //kline.SocketOpen("ethbtc", KlineType.d1);
+            Console.WriteLine(kline.GetHistory("ethbtc", "1m"));
+
+
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

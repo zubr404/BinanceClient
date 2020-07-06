@@ -14,7 +14,7 @@ namespace BinanceClient
         public ModelView()
         {
             ChartService = new ChartService();
-            ChartService.LoadChart("ethbtc", KlineType.m1);
+            ChartService.LoadChart("ethbtc");
         }
     }
 }
