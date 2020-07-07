@@ -10,19 +10,28 @@ namespace StockExchenge
         public WebSocket WebSocket { get; private set; }
         private readonly PublicRequester publicRequester;
 
+        public event EventHandler<KlineEventArgs> MessageEvent;
+
         public Kline()
         {
+            MessageEvent = delegate { };
             publicRequester = new PublicRequester();
         }
 
         public void SocketOpen(string pair, string interval)
         {
+            Disconnect();
             WebSocket = new WebSocket($"{Resources.SOCKET}{pair.ToLower()}@kline_{interval}");
             WebSocket.OnMessage += WebSocket_OnMessage;
             WebSocket.OnError += WebSocket_OnError;
             WebSocket.OnClose += WebSocket_OnClose;
             WebSocket.OnOpen += WebSocket_OnOpen;
             WebSocket.Connect();
+        }
+
+        protected virtual void OnMessageEvent(KlineEventArgs e)
+        {
+            MessageEvent(this, e);
         }
 
         public string GetHistory(string pair, string interval)
@@ -38,20 +47,24 @@ namespace StockExchenge
             
         }
 
+        public void Disconnect()
+        {
+            if (WebSocket != null)
+            {
+                WebSocket.Close();
+            }
+        }
+
         #region// test
         private void WebSocket_OnOpen(object sender, EventArgs e)
         {
+            OnMessageEvent(new KlineEventArgs("Socket open"));
             Console.WriteLine("Socket open");
         }
 
         private void WebSocket_OnClose(object sender, CloseEventArgs e)
         {
             Console.WriteLine("Socket close");
-        }
-
-        public void Disconnect()
-        {
-            WebSocket.Close();
         }
 
         private void WebSocket_OnError(object sender, ErrorEventArgs e)
@@ -69,5 +82,15 @@ namespace StockExchenge
             Console.WriteLine(DateTime.Now);
         }
         #endregion
+    }
+
+    public class KlineEventArgs : EventArgs
+    {
+        public string Message { get; private set; }
+
+        public KlineEventArgs(string message)
+        {
+            Message = message;
+        }
     }
 }

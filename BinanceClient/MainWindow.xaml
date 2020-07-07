@@ -142,7 +142,7 @@
                                 Fill="Transparent" PointGeometry="{x:Null}" StrokeDashArray="2"/>-->
                         </lvc:CartesianChart.Series>
                         <lvc:CartesianChart.AxisX>
-                            <lvc:Axis IsMerged="True" Labels="{Binding Labels1}">
+                            <lvc:Axis IsMerged="True" Labels="{Binding ChartService.LabelsX}">
                                 <lvc:Axis.Separator>
                                     <lvc:Separator StrokeThickness="0.5" StrokeDashArray="2" Step="{Binding ChartService.AxisXStep}">
                                         <lvc:Separator.Stroke>
@@ -153,9 +153,9 @@
                             </lvc:Axis>
                         </lvc:CartesianChart.AxisX>
                         <lvc:CartesianChart.AxisY>
-                            <lvc:Axis IsMerged="False" Position="RightTop">
+                            <lvc:Axis IsMerged="False" Position="RightTop" LabelFormatter="{Binding ChartService.FormatterY}">
                                 <lvc:Axis.Separator>
-                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4" Step="{Binding ChartService.AxisYStep}">
+                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4">
                                         <lvc:Separator.Stroke>
                                             <SolidColorBrush Color="#404F56" />
                                         </lvc:Separator.Stroke>
