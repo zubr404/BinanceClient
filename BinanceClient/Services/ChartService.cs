@@ -12,12 +12,22 @@ using System.Drawing;
 using System.Windows.Media;
 using System.Globalization;
 using System.Windows.Threading;
+using System.Threading.Tasks;
 
 namespace BinanceClient.Services
 {
     class ChartService : PropertyChangedBase
     {
+        /*
+         Вынос собственных сделок на график:
+        можно проверять какое-нибудь хранилище (скорее всего БД)
+        при обновлении сокета по свече
+        или
+        днлать запрос на биржу о собственных сделках.
+        Сокет скорее всего сюда по сделкам лепить не буду.
+         */
         public ReadOnlyCollection<string> Timeframes { get; set; }
+        public List<string> PairSelecteds { get; set; }
         public ChartValues<OhlcPoint> OhclValues { get; set; }
         public List<string> LabelsX { get; set; }
         public Func<double, string> FormatterY { get; set; }
@@ -40,21 +50,45 @@ namespace BinanceClient.Services
                 selectedInterval = value;
                 base.NotifyPropertyChanged();
 
-                SetFormatterY(value);
-                LoadChart("ethbtc");
+                SetFormatterX(value);
+
+                Task.Run(() =>
+                {
+                    LoadChart(selectedPair);
+                });
+            }
+        }
+        private string selectedPair;
+        public string SelectedPair
+        {
+            get { return selectedPair; }
+            set
+            {
+                selectedPair = value;
+                base.NotifyPropertyChanged();
+
+                SetFormatterX(selectedInterval);
+
+                Task.Run(() =>
+                {
+                    LoadChart(value);
+                });
             }
         }
         #endregion
 
-        public ChartService()
+        public ChartService(Dispatcher dispatcher)
         {
-            dispatcher = Dispatcher.CurrentDispatcher;
+            this.dispatcher = dispatcher;
+
             OhclValues = new ChartValues<OhlcPoint>();
             LabelsX = new List<string>();
-            FormatterY = value => Math.Round(value, 6).ToString() + "  ";
+            FormatterY = value => Math.Round(value, 10).ToString("0.##########"); // настроить величину оеругления в зависимоти от спецификации инструмента
 
             Timeframes = KlineType.Intervals;
-            SelectedInterval = Timeframes[0];
+            SelectedInterval = Timeframes.First();
+            PairSelecteds = PairsMy.Pairs;
+            selectedPair = PairSelecteds.First();
 
             Series = new SeriesCollection();
             CreateCandleSeries();
@@ -122,12 +156,12 @@ namespace BinanceClient.Services
                     isClose = false;
 
                     // test
-                    var values = new ChartValues<double>();
-                    foreach (var item in OhclValues)
-                    {
-                        values.Add(0.0261);
-                    }
-                    CreateLineSeries(values, "123");
+                    //var values = new ChartValues<double>();
+                    //foreach (var item in OhclValues)
+                    //{
+                    //    values.Add(0.0261);
+                    //}
+                    //CreateLineSeries(values, "123");
                     //------
                 }
                 else
@@ -184,7 +218,7 @@ namespace BinanceClient.Services
             }
         }
 
-        private void SetFormatterY(string interval)
+        private void SetFormatterX(string interval)
         {
             const string format1 = "HH:mm";
             const string format2 = "dd.MM.yyyy HH:mm";

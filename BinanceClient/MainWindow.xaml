@@ -133,6 +133,7 @@
 
                     <StackPanel Orientation="Horizontal" Background="#161515">
                         <ComboBox Width="45" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"></ComboBox>
+                        <ComboBox Width="90" Margin="5,0,0,0" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.PairSelecteds}" SelectedItem="{Binding ChartService.SelectedPair}"></ComboBox>
                     </StackPanel>
                     <lvc:CartesianChart Grid.Row="1" Name="ChartMy" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}">
                         <!--<lvc:CartesianChart.Series>
