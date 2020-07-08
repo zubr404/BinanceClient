@@ -42,9 +42,7 @@ namespace BinanceClient.Services
             OhclValues = new ChartValues<OhlcPoint>();
             LabelsX = new List<string>();
             FormatterY = value => Math.Round(value, 6).ToString() + "  ";
-            kline = new Kline();
-            //
-            kline.MessageEvent += Kline_MessageEvent;
+            
 
             Timeframes = KlineType.Intervals;
             SelectedInterval = Timeframes[0];
@@ -56,21 +54,22 @@ namespace BinanceClient.Services
             LabelsX.Clear();
             isClose = false;
 
+            if (kline != null)
+            {
+                kline.MessageEvent -= Kline_MessageEvent;
+                kline = null;
+            }
+            kline = new Kline();
+            kline.MessageEvent += Kline_MessageEvent;
             GetHistoryCandle(pair);
             kline.SocketOpen(pair, selectedInterval);
-            kline.WebSocket.OnMessage += WebSocket_OnMessage;
         }
 
         private void Kline_MessageEvent(object sender, KlineEventArgs e)
         {
-            
-        }
-
-        private void WebSocket_OnMessage(object sender, WebSocketSharp.MessageEventArgs e)
-        {
             try
             {
-                Candle candle = JConverter.JsonConver<Candle>(e.Data);
+                Candle candle = JConverter.JsonConver<Candle>(e.Message);
                 var ohlcPoint = new OhlcPoint()
                 {
                     Open = Math.Round(candle.k.o, 6),
@@ -82,6 +81,7 @@ namespace BinanceClient.Services
                 if (isClose)
                 {
                     OhclValues.Add(ohlcPoint);
+                    LabelsX.Add(candle.k.t.ConvertUnixTime().ToString(formatX));
                     isClose = false;
                 }
                 else
@@ -110,6 +110,11 @@ namespace BinanceClient.Services
             {
                 // запись логов в БД
             }
+        }
+
+        private void WebSocket_OnMessage(object sender, WebSocketSharp.MessageEventArgs e) // удалить
+        {
+            
         }
 
         private void GetHistoryCandle(string pair)
