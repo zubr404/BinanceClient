@@ -38,7 +38,7 @@ namespace StockExchenge
         {
             try
             {
-                return publicRequester.RequestPublicApi($"{Resources.DOMAIN}klines?symbol={pair.ToUpper()}&interval={interval}&limit=25");
+                return publicRequester.RequestPublicApi($"{Resources.DOMAIN}klines?symbol={pair.ToUpper()}&interval={interval}&limit=150");
             }
             catch (Exception ex)
             {

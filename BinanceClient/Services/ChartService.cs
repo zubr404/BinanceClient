@@ -8,6 +8,10 @@ using Services;
 using System.Linq;
 using System.Collections.ObjectModel;
 using LiveCharts.Wpf;
+using System.Drawing;
+using System.Windows.Media;
+using System.Globalization;
+using System.Windows.Threading;
 
 namespace BinanceClient.Services
 {
@@ -17,12 +21,16 @@ namespace BinanceClient.Services
         public ChartValues<OhlcPoint> OhclValues { get; set; }
         public List<string> LabelsX { get; set; }
         public Func<double, string> FormatterY { get; set; }
-        public int AxisXStep { get; set; } = 30;
+        public SeriesCollection Series { get; set; }
+        public CandleSeries CandleSeries { get; set; }
 
         private Kline kline;
         private bool isClose = false;   // признак, что предыдущая свеча закрыта
         private string formatX = "";
 
+        private Dispatcher dispatcher;
+
+        #region Properties
         private string selectedInterval;
         public string SelectedInterval
         {
@@ -36,16 +44,45 @@ namespace BinanceClient.Services
                 LoadChart("ethbtc");
             }
         }
+        #endregion
 
         public ChartService()
         {
+            dispatcher = Dispatcher.CurrentDispatcher;
             OhclValues = new ChartValues<OhlcPoint>();
             LabelsX = new List<string>();
             FormatterY = value => Math.Round(value, 6).ToString() + "  ";
-            
 
             Timeframes = KlineType.Intervals;
             SelectedInterval = Timeframes[0];
+
+            Series = new SeriesCollection();
+            CreateCandleSeries();
+        }
+
+        private void CreateLineSeries(ChartValues<double> values, string name)
+        {
+            dispatcher.InvokeAsync(() =>
+            {
+                Series.Add(new LineSeries()
+                {
+                    Values = values,
+                    StrokeThickness = 2,
+                    Stroke = Brushes.Green,
+                    PointGeometry = null,
+                    StrokeDashArray = new DoubleCollection() { 2 },
+                    Fill = Brushes.Transparent,
+                    Title = name
+                });
+            });
+        }
+        private void CreateCandleSeries()
+        {
+            CandleSeries = new CandleSeries();
+            CandleSeries.Values = OhclValues;
+            CandleSeries.StrokeThickness = 1;
+            CandleSeries.Stroke = (Brush)new BrushConverter().ConvertFromString("#6BBA45");
+            Series.Add(CandleSeries);
         }
 
         public void LoadChart(string pair)
@@ -72,10 +109,10 @@ namespace BinanceClient.Services
                 Candle candle = JConverter.JsonConver<Candle>(e.Message);
                 var ohlcPoint = new OhlcPoint()
                 {
-                    Open = Math.Round(candle.k.o, 6),
-                    High = Math.Round(candle.k.h, 6),
-                    Low = Math.Round(candle.k.l, 6),
-                    Close = Math.Round(candle.k.c, 6)
+                    Open = candle.k.o,
+                    High = candle.k.h,
+                    Low = candle.k.l,
+                    Close = candle.k.c
                 };
 
                 if (isClose)
@@ -83,6 +120,15 @@ namespace BinanceClient.Services
                     OhclValues.Add(ohlcPoint);
                     LabelsX.Add(candle.k.t.ConvertUnixTime().ToString(formatX));
                     isClose = false;
+
+                    // test
+                    var values = new ChartValues<double>();
+                    foreach (var item in OhclValues)
+                    {
+                        values.Add(0.0261);
+                    }
+                    CreateLineSeries(values, "123");
+                    //------
                 }
                 else
                 {
@@ -112,11 +158,6 @@ namespace BinanceClient.Services
             }
         }
 
-        private void WebSocket_OnMessage(object sender, WebSocketSharp.MessageEventArgs e) // удалить
-        {
-            
-        }
-
         private void GetHistoryCandle(string pair)
         {
             try
@@ -128,16 +169,12 @@ namespace BinanceClient.Services
                 {
                     var ohlcPoint = new OhlcPoint()
                     {
-                        Open = Math.Round(Convert.ToDouble(k[1].ToString().Replace(".",",")), 6),
-                        High = Math.Round(Convert.ToDouble(k[2].ToString().Replace(".", ",")), 6),
-                        Low = Math.Round(Convert.ToDouble(k[3].ToString().Replace(".", ",")), 6),
-                        Close = Math.Round(Convert.ToDouble(k[4].ToString().Replace(".", ",")), 6)
+                        Open = Convert.ToDouble(k[1], new CultureInfo("en-US")),
+                        High = Convert.ToDouble(k[2], new CultureInfo("en-US")),
+                        Low = Convert.ToDouble(k[3], new CultureInfo("en-US")),
+                        Close = Convert.ToDouble(k[4], new CultureInfo("en-US"))
                     };
                     OhclValues.Add(ohlcPoint);
-
-                    var x = Convert.ToInt64(k[0]);
-                    var y = x.ConvertUnixTime();
-                    var z = y.ToString();
                     LabelsX.Add(Convert.ToInt64(k[0]).ConvertUnixTime().ToString(formatX));
                 }
             }
