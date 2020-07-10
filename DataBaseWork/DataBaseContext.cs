@@ -12,6 +12,7 @@ namespace DataBaseWork
         public DbSet<Trade> Trades { get; set; }
         public DbSet<TradeConfiguration> TradeConfigurations { get; set; }
         public DbSet<APIKey> APIKeys { get; set; }
+        public DbSet<TradeHistory> TradeHistories { get; set; }
 
         public DataBaseContext()
         {

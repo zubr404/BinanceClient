@@ -3,6 +3,7 @@ using DataBaseWork.Models;
 using DataBaseWork.Repositories;
 using System;
 using StockExchenge;
+using TestApp.REST;
 
 namespace TestApp
 {
@@ -16,11 +17,18 @@ namespace TestApp
             //    kline.SocketOpen();
             //}
 
-            Kline kline = new Kline();
-            //kline.SocketOpen("ethbtc", KlineType.d1);
-            Console.WriteLine(kline.GetHistory("ethbtc", "1m"));
+            //Kline kline = new Kline("ethbtc", "1m");
+            ////kline.SocketOpen("ethbtc", KlineType.d1);
+            //Console.WriteLine(kline.GetHistory());
 
-
+            HttpGetTradeHistory httpGetTradeHistory = new HttpGetTradeHistory();
+            while (true)
+            {
+                if(httpGetTradeHistory.Rquest1() == 200)
+                {
+                    break;
+                }
+            }
 
             Console.WriteLine("FINISH");
             Console.ReadKey();
