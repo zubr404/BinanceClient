@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Timers;
 using WebSocketSharp;
 
 namespace StockExchenge
@@ -11,14 +12,48 @@ namespace StockExchenge
         private readonly PublicRequester publicRequester;
 
         public event EventHandler<KlineEventArgs> MessageEvent;
+        public event EventHandler<string> ConnectStateEvent;
 
-        public Kline()
+        string pair;
+        string interval;
+        private Timer timer;
+
+        public Kline(string pair, string interval)
         {
+            this.pair = pair;
+            this.interval = interval;
             MessageEvent = delegate { };
+            ConnectStateEvent = delegate { };
             publicRequester = new PublicRequester();
+            timer = new Timer(30000);
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
         }
 
-        public void SocketOpen(string pair, string interval)
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (WebSocket != null)
+            {
+                try
+                {
+                    if (WebSocket.Ping())
+                    {
+                        OnConnectStateEvent("Ping ok");
+                    }
+                    else
+                    {
+                        OnConnectStateEvent("Ping no");
+                        WebSocket.Connect();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    OnConnectStateEvent($"Ping Error: {ex.Message}");
+                }
+            }
+        }
+
+        public void SocketOpen()
         {
             Disconnect();
             WebSocket = new WebSocket($"{Resources.SOCKET}{pair.ToLower()}@kline_{interval}");
@@ -29,12 +64,7 @@ namespace StockExchenge
             WebSocket.Connect();
         }
 
-        protected virtual void OnMessageEvent(KlineEventArgs e)
-        {
-            MessageEvent(this, e);
-        }
-
-        public string GetHistory(string pair, string interval)
+        public string GetHistory()
         {
             try
             {
@@ -63,17 +93,17 @@ namespace StockExchenge
         #region// test
         private void WebSocket_OnOpen(object sender, EventArgs e)
         {
-           //Console.WriteLine("Socket open");
+            OnConnectStateEvent($"Kline Connect");
         }
 
         private void WebSocket_OnClose(object sender, CloseEventArgs e)
         {
-            //Console.WriteLine("Socket close");
+            OnConnectStateEvent($"Kline Disconnect");
         }
 
         private void WebSocket_OnError(object sender, ErrorEventArgs e)
         {
-            //Console.WriteLine(e.Message);
+            OnConnectStateEvent($"Kline Error: {e.Message}");
         }
 
         private void WebSocket_OnMessage(object sender, MessageEventArgs e)
@@ -87,6 +117,15 @@ namespace StockExchenge
             OnMessageEvent(new KlineEventArgs(e.Data));
         }
         #endregion
+
+        protected virtual void OnMessageEvent(KlineEventArgs e)
+        {
+            MessageEvent(this, e);
+        }
+        protected virtual void OnConnectStateEvent(string e)
+        {
+            ConnectStateEvent(this, e);
+        }
     }
 
     public class KlineEventArgs : EventArgs

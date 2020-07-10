@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StockExchenge;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,17 @@ namespace BinanceClient
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static ExchangeInfo ExchangeInfo { get; private set; }
         public MainWindow()
         {
+            ExchangeInfo = new ExchangeInfo();
+            ExchangeInfo.GetInfo();
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

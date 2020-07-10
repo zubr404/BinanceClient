@@ -6,7 +6,7 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:BinanceClient"
         mc:Ignorable="d"
-        Title="MT Terminal" Height="800" Width="1280">
+        Title="MT Terminal" Height="800" Width="1280" Loaded="Window_Loaded">
     <Window.Resources>
         <local:ModelView x:Key="ViewModel"/>
     </Window.Resources>
@@ -114,7 +114,10 @@
 
             <!--Right panel-->
             <Grid Grid.Column="2" Grid.RowSpan="2" Background="{StaticResource DarkBrown}">
-
+                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                    <TextBlock Text="{Binding ConsoleScrin1.Message}" Foreground="WhiteSmoke" TextWrapping="WrapWithOverflow"></TextBlock>
+                </ScrollViewer>
+                
             </Grid>
 
             <!--Centr Panel-->
@@ -135,36 +138,41 @@
                         <ComboBox Width="45" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"></ComboBox>
                         <ComboBox Width="90" Margin="5,0,0,0" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.PairSelecteds}" SelectedItem="{Binding ChartService.SelectedPair}"></ComboBox>
                     </StackPanel>
-                    <lvc:CartesianChart Grid.Row="1" Name="ChartMy" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}">
-                        <!--<lvc:CartesianChart.Series>
+                    <Grid Grid.Row="1" Background="{StaticResource DarkBrown}">
+                        <lvc:CartesianChart Name="ChartMy" Margin="5,0,5,0" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}">
+                            <!--<lvc:CartesianChart.Series>
                             <lvc:CandleSeries Values="{Binding ChartService.OhclValues}" StrokeThickness="1" Stroke="#6BBA45"/>
-                            --><!--
+                            -->
+                            <!--
                             <lvc:LineSeries Values="{Binding Values2}" StrokeThickness="1" Stroke="Red"
-                                Fill="Transparent" PointGeometry="{x:Null}" StrokeDashArray="2"/>--><!--
+                                Fill="Transparent" PointGeometry="{x:Null}" StrokeDashArray="2"/>-->
+                            <!--
                         </lvc:CartesianChart.Series>-->
-                        <lvc:CartesianChart.AxisX>
-                            <lvc:Axis IsMerged="True" Labels="{Binding ChartService.LabelsX}">
-                                <lvc:Axis.Separator>
-                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="2">
-                                        <lvc:Separator.Stroke>
-                                            <SolidColorBrush Color="#404F56" />
-                                        </lvc:Separator.Stroke>
-                                    </lvc:Separator>
-                                </lvc:Axis.Separator>
-                            </lvc:Axis>
-                        </lvc:CartesianChart.AxisX>
-                        <lvc:CartesianChart.AxisY>
-                            <lvc:Axis IsMerged="False" Position="RightTop" LabelFormatter="{Binding ChartService.FormatterY}">
-                                <lvc:Axis.Separator>
-                                    <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4">
-                                        <lvc:Separator.Stroke>
-                                            <SolidColorBrush Color="#404F56" />
-                                        </lvc:Separator.Stroke>
-                                    </lvc:Separator>
-                                </lvc:Axis.Separator>
-                            </lvc:Axis>
-                        </lvc:CartesianChart.AxisY>
-                    </lvc:CartesianChart>
+                            <lvc:CartesianChart.AxisX>
+                                <lvc:Axis IsMerged="True" Labels="{Binding ChartService.LabelsX}">
+                                    <lvc:Axis.Separator>
+                                        <lvc:Separator StrokeThickness="0.5" StrokeDashArray="2">
+                                            <lvc:Separator.Stroke>
+                                                <SolidColorBrush Color="#404F56" />
+                                            </lvc:Separator.Stroke>
+                                        </lvc:Separator>
+                                    </lvc:Axis.Separator>
+                                </lvc:Axis>
+                            </lvc:CartesianChart.AxisX>
+                            <lvc:CartesianChart.AxisY>
+                                <lvc:Axis IsMerged="False" Position="RightTop" LabelFormatter="{Binding ChartService.FormatterY}">
+                                    <lvc:Axis.Separator>
+                                        <lvc:Separator StrokeThickness="0.5" StrokeDashArray="4">
+                                            <lvc:Separator.Stroke>
+                                                <SolidColorBrush Color="#404F56" />
+                                            </lvc:Separator.Stroke>
+                                        </lvc:Separator>
+                                    </lvc:Axis.Separator>
+                                </lvc:Axis>
+                            </lvc:CartesianChart.AxisY>
+                        </lvc:CartesianChart>
+                    </Grid>
+                    
                 </Grid>
             </Grid>
 

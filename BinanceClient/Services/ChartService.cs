@@ -37,6 +37,7 @@ namespace BinanceClient.Services
         private Kline kline;
         private bool isClose = false;   // признак, что предыдущая свеча закрыта
         private string formatX = "";
+        private int quotePrecision;
 
         private Dispatcher dispatcher;
 
@@ -54,11 +55,12 @@ namespace BinanceClient.Services
 
                 Task.Run(() =>
                 {
+                    GetExchangeInfo();
                     LoadChart(selectedPair);
                 });
             }
         }
-        private string selectedPair;
+        private string selectedPair = PairsMy.Pairs.First();
         public string SelectedPair
         {
             get { return selectedPair; }
@@ -71,6 +73,7 @@ namespace BinanceClient.Services
 
                 Task.Run(() =>
                 {
+                    GetExchangeInfo();
                     LoadChart(value);
                 });
             }
@@ -83,17 +86,16 @@ namespace BinanceClient.Services
 
             OhclValues = new ChartValues<OhlcPoint>();
             LabelsX = new List<string>();
-            FormatterY = value => Math.Round(value, 10).ToString("0.##########"); // настроить величину оеругления в зависимоти от спецификации инструмента
 
             Timeframes = KlineType.Intervals;
             SelectedInterval = Timeframes.First();
             PairSelecteds = PairsMy.Pairs;
-            selectedPair = PairSelecteds.First();
 
             Series = new SeriesCollection();
             CreateCandleSeries();
         }
 
+        // добавляет линии на график
         private void CreateLineSeries(ChartValues<double> values, string name)
         {
             dispatcher.InvokeAsync(() =>
@@ -121,19 +123,34 @@ namespace BinanceClient.Services
 
         public void LoadChart(string pair)
         {
-            OhclValues.Clear();
-            LabelsX.Clear();
+            var formatPrecision = PrecisionFormatting();
+            FormatterY = value => Math.Round(value, quotePrecision).ToString(formatPrecision); // настроить величину оеругления в зависимоти от спецификации инструмента
+            //OhclValues.Clear();
+            //LabelsX.Clear();
             isClose = false;
 
             if (kline != null)
             {
                 kline.MessageEvent -= Kline_MessageEvent;
+                kline.ConnectStateEvent -= Kline_ConnectStateEvent;
                 kline = null;
             }
-            kline = new Kline();
+            kline = new Kline(pair, selectedInterval);
             kline.MessageEvent += Kline_MessageEvent;
-            GetHistoryCandle(pair);
-            kline.SocketOpen(pair, selectedInterval);
+            kline.ConnectStateEvent += Kline_ConnectStateEvent;
+            //GetHistoryCandle();
+            kline.SocketOpen();
+        }
+
+        private void Kline_ConnectStateEvent(object sender, string e)
+        {
+            ModelView.ConsoleScrin1.Message = e;
+            if (e.Contains("Kline Connect"))
+            {
+                OhclValues.Clear();
+                LabelsX.Clear();
+                GetHistoryCandle();
+            }
         }
 
         private void Kline_MessageEvent(object sender, KlineEventArgs e)
@@ -149,9 +166,11 @@ namespace BinanceClient.Services
                     Close = candle.k.c
                 };
 
+                var firstCandle = OhclValues.FirstOrDefault();
                 if (isClose)
                 {
                     OhclValues.Add(ohlcPoint);
+                    OhclValues.Remove(firstCandle);
                     LabelsX.Add(candle.k.t.ConvertUnixTime().ToString(formatX));
                     isClose = false;
 
@@ -192,11 +211,11 @@ namespace BinanceClient.Services
             }
         }
 
-        private void GetHistoryCandle(string pair)
+        private void GetHistoryCandle()
         {
             try
             {
-                var klineString = kline.GetHistory(pair, selectedInterval);
+                var klineString = kline.GetHistory();
                 var klines = JConverter.JsonConver<List<object[]>>(klineString);
 
                 foreach (var k in klines)
@@ -271,6 +290,89 @@ namespace BinanceClient.Services
                 default:
                     break;
             }
+        }
+
+
+        #region Пример ответа
+        /*
+         {
+  "timezone": "UTC",
+  "serverTime": 1508631584636,
+  "rateLimits": [{
+      "rateLimitType": "REQUESTS",
+      "interval": "MINUTE",
+      "limit": 1200
+    },
+    {
+      "rateLimitType": "ORDERS",
+      "interval": "SECOND",
+      "limit": 10
+    },
+    {
+      "rateLimitType": "ORDERS",
+      "interval": "DAY",
+      "limit": 100000
+    }
+  ],
+  "exchangeFilters": [],
+  "symbols": [{
+    "symbol": "ETHBTC",
+    "status": "TRADING",
+    "baseAsset": "ETH",
+    "baseAssetPrecision": 8,
+    "quoteAsset": "BTC",
+    "quotePrecision": 8,
+    "orderTypes": ["LIMIT", "MARKET"],
+    "icebergAllowed": false,
+    "filters": [{
+      "filterType": "PRICE_FILTER",
+      "minPrice": "0.00000100",
+      "maxPrice": "100000.00000000",
+      "tickSize": "0.00000100"
+    }, {
+      "filterType": "LOT_SIZE",
+      "minQty": "0.00100000",
+      "maxQty": "100000.00000000",
+      "stepSize": "0.00100000"
+    }, {
+      "filterType": "MIN_NOTIONAL",
+      "minNotional": "0.00100000"
+    }]
+  }]
+}
+         */
+        #endregion
+        private void GetExchangeInfo()
+        {
+            try
+            {
+                var jsonString = MainWindow.ExchangeInfo.Info;
+                dynamic entity = JConverter.JsonConvertDynamic(jsonString);
+
+                foreach (var symbol in entity.symbols)
+                {
+                    if (symbol.symbol == selectedPair)
+                    {
+                        quotePrecision = symbol.quotePrecision;
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+                // запись лога в БД
+            }
+        }
+
+        private string PrecisionFormatting()
+        {
+            var result = "0.#";
+            for (int i = 0; i < quotePrecision - 1; i++)
+            {
+                result += "#";
+            }
+            return result;
         }
     }
 }

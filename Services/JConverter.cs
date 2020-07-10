@@ -30,5 +30,29 @@ namespace Services
                 throw jrex;
             }
         }
+
+        public static dynamic JsonConvertDynamic(string line)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject(line);
+            }
+            catch (JsonReaderException jrex)
+            {
+                throw jrex;
+            }
+            catch (JsonSerializationException jrex)
+            {
+                throw jrex;
+            }
+            catch (JsonWriterException jrex)
+            {
+                throw jrex;
+            }
+            catch (Exception jrex)
+            {
+                throw jrex;
+            }
+        }
     }
 }
