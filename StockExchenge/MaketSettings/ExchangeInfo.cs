@@ -1,8 +1,9 @@
-﻿using System;
+﻿using StockExchenge.RestApi;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StockExchenge
+namespace StockExchenge.MaketSettings
 {
     public class ExchangeInfo
     {

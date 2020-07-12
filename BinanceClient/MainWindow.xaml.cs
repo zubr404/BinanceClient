@@ -1,4 +1,5 @@
 ﻿using StockExchenge;
+using StockExchenge.MaketSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;

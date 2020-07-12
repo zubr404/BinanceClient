@@ -1,10 +1,11 @@
-﻿using System;
+﻿using StockExchenge.RestApi;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Timers;
 using WebSocketSharp;
 
-namespace StockExchenge
+namespace StockExchenge.Charts
 {
     public class Kline
     {
@@ -13,6 +14,7 @@ namespace StockExchenge
 
         public event EventHandler<KlineEventArgs> MessageEvent;
         public event EventHandler<string> ConnectStateEvent;
+        public event EventHandler ConnectEvent;
 
         string pair;
         string interval;
@@ -24,6 +26,7 @@ namespace StockExchenge
             this.interval = interval;
             MessageEvent = delegate { };
             ConnectStateEvent = delegate { };
+            ConnectEvent = delegate { };
             publicRequester = new PublicRequester();
             timer = new Timer(30000);
             timer.Elapsed += Timer_Elapsed;
@@ -68,7 +71,7 @@ namespace StockExchenge
         {
             try
             {
-                return publicRequester.RequestPublicApi($"{Resources.DOMAIN}klines?symbol={pair.ToUpper()}&interval={interval}&limit=150");
+                return publicRequester.RequestPublicApi($"{Resources.DOMAIN_V1}klines?symbol={pair.ToUpper()}&interval={interval}&limit=150");
             }
             catch (Exception ex)
             {
@@ -94,6 +97,7 @@ namespace StockExchenge
         private void WebSocket_OnOpen(object sender, EventArgs e)
         {
             OnConnectStateEvent($"Kline Connect");
+            OnConnectEvent();
         }
 
         private void WebSocket_OnClose(object sender, CloseEventArgs e)
@@ -108,12 +112,6 @@ namespace StockExchenge
 
         private void WebSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            //Console.WriteLine(e.Data);
-            //if (e.Data.Contains("ping"))
-            //{
-            //    Console.WriteLine(e.Data);
-            //}
-            //Console.WriteLine(DateTime.Now);
             OnMessageEvent(new KlineEventArgs(e.Data));
         }
         #endregion
@@ -125,6 +123,10 @@ namespace StockExchenge
         protected virtual void OnConnectStateEvent(string e)
         {
             ConnectStateEvent(this, e);
+        }
+        protected virtual void OnConnectEvent()
+        {
+            ConnectEvent(this, new EventArgs());
         }
     }
 

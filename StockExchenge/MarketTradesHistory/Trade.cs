@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DataBaseWork.Models
+namespace StockExchenge.MarketTradesHistory
 {
 	/*
 	[
@@ -17,19 +17,9 @@ namespace DataBaseWork.Models
 		}
 	]
      */
-	public class TradeHistory
+	public class Trade
     {
 		public int ID { get; set; }
-		private string pair;
-		public string Pair 
-		{
-            get { return pair; }
-            set
-            {
-				pair = value.ToUpper();
-            }
-		}
-		public long TradeId { get; set; }
 		public double Price { get; set; }
 		public double Qty { get; set; }
 		public double QuoteQty { get; set; }

@@ -87,6 +87,26 @@
 
                     <Label Foreground="{StaticResource SolidYellow}">Apply</Label>
                 </StackPanel>
+                
+                <!--TradeHistory Test-->
+                <StackPanel Grid.Column="3" Margin="42,10,0,0">
+                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}"
+                            Command="{Binding TradeHistoryLoad}">
+                        <Grid>
+                            <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush Color="{StaticResource ColorYellow}" Opacity="0.145"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <Grid HorizontalAlignment="Center" Height="18" Width="16">
+                                <Polyline Points="0,9,8,18,16,9" Stroke="{StaticResource SolidYellow}"></Polyline>
+                                <Line X1="8" Y1="18" X2="8" Y2="0" Stroke="{StaticResource SolidYellow}"></Line>
+                            </Grid>
+                        </Grid>
+                    </Button>
+
+                    <Label Foreground="{StaticResource SolidYellow}">TH test</Label>
+                </StackPanel>
             </Grid>
 
             <!--Left panel-->

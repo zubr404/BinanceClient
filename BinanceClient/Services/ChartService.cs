@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Globalization;
 using System.Windows.Threading;
 using System.Threading.Tasks;
+using StockExchenge.Charts;
 
 namespace BinanceClient.Services
 {
@@ -125,32 +126,32 @@ namespace BinanceClient.Services
         {
             var formatPrecision = PrecisionFormatting();
             FormatterY = value => Math.Round(value, quotePrecision).ToString(formatPrecision); // настроить величину оеругления в зависимоти от спецификации инструмента
-            //OhclValues.Clear();
-            //LabelsX.Clear();
             isClose = false;
 
             if (kline != null)
             {
                 kline.MessageEvent -= Kline_MessageEvent;
                 kline.ConnectStateEvent -= Kline_ConnectStateEvent;
+                kline.ConnectEvent -= Kline_ConnectEvent;
                 kline = null;
             }
             kline = new Kline(pair, selectedInterval);
             kline.MessageEvent += Kline_MessageEvent;
             kline.ConnectStateEvent += Kline_ConnectStateEvent;
-            //GetHistoryCandle();
+            kline.ConnectEvent += Kline_ConnectEvent;
             kline.SocketOpen();
+        }
+
+        private void Kline_ConnectEvent(object sender, EventArgs e)
+        {
+            OhclValues.Clear();
+            LabelsX.Clear();
+            GetHistoryCandle();
         }
 
         private void Kline_ConnectStateEvent(object sender, string e)
         {
             ModelView.ConsoleScrin1.Message = e;
-            if (e.Contains("Kline Connect"))
-            {
-                OhclValues.Clear();
-                LabelsX.Clear();
-                GetHistoryCandle();
-            }
         }
 
         private void Kline_MessageEvent(object sender, KlineEventArgs e)

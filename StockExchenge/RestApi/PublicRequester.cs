@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
-namespace StockExchenge
+namespace StockExchenge.RestApi
 {
     public class PublicRequester
     {

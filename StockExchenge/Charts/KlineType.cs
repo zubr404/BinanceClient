@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace StockExchenge
+namespace StockExchenge.Charts
 {
     /// <summary>
     /// Выполняет функцию временного тестого хранилища таймфреймов.

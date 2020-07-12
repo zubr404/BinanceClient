@@ -4,6 +4,7 @@ using DataBaseWork.Repositories;
 using System;
 using StockExchenge;
 using TestApp.REST;
+using System.Threading.Tasks;
 
 namespace TestApp
 {
@@ -21,14 +22,22 @@ namespace TestApp
             ////kline.SocketOpen("ethbtc", KlineType.d1);
             //Console.WriteLine(kline.GetHistory());
 
-            HttpGetTradeHistory httpGetTradeHistory = new HttpGetTradeHistory();
-            while (true)
+            Task.Run(() =>
             {
-                if(httpGetTradeHistory.Rquest1() == 200)
+                HttpGetTradeHistory httpGetTradeHistory = new HttpGetTradeHistory();
+                for (int i = 0; i < 100; i++)
                 {
-                    break;
+                    if (httpGetTradeHistory.Rquest1().Result == 200)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(i);
+                    }
                 }
-            }
+            });
+            
 
             Console.WriteLine("FINISH");
             Console.ReadKey();
