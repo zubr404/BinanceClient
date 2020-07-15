@@ -45,6 +45,25 @@ namespace DataBaseWork.Repositories
             return db.TradeHistories.AsNoTracking().Where(x => x.Pair == pair && x.TradeId >= startId && x.TradeId <= stopId);
         }
 
+        /// <summary>
+        /// Минимальный ID для стартового времени
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
+        public int MinId(long startTime)
+        {
+            return db.TradeHistories.Where(x => x.Time >= startTime).Min(x => x.ID);
+        }
+        /// <summary>
+        /// Максимальный ID для финишного времени
+        /// </summary>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
+        public long MaxId(long endTime)
+        {
+            return db.TradeHistories.Where(x => x.Time <= endTime).Max(x => x.ID);
+        }
+
         public void AddRange(IEnumerable<TradeHistory> trades)
         {
             try

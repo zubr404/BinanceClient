@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StockExchenge.MaketSettings
+namespace StockExchenge.MarketSettings
 {
     public class ExchangeInfo
     {

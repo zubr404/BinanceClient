@@ -1,5 +1,5 @@
 ﻿using StockExchenge;
-using StockExchenge.MaketSettings;
+using StockExchenge.MarketSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;

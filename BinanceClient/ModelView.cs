@@ -32,6 +32,7 @@ namespace BinanceClient
         }
 
         #region Commands
+        // TODO: пара с морды
         private RelayCommand tradeHistoryLoad;
         public RelayCommand TradeHistoryLoad
         {

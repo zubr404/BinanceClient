@@ -18,7 +18,6 @@ namespace StockExchenge.MarketTradesHistory
 	/// </summary>
 	public class TradesHistory
     {
-		const string key = "33SB2WjAtgVzFjcSGLE4fuvxzBQD8sz475bmC29UI8WCwtOVmdKwzqu78zVD6pqx";
 		private readonly string pair;
 		private readonly TradeHistoryRepository repository;
 		private long fromId;
@@ -44,7 +43,7 @@ namespace StockExchenge.MarketTradesHistory
                 {
                     try
                     {
-						var response = requester.Request(GetUrl(), key);
+						var response = requester.Request(GetUrl(), Resources.PUBLIC_KEY);
 						using (Stream stream = response.GetResponseStream())
 						{
 							StreamReader sr = new StreamReader(stream);
