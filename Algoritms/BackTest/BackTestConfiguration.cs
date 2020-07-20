@@ -37,6 +37,6 @@ namespace Algoritms.BackTest
         /// <summary>
         /// Конечная точка исторических данных (timestamp)
         /// </summary>
-        public long EndTime { get; set; }
+        public long StopTime { get; set; }
     }
 }

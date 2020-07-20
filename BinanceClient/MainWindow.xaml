@@ -3,12 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:BinanceClient"
         mc:Ignorable="d"
         Title="MT Terminal" Height="800" Width="1280" Loaded="Window_Loaded">
     <Window.Resources>
         <local:ModelView x:Key="ViewModel"/>
+        <sys:Double x:Key="HeightUpperPanel">72</sys:Double>
     </Window.Resources>
     <Window.DataContext>
         <Binding Source="{StaticResource ViewModel}"/>
@@ -21,12 +23,12 @@
                 <ColumnDefinition Width="237"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="72"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
 
             <!--Upper panel-->
-            <Grid Grid.Column="1"  Background="{StaticResource DarkBrown}">
+            <Grid Grid.Column="1" Height="{StaticResource HeightUpperPanel}" Background="{StaticResource DarkBrown}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -37,7 +39,7 @@
 
                 <!--Start-->
                 <StackPanel Margin="20,10,0,0">
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidGreen}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -55,7 +57,7 @@
 
                 <!--Stop-->
                 <StackPanel Grid.Column="1" Margin="42,10,0,0">
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidRed}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -71,7 +73,7 @@
 
                 <!--Apply-->
                 <StackPanel Grid.Column="2" Margin="42,10,0,0">
-                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}">
+                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -90,7 +92,7 @@
                 
                 <!--TradeHistory Test-->
                 <StackPanel Grid.Column="3" Margin="42,10,0,0">
-                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource ButtonMy}"
+                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}"
                             Command="{Binding TradeHistoryLoad}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
@@ -110,35 +112,254 @@
             </Grid>
 
             <!--Left panel-->
-            <Grid Grid.RowSpan="2" Background="{StaticResource DarkBrown}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                </Grid.RowDefinitions>
+            <Border Grid.RowSpan="2" BorderThickness="0,0,0.25,0">
+                <Grid Background="{StaticResource DarkBrown}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <sys:Double x:Key="HeightButton">80</sys:Double>
+                    </Grid.Resources>
 
-                <StackPanel Margin="20">
-                    <Grid>
-                        <Ellipse Height="35" Width="35" Fill="{StaticResource SolidYellow}"></Ellipse>
-                        <Rectangle Height="19" Width="14" Fill="{StaticResource DarkBrown}"></Rectangle>
-                        <Rectangle Height="36" Width="6" Fill="{StaticResource DarkBrown}"></Rectangle>
+                    <StackPanel Margin="20">
+                        <Grid>
+                            <Ellipse Height="35" Width="35" Fill="{StaticResource SolidYellow}"></Ellipse>
+                            <Rectangle Height="19" Width="14" Fill="{StaticResource DarkBrown}"></Rectangle>
+                            <Rectangle Height="36" Width="6" Fill="{StaticResource DarkBrown}"></Rectangle>
+                        </Grid>
+                    </StackPanel>
+
+                    <!--Главная-->
+                    <Grid Grid.Row="1" Margin="0,15,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="3"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,6,0,6">
+                            <Button Background="{x:Null}" BorderBrush="{x:Null}" Height="{StaticResource HeightButton}" Style="{StaticResource RectangleButtonMy}" Command="{Binding MainButtonCommand}">
+                                <StackPanel>
+                                    <Grid>
+                                        <StackPanel>
+                                            <Polygon Fill="{Binding LeftPanelScrin1.MainButton.BrushBackground}" Points="10, 0, 0, 10, 20, 10" HorizontalAlignment="Center"></Polygon>
+                                            <Rectangle Height="9" Width="16" Fill="{Binding LeftPanelScrin1.MainButton.BrushBackground}"></Rectangle>
+                                        </StackPanel>
+                                        <Rectangle Height="6" Width="5" VerticalAlignment="Bottom" Fill="{StaticResource Brown}"></Rectangle>
+                                    </Grid>
+                                    <Label Foreground="{Binding LeftPanelScrin1.MainButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">Главная</Label>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Grid Grid.Column="1" Visibility="Visible">
+                            <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.MainButton.BrushBackground}"></Rectangle>
+                            <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.MainButton.BrushBackground}"></Rectangle>
+                        </Grid>
                     </Grid>
-                </StackPanel>
 
+                    <!--Текущая статистика-->
+                    <Grid Grid.Row="2" Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="3"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,6,0,6">
+                            <Button Background="{x:Null}" BorderBrush="{x:Null}" Height="{StaticResource HeightButton}" Style="{StaticResource RectangleButtonMy}" Command="{Binding CurrentStatisticButtonCommand}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Rectangle Height="9" Width="25" RadiusX="15" RadiusY="3" VerticalAlignment="Top" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"
+                                           Margin="0,0,0,0" Stroke="{StaticResource Brown}" Panel.ZIndex="2"></Rectangle>
+                                        <Rectangle Height="9" Width="25" RadiusX="15" RadiusY="3" VerticalAlignment="Top" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"
+                                           Margin="0,5,0,0" Stroke="{StaticResource Brown}" Panel.ZIndex="1"></Rectangle>
+                                        <Rectangle Height="9" Width="25" RadiusX="15" RadiusY="3" VerticalAlignment="Top" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"
+                                           Margin="0,10,0,0" Stroke="{StaticResource Brown}" Panel.ZIndex="0"></Rectangle>
+                                    </Grid>
+                                    <Label Foreground="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">Текущая</Label>
+                                    <Label Foreground="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">статистика</Label>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Grid Grid.Column="1" Visibility="Visible">
+                            <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"></Rectangle>
+                            <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"></Rectangle>
+                        </Grid>
+                    </Grid>
 
-            </Grid>
+                    <!--Калькулятор-->
+                    <Grid Grid.Row="3" Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="3"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,6,0,6">
+                            <Button Background="{x:Null}" BorderBrush="{x:Null}" Height="{StaticResource HeightButton}" Style="{StaticResource RectangleButtonMy}" Command="{Binding CaltulatorButtonCommand}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Rectangle Height="27" Width="20" Fill="{Binding LeftPanelScrin1.CalculatorButton.BrushBackground}"></Rectangle>
+                                        <Grid HorizontalAlignment="Center">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                                <RowDefinition></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Rectangle Grid.ColumnSpan="3" Height="5" Width="15" Fill="{StaticResource Brown}" VerticalAlignment="Top" Margin="0,2.5,0,0"></Rectangle>
+                                            <Rectangle Grid.Row="1" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Left"></Rectangle>
+                                            <Rectangle Grid.Row="1" Grid.Column="1" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Center"></Rectangle>
+                                            <Rectangle Grid.Row="1" Grid.Column="2" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Right"></Rectangle>
+
+                                            <Rectangle Grid.Row="2" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Left"></Rectangle>
+                                            <Rectangle Grid.Row="2" Grid.Column="1" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Center"></Rectangle>
+                                            <Rectangle Grid.Row="2" Grid.Column="2" Grid.RowSpan="2" Height="10" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Right"></Rectangle>
+
+                                            <Rectangle Grid.Row="3" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Left"></Rectangle>
+                                            <Rectangle Grid.Row="3" Grid.Column="1" Height="3" Width="3" Fill="{StaticResource Brown}" HorizontalAlignment="Center"></Rectangle>
+                                        </Grid>
+                                    </Grid>
+                                    <Label Foreground="{Binding LeftPanelScrin1.CalculatorButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">Калькулятор</Label>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Grid Grid.Column="1" Visibility="Visible">
+                            <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.CalculatorButton.BrushBackground}"></Rectangle>
+                            <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.CalculatorButton.BrushBackground}"></Rectangle>
+                        </Grid>
+                    </Grid>
+
+                    <!--Общая статистика-->
+                    <Grid Grid.Row="4" Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="3"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,6,0,6">
+                            <Button Background="{x:Null}" BorderBrush="{x:Null}" Height="{StaticResource HeightButton}" Style="{StaticResource RectangleButtonMy}" Command="{Binding GeneralStatisticsButtonCommand}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Path Stroke="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}" StrokeThickness="3" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                            <Path.Data>
+                                                <GeometryGroup>
+                                                    <LineGeometry StartPoint="15,8" EndPoint="25,0"></LineGeometry>
+                                                    <LineGeometry StartPoint="13,3" EndPoint="17,8"></LineGeometry>
+                                                    <LineGeometry StartPoint="4,12" EndPoint="15,3"></LineGeometry>
+                                                    <LineGeometry StartPoint="0,17" EndPoint="25,17"></LineGeometry>
+                                                </GeometryGroup>
+                                            </Path.Data>
+                                        </Path>
+                                    </Grid>
+                                    <Label Foreground="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">Общая</Label>
+                                    <Label Foreground="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">статистика</Label>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Grid Grid.Column="1" Visibility="Visible">
+                            <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}"></Rectangle>
+                            <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}"></Rectangle>
+                        </Grid>
+                    </Grid>
+
+                    <!--Бэктестинг-->
+                    <Grid Grid.Row="5" Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition Width="3"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,6,0,6">
+                            <Button Background="{x:Null}" BorderBrush="{x:Null}" Height="{StaticResource HeightButton}" Style="{StaticResource RectangleButtonMy}" Command="{Binding BacktestingButtonCommand}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                        <Polygon Fill="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}" Points="10, 0, 0, 7.5, 10, 15" HorizontalAlignment="Left"></Polygon>
+                                        <Polygon Fill="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}" Points="10, 0, 0, 7.5, 10, 15" HorizontalAlignment="Left"></Polygon>
+                                    </StackPanel>
+                                    <Label Foreground="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}" Padding="0" HorizontalContentAlignment="Center">Бэктестинг</Label>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Grid Grid.Column="1" Visibility="Visible">
+                            <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}"></Rectangle>
+                            <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}"></Rectangle>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+            
 
 
             <!--Right panel-->
-            <Grid Grid.Column="2" Grid.RowSpan="2" Background="{StaticResource DarkBrown}">
-                <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                    <TextBlock Text="{Binding ConsoleScrin1.Message}" Foreground="WhiteSmoke" TextWrapping="WrapWithOverflow"></TextBlock>
-                </ScrollViewer>
-                
-            </Grid>
+            <Border Grid.Column="2" Grid.RowSpan="2" BorderThickness="0.25,0,0,0" BorderBrush="{StaticResource SolidGray}">
+                <Grid Background="{StaticResource DarkBrown}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <sys:Double x:Key="HeightButton">68</sys:Double>
+                        <sys:Double x:Key="FontSizeButton">16</sys:Double>
+                    </Grid.Resources>
+
+                    <Label Height="{StaticResource HeightUpperPanel}" VerticalContentAlignment="Bottom" Foreground="White" FontSize="14" Padding="15,0,0,15">Информация о конфигах</Label>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButton}"
+                                Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
+                                Background="#161515" Command="{Binding BTCUSD_LONGCommand}">
+                            <TextBlock Margin="15,0,0,0">BTCUSD_LONG</TextBlock>
+                        </Button>
+                        <Rectangle Width="2" Fill="{Binding RightPanelScrin1.BTCUSD_LONG.BrushBackground}"></Rectangle>
+                    </Grid>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButton}"
+                                Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
+                                Background="#161515" Command="{Binding BTCUSD_SHORTCommand}">
+                            <TextBlock Margin="15,0,0,0">BTCUSD_SHORT</TextBlock>
+                        </Button>
+                        <Rectangle Width="2" Fill="{Binding RightPanelScrin1.BTCUSD_SHORT.BrushBackground}"></Rectangle>
+                    </Grid>
+
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButton}"
+                                Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.5"
+                                Background="#161515" Command="{Binding ETHUSD_SHORTCommand}">
+                            <TextBlock Margin="15,0,0,0">ETHUSD_SHORT</TextBlock>
+                        </Button>
+                        <Rectangle Width="2" Fill="{Binding RightPanelScrin1.ETHUSD_SHORT.BrushBackground}"></Rectangle>
+                    </Grid>
+
+                    <Label Grid.Row="4" Height="40" VerticalContentAlignment="Bottom" Foreground="White" FontSize="14" Padding="15,0,0,5">Консоль</Label>
+
+                    <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Hidden">
+                        <TextBlock Text="{Binding ConsoleScrin1.Message}"  Foreground="{StaticResource SolidGreen}"
+                                   Padding="15,0,0,0" TextWrapping="WrapWithOverflow" FontSize="12"></TextBlock>
+                    </ScrollViewer>
+
+                </Grid>
+            </Border>
+            
 
             <!--Centr Panel-->
             <Grid Grid.Column="1" Grid.Row="1"  Background="{StaticResource Brown}">

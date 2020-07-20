@@ -5,7 +5,7 @@ using System.Text;
 namespace StockExchenge
 {
     /// <summary>
-    /// Выполняет функцию временного тестого хранилища подключенных пар.
+    /// TODO: Выполняет функцию временного тестого хранилища подключенных пар.
     /// Будет перенесено в БД
     /// </summary>
     public class PairsMy
@@ -13,7 +13,8 @@ namespace StockExchenge
         public static List<string> Pairs = new List<string>()
         {
             "ETHBTC",
-            "GNTBTC"
+            "GNTBTC",
+            "BTCUSDT"
         };
     }
 }

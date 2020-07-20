@@ -35,33 +35,33 @@ namespace DataBaseWork.Repositories
         }
 
         /// <summary>
-        /// Получаем сделки в диапазоне ID
+        /// Получаем сделки в диапазоне TadeID
         /// </summary>
-        /// <param name="startId"></param>
-        /// <param name="stopId"></param>
+        /// <param name="startTradeId"></param>
+        /// <param name="stopTradeId"></param>
         /// <returns></returns>
-        public IEnumerable<TradeHistory> Get(string pair, int startId, int stopId)
+        public IEnumerable<TradeHistory> Get(string pair, long startTradeId, long stopTradeId)
         {
-            return db.TradeHistories.AsNoTracking().Where(x => x.Pair == pair && x.TradeId >= startId && x.TradeId <= stopId);
+            return db.TradeHistories.AsNoTracking().Where(x => x.Pair == pair && x.TradeId >= startTradeId && x.TradeId <= stopTradeId);
         }
 
         /// <summary>
-        /// Минимальный ID для стартового времени
+        /// Минимальный TadeID для стартового времени
         /// </summary>
         /// <param name="startTime"></param>
         /// <returns></returns>
-        public int MinId(long startTime)
+        public long MinId(long startTime)
         {
-            return db.TradeHistories.Where(x => x.Time >= startTime).Min(x => x.ID);
+            return db.TradeHistories.Where(x => x.Time >= startTime).Min(x => x.TradeId);
         }
         /// <summary>
-        /// Максимальный ID для финишного времени
+        /// Максимальный TadeID для финишного времени
         /// </summary>
         /// <param name="startTime"></param>
         /// <returns></returns>
         public long MaxId(long endTime)
         {
-            return db.TradeHistories.Where(x => x.Time <= endTime).Max(x => x.ID);
+            return db.TradeHistories.Where(x => x.Time <= endTime).Max(x => x.TradeId);
         }
 
         public void AddRange(IEnumerable<TradeHistory> trades)

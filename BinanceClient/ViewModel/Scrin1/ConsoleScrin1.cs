@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BinanceClient.ViewModel
+namespace BinanceClient.ViewModel.Scrin1
 {
+    /// <summary>
+    /// Консоль сообщений главного экрана
+    /// </summary>
     public class ConsoleScrin1 : PropertyChangedBase
     {
         private string message;

@@ -8,10 +8,12 @@
         <SolidColorBrush x:Key="DarkBrown" Color="#FF232323"></SolidColorBrush>
         <SolidColorBrush x:Key="Brown" Color="#FF313132"></SolidColorBrush>
         <SolidColorBrush x:Key="SolidGreen" Color="#FF79FD83"></SolidColorBrush>
+        <SolidColorBrush x:Key="SolidWhite" Color="White"></SolidColorBrush>
         <Color x:Key="ColorGreen">#FF79FD83</Color>
         <SolidColorBrush x:Key="SolidRed" Color="#FFCE3C3C"></SolidColorBrush>
         <Color x:Key="ColorRed">#FFCE3C3C</Color>
         <SolidColorBrush x:Key="SolidYellow" Color="#FFF3D95B"></SolidColorBrush>
+        <SolidColorBrush x:Key="SolidGray" Color="Gray"></SolidColorBrush>
         <Color x:Key="ColorYellow">#FFF3D95B</Color>
 
         <!--BUTTON-->
@@ -19,7 +21,7 @@
         <Color x:Key="ButtonStateMouseOver">White</Color>
         <Color x:Key="ButtonStatePressed">Red</Color>
 
-        <Style x:Key="ButtonMy" TargetType="Button">
+        <Style x:Key="CyrcleButtonMy" TargetType="Button">
             <Setter Property="Background" Value="{x:Null}"></Setter>
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -83,6 +85,82 @@
 
                             <Grid>
                                 <Ellipse x:Name="BackGrid" Fill="White" Opacity="0"></Ellipse>
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                  Margin="0">
+                                </ContentPresenter>
+                            </Grid>
+                        </Border>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="RectangleButtonMy" TargetType="Button">
+            <Setter Property="Background" Value="{x:Null}"></Setter>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <!--<Setter Property="Foreground" Value="{StaticResource ForeGroundMy}"></Setter>
+            <Setter Property="FontFamily" Value="{StaticResource FontFamilyMy}"></Setter>-->
+            <Setter Property="FontSize" Value="11"></Setter>
+            <Setter Property="FontWeight" Value="Light"></Setter>
+            <Setter Property="SnapsToDevicePixels" Value="False"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="RootElement"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
+
+                            <VisualStateManager.VisualStateGroups>
+
+                                <VisualStateGroup Name="CommonStates">
+
+                                    <VisualStateGroup.Transitions>
+
+                                        <VisualTransition To="Pressed" GeneratedDuration="0:0:0.1" />
+
+                                        <VisualTransition To="MouseOver" GeneratedDuration="0:0:0.1" />
+
+                                        <VisualTransition To="Normal" GeneratedDuration="0:0:0.1" />
+
+                                    </VisualStateGroup.Transitions>
+
+                                    <!--Нормальное состояние-->
+                                    <VisualState Name="Normal">
+
+                                    </VisualState>
+
+                                    <!--мышь находится над кнопкой.-->
+                                    <VisualState Name="MouseOver">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="BackGrid" 
+                                                            Storyboard.TargetProperty="Opacity" 
+                                                            Duration="0:0:0.1"
+                                                            To="0.35"/>
+                                        </Storyboard>
+                                    </VisualState>
+
+                                    <!--кнопка нажата-->
+                                    <VisualState Name="Pressed">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="BackGrid" 
+                                                            Storyboard.TargetProperty="Opacity" 
+                                                            Duration="0:0:0.1"
+                                                            To="0.15"/>
+                                        </Storyboard>
+                                    </VisualState>
+
+                                    <!--The Disabled state is omitted for brevity.-->
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+
+
+                            <Grid>
+                                <Rectangle x:Name="BackGrid" Fill="White" Opacity="0"></Rectangle>
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
                                                   Margin="0">
