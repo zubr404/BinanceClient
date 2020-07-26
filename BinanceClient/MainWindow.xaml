@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:BinanceClient"
         mc:Ignorable="d"
@@ -34,7 +35,7 @@
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
                 <!--Start-->
@@ -73,7 +74,7 @@
 
                 <!--Apply-->
                 <StackPanel Grid.Column="2" Margin="42,10,0,0">
-                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}">
+                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.ApplyCommand}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -91,7 +92,7 @@
                 </StackPanel>
                 
                 <!--TradeHistory Test-->
-                <StackPanel Grid.Column="3" Margin="42,10,0,0">
+                <StackPanel Grid.Column="3" Margin="42,10,0,0" Visibility="Collapsed">
                     <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}"
                             Command="{Binding TradeHistoryLoad}">
                         <Grid>
@@ -108,6 +109,39 @@
                     </Button>
 
                     <Label Foreground="{StaticResource SolidYellow}">TH test</Label>
+                </StackPanel>
+                <!--TradeHistory Test-->
+                <StackPanel Grid.Column="4" Margin="0,0,25,0" Visibility="Visible" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource RectangleButtonMy}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Grid>
+                                    <Rectangle Height="20" Width="8" HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                           Margin="0,5,0,5" Fill="{StaticResource SolidGray}"></Rectangle>
+                                    <Rectangle Height="30" Width="2" HorizontalAlignment="Left" Margin="3,0,0,0" Fill="{StaticResource SolidGray}"></Rectangle>
+                                    <Rectangle Height="3" Fill="{StaticResource DarkBrown}"></Rectangle>
+                                </Grid>
+                                <Grid Margin="2,0,0,0">
+                                    <Rectangle Height="20" Width="8" HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                           Margin="0,5,0,5" Fill="{StaticResource SolidGray}"></Rectangle>
+                                    <Rectangle Height="30" Width="2" HorizontalAlignment="Left" Margin="3,0,0,0" Fill="{StaticResource SolidGray}"></Rectangle>
+                                    <Rectangle Height="3" Fill="{StaticResource DarkBrown}"></Rectangle>
+                                </Grid>
+                                <Grid Margin="2,0,0,0">
+                                    <Rectangle Height="20" Width="8" HorizontalAlignment="Left" RadiusX="3" RadiusY="3"
+                                           Margin="0,5,0,5" Fill="{StaticResource SolidGray}"></Rectangle>
+                                    <Rectangle Height="30" Width="2" HorizontalAlignment="Left" Margin="3,0,0,0" Fill="{StaticResource SolidGray}"></Rectangle>
+                                    <Rectangle Height="3" Fill="{StaticResource DarkBrown}"></Rectangle>
+                                </Grid>
+                            </StackPanel>
+
+                            <Label Grid.Row="1" Foreground="{StaticResource SolidGray}">API ключи</Label>
+                        </Grid>
+                    </Button>
                 </StackPanel>
             </Grid>
 
@@ -306,7 +340,6 @@
                     </Grid.RowDefinitions>
                     <Grid.Resources>
                         <sys:Double x:Key="HeightButton">68</sys:Double>
-                        <sys:Double x:Key="FontSizeButton">16</sys:Double>
                     </Grid.Resources>
 
                     <Label Height="{StaticResource HeightUpperPanel}" VerticalContentAlignment="Bottom" Foreground="White" FontSize="14" Padding="15,0,0,15">Информация о конфигах</Label>
@@ -316,7 +349,7 @@
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButton}"
+                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
                                 Background="#161515" Command="{Binding BTCUSD_LONGCommand}">
                             <TextBlock Margin="15,0,0,0">BTCUSD_LONG</TextBlock>
@@ -329,7 +362,7 @@
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButton}"
+                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
                                 Background="#161515" Command="{Binding BTCUSD_SHORTCommand}">
                             <TextBlock Margin="15,0,0,0">BTCUSD_SHORT</TextBlock>
@@ -342,7 +375,7 @@
                             <ColumnDefinition Width="Auto"></ColumnDefinition>
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButton}"
+                        <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.5"
                                 Background="#161515" Command="{Binding ETHUSD_SHORTCommand}">
                             <TextBlock Margin="15,0,0,0">ETHUSD_SHORT</TextBlock>
@@ -350,34 +383,71 @@
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.ETHUSD_SHORT.BrushBackground}"></Rectangle>
                     </Grid>
 
-                    <Label Grid.Row="4" Height="40" VerticalContentAlignment="Bottom" Foreground="White" FontSize="14" Padding="15,0,0,5">Консоль</Label>
+                    <Label Grid.Row="4" Height="40" VerticalContentAlignment="Bottom" Foreground="White" FontSize="{StaticResource FontSizeLabelConsole}" Padding="15,0,0,5">Консоль</Label>
 
                     <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Hidden">
                         <TextBlock Text="{Binding ConsoleScrin1.Message}"  Foreground="{StaticResource SolidGreen}"
-                                   Padding="15,0,0,0" TextWrapping="WrapWithOverflow" FontSize="12"></TextBlock>
+                                   Padding="15,0,0,0" TextWrapping="WrapWithOverflow" FontSize="{StaticResource FontSizeConsole}"></TextBlock>
                     </ScrollViewer>
 
                 </Grid>
             </Border>
             
 
-            <!--Centr Panel-->
-            <Grid Grid.Column="1" Grid.Row="1"  Background="{StaticResource Brown}">
+            <!--Central Panel Scrin1-->
+            <Grid Grid.Column="1" Grid.Row="1"  Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.Scrin1.Visibility}">
                 <Grid.RowDefinitions>
                     <RowDefinition></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <sys:Double x:Key="WidthGrid">920</sys:Double>
+
+                    <Style x:Key="Header1" TargetType="Label">
+                        <Setter Property="Foreground" Value="{StaticResource SolidWhite}"></Setter>
+                        <Setter Property="FontSize" Value="21"></Setter>
+                        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+                    </Style>
+                    <Style x:Key="Header2" TargetType="Label">
+                        <Setter Property="Foreground" Value="#929292"></Setter>
+                        <Setter Property="FontSize" Value="15"></Setter>
+                        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Height" Value="37"></Setter>
+                        <Setter Property="Width" Value="107"></Setter>
+                        <Setter Property="FontSize" Value="21"></Setter>
+                        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+                        <Setter Property="Padding" Value="5,0,0,0"></Setter>
+                        <Setter Property="Background" Value="#232323"></Setter>
+                        <Setter Property="Foreground" Value="#c3c3c5"></Setter>
+                        <Setter Property="BorderBrush" Value="#232323"></Setter>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type TextBox}">
+                                    <Grid>
+                                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Opacity="1">
+                                            <Grid>
+                                                <ScrollViewer x:Name="PART_ContentHost" Foreground="{TemplateBinding Foreground}" BorderThickness="0" IsTabStop="False" Margin="0" Padding="{TemplateBinding Padding}"/>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Grid.Resources>
 
                 <!--Chart-->
-                <Grid Height="323" Width="920">
+                <Grid Height="323" Width="{StaticResource WidthGrid}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="25"></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal" Background="#161515">
-                        <ComboBox Width="45" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"></ComboBox>
-                        <ComboBox Width="90" Margin="5,0,0,0" Foreground="#99FFFFFF" ItemsSource="{Binding ChartService.PairSelecteds}" SelectedItem="{Binding ChartService.SelectedPair}"></ComboBox>
+                        <ComboBox Width="45" Foreground="#99FFFFFF" Style="{StaticResource ComboBoxChart}" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"></ComboBox>
+                        <ComboBox Width="90" Margin="5,0,0,0" Foreground="#99FFFFFF" Style="{StaticResource ComboBoxChart}" ItemsSource="{Binding ChartService.PairSelecteds}" SelectedItem="{Binding ChartService.SelectedPair}"></ComboBox>
                     </StackPanel>
                     <Grid Grid.Row="1" Background="{StaticResource DarkBrown}">
                         <lvc:CartesianChart Name="ChartMy" Margin="5,0,5,0" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}">
@@ -415,6 +485,475 @@
                     </Grid>
                     
                 </Grid>
+                
+                <!--Configs-->
+                <Grid Grid.Row="1" Width="{StaticResource WidthGrid}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <col:ArrayList x:Key="strategies">
+                            <sys:String>Long</sys:String>
+                            <sys:String>Short</sys:String>
+                        </col:ArrayList>
+                    </Grid.Resources>
+                    
+                    <!--row 0-->
+                    <Label Grid.ColumnSpan="5" Style="{StaticResource Header1}">Main settings</Label>
+                    <Label Grid.Column="5" Style="{StaticResource Header1}">Stop</Label>
+                    
+                    <!--row 1-->
+                    <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource Header2}">Alt coin</Label>
+                    <Label Grid.Row="1" Grid.Column="1" Style="{StaticResource Header2}">Main coin</Label>
+                    <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource Header2}">Strategy</Label>
+                    <Label Grid.Row="1" Grid.Column="3" Style="{StaticResource Header2}">Intervals (http)</Label>
+                    <Label Grid.Row="1" Grid.Column="4" Style="{StaticResource Header2}">Margin</Label>
+                    <Label Grid.Row="1" Grid.Column="5" Style="{StaticResource Header2}">Tralling stop</Label>
+
+                    <!--row 2-->
+                    <TextBox Grid.Row="2" Grid.Column="0" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfiguration.AltCoin}"></TextBox>
+                    <TextBox Grid.Row="2" Grid.Column="1" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfiguration.MainCoin}"></TextBox>
+                    <ComboBox Grid.Row="2" Grid.Column="2" Height="37" Width="107" Foreground="#c3c3c5" FontSize="21"
+                              Style="{StaticResource ComboBoxOther}" ItemsSource="{StaticResource strategies}" SelectedItem="{Binding CentralPanelScrin1.TradeConfiguration.Strategy}"></ComboBox>
+                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfiguration.IntervalHttp}"></TextBox>
+                    <CheckBox Grid.Row="2" Grid.Column="4" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding CentralPanelScrin1.TradeConfiguration.Margin}"></CheckBox>
+                    <TextBox Grid.Row="2" Grid.Column="5" Text="{Binding CentralPanelScrin1.TradeConfiguration.TrallingStop}"></TextBox>
+
+                    <!--row 3-->
+                    <Label Grid.Row="3" Grid.ColumnSpan="5" Style="{StaticResource Header1}">Grid</Label>
+                    <Label Grid.Row="3" Grid.Column="5" Style="{StaticResource Header1}">Profit</Label>
+
+                    <!--row 4-->
+                    <Label Grid.Row="4" Grid.Column="0" Style="{StaticResource Header2}">Open order</Label>
+                    <Label Grid.Row="4" Grid.Column="1" Style="{StaticResource Header2}">Order deposit</Label>
+                    <Label Grid.Row="4" Grid.Column="2" Style="{StaticResource Header2}">Martingale</Label>
+                    <Label Grid.Row="4" Grid.Column="3" Style="{StaticResource Header2}">Deposit limit</Label>
+                    <Label Grid.Row="4" Grid.Column="5" Style="{StaticResource Header2}">Profit</Label>
+                    <Label Grid.Row="4" Grid.Column="6" Style="{StaticResource Header2}">Tralling forward</Label>
+                    <Label Grid.Row="4" Grid.Column="7" Style="{StaticResource Header2}">Squeeze profit</Label>
+
+                    <!--row 5-->
+                    <TextBox Grid.Row="5" Grid.Column="0" Text="{Binding CentralPanelScrin1.TradeConfiguration.OpenOrders}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderDeposit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding CentralPanelScrin1.TradeConfiguration.Martingale}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfiguration.DepositLimit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="5" Text="{Binding CentralPanelScrin1.TradeConfiguration.Profit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="6" Text="{Binding CentralPanelScrin1.TradeConfiguration.TrallingForvard}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="7" Text="{Binding CentralPanelScrin1.TradeConfiguration.SqueezeProfit}"></TextBox>
+
+                    <!--row 6-->
+                    <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource Header2}">Order indent</Label>
+                    <Label Grid.Row="6" Grid.Column="1" Style="{StaticResource Header2}">First step</Label>
+                    <Label Grid.Row="6" Grid.Column="2" Style="{StaticResource Header2}">Order step +</Label>
+                    <Label Grid.Row="6" Grid.Column="3" Style="{StaticResource Header2}">Order reload</Label>
+                    
+                    <!--row 7-->
+                    <TextBox Grid.Row="7" Grid.Column="0" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderIndent}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding CentralPanelScrin1.TradeConfiguration.FirstStep}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderStepPlus}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderReload}"></TextBox>
+                </Grid>
+            </Grid>
+            
+            <!--Central Panel Scrin current statistic-->
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCurrentStatistic.Visibility}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Grid.Resources>
+                    <Style x:Key="StyleGrid" TargetType="Grid">
+                        <Setter Property="Height" Value="543"></Setter>
+                        <Setter Property="Width" Value="275"></Setter>
+                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"></Setter>
+                        <Setter Property="VerticalAlignment" Value="Top"></Setter>
+                    </Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="Height" Value="7"></Setter>
+                        <Setter Property="Width" Value="7"></Setter>
+                        <Setter Property="Fill" Value="{StaticResource SolidGreen}"></Setter>
+                    </Style>
+                    <Style x:Key="LabelHeader1" TargetType="Label">
+                        <Setter Property="Foreground" Value="{StaticResource SolidGray}"></Setter>
+                        <Setter Property="FontSize" Value="{StaticResource FontSizeButtonRight}"></Setter>
+                    </Style>
+                    <Style x:Key="LabelHeader2" TargetType="Label">
+                        <Setter Property="FontSize" Value="13"></Setter>
+                        <Setter Property="Foreground" Value="{StaticResource SolidWhite}"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                    <Style x:Key="LabelHeader3" TargetType="Label">
+                        <Setter Property="FontSize" Value="11"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                    <Style x:Key="LabeдValue" TargetType="Label">
+                        <Setter Property="FontSize" Value="16"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                </Grid.Resources>
+
+                <Label Grid.Column="1" Margin="0,25,0,7" FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}">Текущая статистика</Label>
+
+                <Grid Grid.Row="1" Grid.Column="1" Style="{StaticResource StyleGrid}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse></Ellipse>
+                            <Label Style="{StaticResource LabelHeader1}">BTCUSD__LONG</Label>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Foreground="{StaticResource SolidWhite}" Style="{StaticResource LabelHeader3}">Balances:</Label>
+                            <Label Margin="5,0,0,0" Foreground="{StaticResource SolidGray}" Style="{StaticResource LabelHeader3}">0,0000000 BTC/0,0000000 USD</Label>
+                        </StackPanel>
+                        <Grid Grid.Row="2" Background="#1a1a1a" Margin="0,10,0,0">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <Label Style="{StaticResource LabelHeader2}">Рост депозита:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1">
+                                    <Label Style="{StaticResource LabelHeader2}">Всего сделок:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGray}">353</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <Label Style="{StaticResource LabelHeader2}">Общий профит:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1">
+                                    <Label Style="{StaticResource LabelHeader2}">Средний профит:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <StackPanel Grid.Row="3" Background="#1c1c1c" Margin="0,10,0,15">
+                            <Label VerticalContentAlignment="Bottom" Foreground="White" FontSize="{StaticResource FontSizeLabelConsole}" Margin="0,10,0,0" Padding="15,0,0,5">Консоль</Label>
+                            <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Hidden">
+                                <TextBlock Text="{Binding ConsoleScrin1.Message}"  Foreground="{StaticResource SolidGreen}"
+                                   Padding="15,0,0,0" TextWrapping="WrapWithOverflow" FontSize="{StaticResource FontSizeConsole}"></TextBlock>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+                
+                <Grid Grid.Row="1" Grid.Column="3" Style="{StaticResource StyleGrid}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse></Ellipse>
+                            <Label Style="{StaticResource LabelHeader1}">BTCUSD__SHORT</Label>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Foreground="{StaticResource SolidWhite}" Style="{StaticResource LabelHeader3}">Balances:</Label>
+                            <Label Margin="5,0,0,0" Foreground="{StaticResource SolidGray}" Style="{StaticResource LabelHeader3}">0,0000000 BTC/0,0000000 USD</Label>
+                        </StackPanel>
+                        <Grid Grid.Row="2" Background="#1a1a1a" Margin="0,10,0,0">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <Label Style="{StaticResource LabelHeader2}">Рост депозита:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1">
+                                    <Label Style="{StaticResource LabelHeader2}">Всего сделок:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGray}">353</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <Label Style="{StaticResource LabelHeader2}">Общий профит:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1">
+                                    <Label Style="{StaticResource LabelHeader2}">Средний профит:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <StackPanel Grid.Row="3" Background="#1c1c1c" Margin="0,10,0,15">
+                            <Label VerticalContentAlignment="Bottom" Foreground="White" FontSize="{StaticResource FontSizeLabelConsole}" Margin="0,10,0,0" Padding="15,0,0,5">Консоль</Label>
+                            <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Hidden">
+                                <TextBlock Text="{Binding ConsoleScrin1.Message}"  Foreground="{StaticResource SolidGreen}"
+                                   Padding="15,0,0,0" TextWrapping="WrapWithOverflow" FontSize="{StaticResource FontSizeConsole}"></TextBlock>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+                
+                <Grid Grid.Row="1" Grid.Column="5" Style="{StaticResource StyleGrid}">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse></Ellipse>
+                            <Label Style="{StaticResource LabelHeader1}">ETHUSD__SHORT</Label>
+                        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,10,0,0">
+                            <Label Foreground="{StaticResource SolidWhite}" Style="{StaticResource LabelHeader3}">Balances:</Label>
+                            <Label Margin="5,0,0,0" Foreground="{StaticResource SolidGray}" Style="{StaticResource LabelHeader3}">0,0000000 BTC/0,0000000 USD</Label>
+                        </StackPanel>
+                        <Grid Grid.Row="2" Background="#1a1a1a" Margin="0,10,0,0">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <Label Style="{StaticResource LabelHeader2}">Рост депозита:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1">
+                                    <Label Style="{StaticResource LabelHeader2}">Всего сделок:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGray}">353</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                    <Label Style="{StaticResource LabelHeader2}">Общий профит:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1">
+                                    <Label Style="{StaticResource LabelHeader2}">Средний профит:</Label>
+                                    <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <StackPanel Grid.Row="3" Background="#1c1c1c" Margin="0,10,0,15">
+                            <Label VerticalContentAlignment="Bottom" Foreground="White" FontSize="{StaticResource FontSizeLabelConsole}" Margin="0,10,0,0" Padding="15,0,0,5">Консоль</Label>
+                            <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Hidden">
+                                <TextBlock Text="{Binding ConsoleScrin1.Message}"  Foreground="{StaticResource SolidGreen}"
+                                   Padding="15,0,0,0" TextWrapping="WrapWithOverflow" FontSize="{StaticResource FontSizeConsole}"></TextBlock>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!--Central Panel Scrin calculator  {Binding ScrinManager.ScrinCalculator.Visibility}-->
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}">
+                <Grid Margin="30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type DataGrid}">
+                            <Setter Property="ColumnHeaderStyle" Value="{DynamicResource ColumnHeaderStyle1}"/>
+                        </Style>
+                        <Style x:Key="ColumnHeaderStyle1" TargetType="DataGridColumnHeader">
+                            <Setter Property="Height" Value="30"/>
+                            <Setter Property="Padding" Value="5"></Setter>
+                            <Setter Property="Background" Value="#1a1a1a"/>
+                            <Setter Property="Foreground" Value="{StaticResource SolidWhite}"/>
+                            <Setter Property="FontSize" Value="12" />
+                        </Style>
+                    </Grid.Resources>
+
+                    <Label FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}">Калькулятор сетки</Label>
+                    <DataGrid Grid.Row="1" Width="883" Height="313" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" RowHeaderWidth="0"
+                              Background="{StaticResource DarkBrown}" ItemsSource="{Binding CalculatingDatas}" Margin="0,5,0,0"
+                              GridLinesVisibility="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left"
+                              VerticalGridLinesBrush="Transparent" RenderOptions.EdgeMode="Unspecified" FontSize="10" Foreground="{StaticResource SolidGray}">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="{StaticResource DarkBrown}" />
+                                <Setter Property="Height" Value="20"></Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0,0,0.25,0"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource SolidGray}"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Amount (BTC)" Width="*" Binding="{Binding Amount}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Equivalent (USDT)" Width="*" Binding="{Binding Equivalent}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Price in grid (USD)" Width="*" Binding="{Binding PriceInGrid}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Profit price (USDT)" Width="*" Binding="{Binding ProfitPrice}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Rebount (%)" Width="*" Binding="{Binding Rebount}"></DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Label Grid.Row="2" FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}">Детали</Label>
+                    <Grid Grid.Row="3" Background="{StaticResource DarkBrown}" Height="96" Width="883" Margin="0,10,0,25" HorizontalAlignment="Left">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+                                <Label FontSize="14" Foreground="{StaticResource SolidWhite}" Padding="10" VerticalContentAlignment="Center">Deposit used:</Label>
+                                <Label FontSize="12" Foreground="{StaticResource SolidGray}" Padding="10"  VerticalContentAlignment="Center">0.16997548 BTC</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                                <Label FontSize="14" Foreground="{StaticResource SolidWhite}" Padding="10" VerticalContentAlignment="Center">Coverage of price reduction:</Label>
+                                <Label FontSize="12" Foreground="{StaticResource SolidGray}" Padding="10"  VerticalContentAlignment="Center">21.5</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal">
+                                <Label FontSize="14" Foreground="{StaticResource SolidWhite}" Padding="10" VerticalContentAlignment="Center">Number of orders:</Label>
+                                <Label FontSize="12" Foreground="{StaticResource SolidGray}" Padding="10"  VerticalContentAlignment="Center">21</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                                <Label FontSize="14" Foreground="{StaticResource SolidWhite}" Padding="10" VerticalContentAlignment="Center">Recommended stoploss not less:</Label>
+                                <Label FontSize="12" Foreground="{StaticResource SolidGray}" Padding="10"  VerticalContentAlignment="Center">4.59</Label>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!--Central Panel Scrin general statistic {Binding ScrinManager.ScrinGeneralStatistic.Visibility}-->
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinGeneralStatistic.Visibility}">
+                <Grid.Resources>
+                    <Style x:Key="LabelHeader1" TargetType="Label">
+                        <Setter Property="Foreground" Value="{StaticResource SolidGray}"></Setter>
+                        <Setter Property="FontSize" Value="{StaticResource FontSizeButtonRight}"></Setter>
+                    </Style>
+                    <Style x:Key="LabelHeader2" TargetType="Label">
+                        <Setter Property="FontSize" Value="13"></Setter>
+                        <Setter Property="Foreground" Value="{StaticResource SolidWhite}"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                    <Style x:Key="LabelHeader3" TargetType="Label">
+                        <Setter Property="FontSize" Value="11"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                    <Style x:Key="LabeдValue" TargetType="Label">
+                        <Setter Property="FontSize" Value="16"></Setter>
+                        <Setter Property="Padding" Value="0"></Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid Margin="40,30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Label FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}">Детализация статистики доходности</Label>
+
+                    <Grid Grid.Row="1" Height="177" Width="474" HorizontalAlignment="Left" Background="{StaticResource DarkBrown}" Margin="0,30,0,0">
+                        <Grid Margin="30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <Label Style="{StaticResource LabelHeader2}">Рост депозита:</Label>
+                                <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="1">
+                                <Label Style="{StaticResource LabelHeader2}">Общий профит:</Label>
+                                <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                <Label Style="{StaticResource LabelHeader2}">Средний профит:</Label>
+                                <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGreen}">23.41</Label>
+                            </StackPanel>
+                                                        
+                            <StackPanel Grid.Row="1" Grid.Column="0">
+                                <Label Style="{StaticResource LabelHeader2}">Всего сделок:</Label>
+                                <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGray}">353</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="1">
+                                <Label Style="{StaticResource LabelHeader2}">Успешные сделки:</Label>
+                                <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGray}">83.81</Label>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="2">
+                                <Label Style="{StaticResource LabelHeader2}">Скорость:</Label>
+                                <Label Style="{StaticResource LabeдValue}" Foreground="{StaticResource SolidGray}">15.25</Label>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!--Central Panel Scrin backtest-->
+            <Grid Grid.Column="1" Grid.Row="1" Background="Blue" Visibility="{Binding ScrinManager.ScrinBacktesting.Visibility}">
+
             </Grid>
 
         </Grid>

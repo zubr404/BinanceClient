@@ -14,6 +14,7 @@ using System.Globalization;
 using System.Windows.Threading;
 using System.Threading.Tasks;
 using StockExchenge.Charts;
+using System.Threading;
 
 namespace BinanceClient.Services
 {
