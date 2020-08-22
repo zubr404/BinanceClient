@@ -23,8 +23,9 @@ namespace StockExchenge.MarketSettings
             }
             catch (Exception ex)
             {
-                throw ex;
+                // TODO: Сохранеие логово
             }
+            return "";
         }
     }
 }

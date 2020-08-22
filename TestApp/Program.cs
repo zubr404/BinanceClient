@@ -22,22 +22,30 @@ namespace TestApp
             ////kline.SocketOpen("ethbtc", KlineType.d1);
             //Console.WriteLine(kline.GetHistory());
 
-            Task.Run(() =>
-            {
-                HttpGetTradeHistory httpGetTradeHistory = new HttpGetTradeHistory();
-                for (int i = 0; i < 100; i++)
-                {
-                    if (httpGetTradeHistory.Rquest1().Result == 200)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine(i);
-                    }
-                }
-            });
-            
+            //Task.Run(() =>
+            //{
+            //    HttpGetTradeHistory httpGetTradeHistory = new HttpGetTradeHistory();
+            //    for (int i = 0; i < 100; i++)
+            //    {
+            //        if (httpGetTradeHistory.Rquest1().Result == 200)
+            //        {
+            //            break;
+            //        }
+            //        else
+            //        {
+            //            Console.WriteLine(i);
+            //        }
+            //    }
+            //});
+
+            UserStreamData userStreamData = new UserStreamData();
+            var response = userStreamData.GetListenKeyUserStream();
+            Console.WriteLine(response);
+            var listenKey = response.Replace("listenKey", "").Replace("{", "").Replace("}", "").Replace("\"", "").Replace(":", "").Replace(" ", "");
+            Console.WriteLine(listenKey);
+            userStreamData.UserStreamWebSocket(listenKey);
+
+
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

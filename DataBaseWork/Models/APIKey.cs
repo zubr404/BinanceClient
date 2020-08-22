@@ -7,7 +7,7 @@ namespace DataBaseWork.Models
     public class APIKey
     {
         public int ID { get; set; }
-        public int UserID { get; set; }
+        public string UserID { get; set; }
         public string PublicKey { get; set; }
         public string SecretKey { get; set; }
         public bool Active { get; set; }

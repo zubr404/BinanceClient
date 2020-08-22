@@ -28,6 +28,25 @@
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
 
+            <!--Панель добавления АПИ ключей-->
+            <Grid Grid.Column="1" Grid.RowSpan="2" Height="{Binding KeyPanelScrin1.Height}" Width="{Binding KeyPanelScrin1.Width}" VerticalAlignment="Top" HorizontalAlignment="Right"  Background="{StaticResource DarkBrown}" Panel.ZIndex="100">
+                <StackPanel Margin="10">
+                    <Label Foreground="{StaticResource SolidWhite}">User name</Label>
+                    <TextBox Foreground="{StaticResource SolidWhite}"></TextBox>
+                    <Label Foreground="{StaticResource SolidWhite}">Public key</Label>
+                    <TextBox Foreground="{StaticResource SolidWhite}"></TextBox>
+                    <Label Foreground="{StaticResource SolidWhite}">Secret key</Label>
+                    <TextBox Foreground="{StaticResource SolidWhite}"></TextBox>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Height="30" Width="60" BorderThickness="1" BorderBrush="{StaticResource SolidGray}"
+                                Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}"
+                                Command="{Binding KeyPanelScrin1.SaveCommand}">OK</Button>
+                        <Button Height="30" Width="60" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{StaticResource SolidGray}"
+                                Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}"
+                                Command="{Binding KeyPanelScrin1.CancelCommand}">Cancel</Button>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
             <!--Upper panel-->
             <Grid Grid.Column="1" Height="{StaticResource HeightUpperPanel}" Background="{StaticResource DarkBrown}">
                 <Grid.ColumnDefinitions>
@@ -91,28 +110,9 @@
                     <Label Foreground="{StaticResource SolidYellow}">Apply</Label>
                 </StackPanel>
                 
-                <!--TradeHistory Test-->
-                <StackPanel Grid.Column="3" Margin="42,10,0,0" Visibility="Collapsed">
-                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}"
-                            Command="{Binding TradeHistoryLoad}">
-                        <Grid>
-                            <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
-                                <Ellipse.Fill>
-                                    <SolidColorBrush Color="{StaticResource ColorYellow}" Opacity="0.145"/>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                            <Grid HorizontalAlignment="Center" Height="18" Width="16">
-                                <Polyline Points="0,9,8,18,16,9" Stroke="{StaticResource SolidYellow}"></Polyline>
-                                <Line X1="8" Y1="18" X2="8" Y2="0" Stroke="{StaticResource SolidYellow}"></Line>
-                            </Grid>
-                        </Grid>
-                    </Button>
-
-                    <Label Foreground="{StaticResource SolidYellow}">TH test</Label>
-                </StackPanel>
-                <!--TradeHistory Test-->
+                <!--API key-->
                 <StackPanel Grid.Column="4" Margin="0,0,25,0" Visibility="Visible" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource RectangleButtonMy}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource RectangleButtonMy}" Command="{Binding ApiKeyCommand}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition></RowDefinition>
@@ -951,8 +951,29 @@
                 </Grid>
             </Grid>
 
-            <!--Central Panel Scrin backtest-->
-            <Grid Grid.Column="1" Grid.Row="1" Background="Blue" Visibility="{Binding ScrinManager.ScrinBacktesting.Visibility}">
+            <!--Central Panel Scrin backtest {Binding ScrinManager.ScrinBacktesting.Visibility}-->
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinBacktesting.Visibility}">
+
+                <Grid>
+                    <StackPanel Grid.Column="3" Margin="42,10,0,0" Visibility="Visible" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}"
+                            Command="{Binding TradeHistoryLoad}">
+                            <Grid>
+                                <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
+                                    <Ellipse.Fill>
+                                        <SolidColorBrush Color="{StaticResource ColorYellow}" Opacity="0.145"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <Grid HorizontalAlignment="Center" Height="18" Width="16">
+                                    <Polyline Points="0,9,8,18,16,9" Stroke="{StaticResource SolidYellow}"></Polyline>
+                                    <Line X1="8" Y1="18" X2="8" Y2="0" Stroke="{StaticResource SolidYellow}"></Line>
+                                </Grid>
+                            </Grid>
+                        </Button>
+
+                        <Label Foreground="{StaticResource SolidYellow}">Donload history</Label>
+                    </StackPanel>
+                </Grid>
 
             </Grid>
 

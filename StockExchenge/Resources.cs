@@ -8,7 +8,7 @@ namespace StockExchenge
     {
         // keys TODO: получать из БД
         public const string PUBLIC_KEY = "33SB2WjAtgVzFjcSGLE4fuvxzBQD8sz475bmC29UI8WCwtOVmdKwzqu78zVD6pqx";
-        public const string SECRET_KEY = "****************************************************************";
+        public const string SECRET_KEY = "eBDfUSGKluUOunoC3vBZTHHUIZNO24gjujJMTBZTO7cijVXUkC69GeBUtyVdX9lh";
         // web socket
         public const string SOCKET = "wss://stream.binance.com:9443/ws/";
 
