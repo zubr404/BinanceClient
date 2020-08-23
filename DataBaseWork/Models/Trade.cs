@@ -7,7 +7,7 @@ namespace DataBaseWork.Models
     public class Trade
     {
         public int ID { get; set; }
-        public int UserID { get; set; }
+        public int APIKeyID { get; set; }
         public string Symbol { get; set; }
         public int TradeID { get; set; }
         public int OrderID { get; set; }

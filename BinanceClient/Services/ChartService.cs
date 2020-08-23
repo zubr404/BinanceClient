@@ -209,7 +209,7 @@ namespace BinanceClient.Services
             }
             catch (Exception ex)
             {
-                // запись логов в БД
+                //TODO: запись логов в БД
             }
         }
 
@@ -363,7 +363,7 @@ namespace BinanceClient.Services
             catch (Exception ex)
             {
                 throw ex;
-                // запись лога в БД
+                // TODO: запись лога в БД
             }
         }
 

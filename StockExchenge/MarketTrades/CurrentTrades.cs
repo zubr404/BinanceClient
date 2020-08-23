@@ -1,33 +1,31 @@
-﻿using StockExchenge.RestApi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Timers;
 using WebSocketSharp;
 
-namespace StockExchenge.Charts
+namespace StockExchenge.MarketTrades
 {
-    public class Kline
+    /// <summary>
+    /// Информация в реальном времени о текущих сделках на бирже
+    /// </summary>
+    public class CurrentTrades
     {
         public WebSocket WebSocket { get; private set; }
-        private readonly PublicRequester publicRequester;
 
-        public event EventHandler<KlineEventArgs> MessageEvent;
+        public event EventHandler<CurrentTradeEventArgs> MessageEvent;
         public event EventHandler<string> ConnectStateEvent;
         public event EventHandler ConnectEvent;
 
-        readonly string pair;
-        readonly string interval;
-        readonly Timer timer;
+        readonly string[] pairs;
+        private Timer timer;
 
-        public Kline(string pair, string interval)
+        public CurrentTrades(string[] pairs)
         {
-            this.pair = pair;
-            this.interval = interval;
+            this.pairs = pairs;
             MessageEvent = delegate { };
             ConnectStateEvent = delegate { };
             ConnectEvent = delegate { };
-            publicRequester = new PublicRequester();
             timer = new Timer(30000);
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
@@ -41,17 +39,17 @@ namespace StockExchenge.Charts
                 {
                     if (WebSocket.Ping())
                     {
-                        OnConnectStateEvent("Kline: Ping ok");
+                        OnConnectStateEvent("CurrentTrades: Ping ok");
                     }
                     else
                     {
-                        OnConnectStateEvent("Kline: Ping no");
+                        OnConnectStateEvent("CurrentTrades: Ping no");
                         WebSocket.Connect();
                     }
                 }
                 catch (Exception ex)
                 {
-                    OnConnectStateEvent($"Kline: Ping Error: {ex.Message}");
+                    OnConnectStateEvent($"CurrentTrades: Ping Error: {ex.Message}");
                 }
             }
         }
@@ -59,25 +57,19 @@ namespace StockExchenge.Charts
         public void SocketOpen()
         {
             Disconnect();
-            WebSocket = new WebSocket($"{Resources.SOCKET}{pair.ToLower()}@kline_{interval}");
+            string pairParams = "";
+            foreach (var pair in pairs)
+            {
+                pairParams += $"{pair.ToLower()}@aggTrade/";
+            }
+            pairParams = pairParams.Remove(pairParams.Length - 1);
+
+            WebSocket = new WebSocket($"{Resources.SOCKET}{pairParams}");
             WebSocket.OnMessage += WebSocket_OnMessage;
             WebSocket.OnError += WebSocket_OnError;
             WebSocket.OnClose += WebSocket_OnClose;
             WebSocket.OnOpen += WebSocket_OnOpen;
             WebSocket.Connect();
-        }
-
-        public string GetHistory()
-        {
-            try
-            {
-                return publicRequester.RequestPublicApi($"{Resources.DOMAIN_V1}klines?symbol={pair.ToUpper()}&interval={interval}&limit=150");
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            
         }
 
         public void Disconnect()
@@ -93,30 +85,28 @@ namespace StockExchenge.Charts
             }
         }
 
-        #region// test
         private void WebSocket_OnOpen(object sender, EventArgs e)
         {
-            OnConnectStateEvent($"Kline Connect");
+            OnConnectStateEvent($"CurrentTrades: Connect");
             OnConnectEvent();
         }
 
         private void WebSocket_OnClose(object sender, CloseEventArgs e)
         {
-            OnConnectStateEvent($"Kline Disconnect");
+            OnConnectStateEvent($"CurrentTrades: Disconnect");
         }
 
         private void WebSocket_OnError(object sender, ErrorEventArgs e)
         {
-            OnConnectStateEvent($"Kline Error: {e.Message}");
+            OnConnectStateEvent($"CurrentTrades Error: {e.Message}");
         }
 
         private void WebSocket_OnMessage(object sender, MessageEventArgs e)
         {
-            OnMessageEvent(new KlineEventArgs(e.Data));
+            OnMessageEvent(new CurrentTradeEventArgs(e.Data));
         }
-        #endregion
 
-        protected virtual void OnMessageEvent(KlineEventArgs e)
+        protected virtual void OnMessageEvent(CurrentTradeEventArgs e)
         {
             MessageEvent(this, e);
         }
@@ -130,11 +120,11 @@ namespace StockExchenge.Charts
         }
     }
 
-    public class KlineEventArgs : EventArgs
+    public class CurrentTradeEventArgs : EventArgs
     {
         public string Message { get; private set; }
 
-        public KlineEventArgs(string message)
+        public CurrentTradeEventArgs(string message)
         {
             Message = message;
         }

@@ -1,12 +1,23 @@
-﻿using DataBaseWork.Models;
+﻿using BinanceClient.Models;
+using DataBaseWork.Models;
+using DataBaseWork.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 
 namespace BinanceClient.ViewModel.Scrin1
 {
     public class KeyPanelScrin1 : PropertyChangedBase
     {
+        readonly APIKeyRepository repository;
+        public APIKeyView APIKeyView { get; private set; }
+        public KeyPanelScrin1(APIKeyRepository repository)
+        {
+            this.repository = repository;
+            APIKeyView = new APIKeyView();
+        }
+
         private double height;
         public double Height
         {
@@ -69,6 +80,20 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 return saveCommand ?? new RelayCommand((object o) =>
                 {
+                    var key = new APIKey()
+                    {
+                        Name = APIKeyView.Name,
+                        PublicKey = APIKeyView.PublicKey,
+                        SecretKey = APIKeyView.SecretKey
+                    };
+                    try
+                    {
+                        repository.Update(key);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                     ClosePanel();
                 });
             }

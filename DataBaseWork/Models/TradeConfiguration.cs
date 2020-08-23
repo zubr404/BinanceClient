@@ -7,7 +7,6 @@ namespace DataBaseWork.Models
     public class TradeConfiguration
     {
         public int ID { get; set; }
-        public int UserID { get; set; }
         public string MainCoin { get; set; }
         public string AltCoin { get; set; }
         public string Strategy { get; set; }
@@ -25,5 +24,7 @@ namespace DataBaseWork.Models
         public double TrallingForvard { get; set; }
         public double SqueezeProfit { get; set; }
         public bool Active { get; set; }
+        public string ActivationTime { get; set; }
+        public string DeactivationTime { get; set; }
     }
 }

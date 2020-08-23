@@ -5,6 +5,7 @@ using System;
 using StockExchenge;
 using TestApp.REST;
 using System.Threading.Tasks;
+using StockExchenge.MarketTrades;
 
 namespace TestApp
 {
@@ -38,39 +39,50 @@ namespace TestApp
             //    }
             //});
 
-            UserStreamData userStreamData = new UserStreamData();
+
+            /*UserStreamData userStreamData = new UserStreamData();
             var response = userStreamData.GetListenKeyUserStream();
             Console.WriteLine(response);
             var listenKey = response.Replace("listenKey", "").Replace("{", "").Replace("}", "").Replace("\"", "").Replace(":", "").Replace(" ", "");
             Console.WriteLine(listenKey);
-            userStreamData.UserStreamWebSocket(listenKey);
+            userStreamData.UserStreamWebSocket(listenKey);*/
 
+            var tradesWs = new CurrentTrades(new string[] { "ETHBTC", "BTCUSDT" });
+            tradesWs.SocketOpen();
 
+            tradesWs.ConnectStateEvent += (object sender, string e) =>
+            {
+                Console.WriteLine(e);
+            };
+            tradesWs.MessageEvent += (object sender, CurrentTradeEventArgs e) =>
+            {
+                Console.WriteLine(e.Message);
+            };
 
             Console.WriteLine("FINISH");
             Console.ReadKey();
         }
 
-        static void DBtest()
-        {
-            var usersRepo = new UserRepository(new DataBaseContext());
+        //static void DBtest()
+        //{
+        //    var usersRepo = new UserRepository(new DataBaseContext());
 
-            try
-            {
-                var user = usersRepo.Create(new User() { Login = "login" });
-                usersRepo.Create(new User() { Login = "login1" });
-                //usersRepo.Update(new User() { ID = 1, Login = "login" });
+        //    try
+        //    {
+        //        var user = usersRepo.Create(new User() { Login = "login" });
+        //        usersRepo.Create(new User() { Login = "login1" });
+        //        //usersRepo.Update(new User() { ID = 1, Login = "login" });
 
-                foreach (var item in usersRepo.Get())
-                {
-                    Console.WriteLine(item.ID);
-                }
+        //        foreach (var item in usersRepo.Get())
+        //        {
+        //            Console.WriteLine(item.ID);
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{ex.Message}");
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"{ex.Message}");
+        //    }
+        //}
     }
 }

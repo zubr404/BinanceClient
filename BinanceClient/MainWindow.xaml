@@ -32,11 +32,11 @@
             <Grid Grid.Column="1" Grid.RowSpan="2" Height="{Binding KeyPanelScrin1.Height}" Width="{Binding KeyPanelScrin1.Width}" VerticalAlignment="Top" HorizontalAlignment="Right"  Background="{StaticResource DarkBrown}" Panel.ZIndex="100">
                 <StackPanel Margin="10">
                     <Label Foreground="{StaticResource SolidWhite}">User name</Label>
-                    <TextBox Foreground="{StaticResource SolidWhite}"></TextBox>
+                    <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.APIKeyView.Name, Mode=TwoWay}"></TextBox>
                     <Label Foreground="{StaticResource SolidWhite}">Public key</Label>
-                    <TextBox Foreground="{StaticResource SolidWhite}"></TextBox>
+                    <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.APIKeyView.PublicKey, Mode=TwoWay}"></TextBox>
                     <Label Foreground="{StaticResource SolidWhite}">Secret key</Label>
-                    <TextBox Foreground="{StaticResource SolidWhite}"></TextBox>
+                    <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.APIKeyView.SecretKey}"></TextBox>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Button Height="30" Width="60" BorderThickness="1" BorderBrush="{StaticResource SolidGray}"
                                 Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}"
@@ -93,7 +93,8 @@
 
                 <!--Apply-->
                 <StackPanel Grid.Column="2" Margin="42,10,0,0">
-                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.ApplyCommand}">
+                    <Button Height="34" Width="34" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" 
+                            Command="{Binding CentralPanelScrin1.ApplyCommand}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidYellow}" StrokeThickness="1.2">
                                 <Ellipse.Fill>

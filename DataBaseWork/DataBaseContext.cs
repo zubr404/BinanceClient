@@ -8,7 +8,6 @@ namespace DataBaseWork
 {
     public class DataBaseContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<Trade> Trades { get; set; }
         public DbSet<TradeConfiguration> TradeConfigurations { get; set; }
         public DbSet<APIKey> APIKeys { get; set; }
@@ -17,7 +16,7 @@ namespace DataBaseWork
         public DataBaseContext()
         {
             //Database.EnsureDeleted();
-            //Database.EnsureCreated();
+            Database.EnsureCreated();
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
