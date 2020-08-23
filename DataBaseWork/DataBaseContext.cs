@@ -12,11 +12,20 @@ namespace DataBaseWork
         public DbSet<TradeConfiguration> TradeConfigurations { get; set; }
         public DbSet<APIKey> APIKeys { get; set; }
         public DbSet<TradeHistory> TradeHistories { get; set; }
+        public DbSet<ConnectedPair> ConnectedPairs { get; set; }
+        public DbSet<Balance> Balances { get; set; }
 
         public DataBaseContext()
         {
-            //Database.EnsureDeleted();
-            Database.EnsureCreated();
+            try
+            {
+                //Database.EnsureDeleted();
+                Database.EnsureCreated();
+            }
+            catch (Exception ex)
+            {
+                
+            }
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

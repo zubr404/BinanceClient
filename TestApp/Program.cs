@@ -6,6 +6,7 @@ using StockExchenge;
 using TestApp.REST;
 using System.Threading.Tasks;
 using StockExchenge.MarketTrades;
+using StockExchenge.StreamWs;
 
 namespace TestApp
 {
@@ -40,14 +41,14 @@ namespace TestApp
             //});
 
 
-            /*UserStreamData userStreamData = new UserStreamData();
-            var response = userStreamData.GetListenKeyUserStream();
-            Console.WriteLine(response);
-            var listenKey = response.Replace("listenKey", "").Replace("{", "").Replace("}", "").Replace("\"", "").Replace(":", "").Replace(" ", "");
-            Console.WriteLine(listenKey);
-            userStreamData.UserStreamWebSocket(listenKey);*/
+            //UserStreamData userStreamData = new UserStreamData();
+            //var response = userStreamData.GetListenKeyUserStream();
+            //Console.WriteLine(response);
+            //var listenKey = response.Replace("listenKey", "").Replace("{", "").Replace("}", "").Replace("\"", "").Replace(":", "").Replace(" ", "");
+            //Console.WriteLine(listenKey);
+            //userStreamData.UserStreamWebSocket(listenKey);
 
-            var tradesWs = new CurrentTrades(new string[] { "ETHBTC", "BTCUSDT" });
+            /*var tradesWs = new CurrentTrades(new string[] { "ETHBTC", "BTCUSDT" });
             tradesWs.SocketOpen();
 
             tradesWs.ConnectStateEvent += (object sender, string e) =>
@@ -57,7 +58,11 @@ namespace TestApp
             tradesWs.MessageEvent += (object sender, CurrentTradeEventArgs e) =>
             {
                 Console.WriteLine(e.Message);
-            };
+            };*/
+
+
+            var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));
+            userStream.StreamStart();
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

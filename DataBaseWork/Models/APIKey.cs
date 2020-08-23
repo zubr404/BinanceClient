@@ -11,10 +11,12 @@ namespace DataBaseWork.Models
         public string PublicKey { get; set; }
         public string SecretKey { get; set; }
         public List<Trade> Trades { get; set; }
+        public List<Balance> Balances { get; set; }
 
         public APIKey()
         {
             Trades = new List<Trade>();
+            Balances = new List<Balance>();
         }
     }
 }

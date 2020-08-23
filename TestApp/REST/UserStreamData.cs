@@ -1,4 +1,5 @@
 ﻿using Services;
+using StockExchenge;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace TestApp.REST
         {
             try
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(@"https://api.binance.com/api/v3/userDataStream");
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create($"{Resources.DOMAIN_V3}userDataStream");
                 req.Method = "POST";
                 req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
                 req.UserAgent = "Mozilla/5.0 (Windows NT 5.1; rv:5.0) Gecko/20100101 Firefox/5.0";
@@ -39,8 +40,8 @@ namespace TestApp.REST
             webSocket = new WebSocketSharp.WebSocket($"wss://stream.binance.com:9443/ws/{listenKey}");
             webSocket.OnMessage += (sender, e) =>
             {
-                string jsonLine = e.Data.Replace(",[]", "");
-                Console.WriteLine(jsonLine);
+                string jsonLine = e.Data;//.Replace(",[]", "");
+                Console.WriteLine(jsonLine + "==========");
 
             };
             webSocket.OnError += (sender, e) => Console.WriteLine(e.Message);
