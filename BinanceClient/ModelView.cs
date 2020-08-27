@@ -9,6 +9,7 @@ using System.Dynamic;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Navigation;
 using System.Windows.Threading;
 
 namespace BinanceClient
@@ -18,6 +19,7 @@ namespace BinanceClient
         private readonly Dispatcher dispatcher;
         private readonly DataBaseContext dataBase;
         private readonly APIKeyRepository aPIKeyRepository;
+        private readonly BalanceRepository balanceRepository;
         private readonly TradeHistoryRepository tradeHistoryRepository;
         private readonly TradeConfigRepository tradeConfigRepository;
         public ChartService ChartService { get; private set; }
@@ -37,6 +39,7 @@ namespace BinanceClient
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             dataBase = new DataBaseContext();
+            balanceRepository = new BalanceRepository(dataBase);
             aPIKeyRepository = new APIKeyRepository(dataBase);
             tradeHistoryRepository = new TradeHistoryRepository(dataBase);
             tradeConfigRepository = new TradeConfigRepository(dataBase);
@@ -46,7 +49,7 @@ namespace BinanceClient
             KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository);
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(tradeConfigRepository);
+            CentralPanelScrin1 = new CentralPanelScrin1(aPIKeyRepository, balanceRepository, tradeConfigRepository);
             ChartService = new ChartService(dispatcher);
 
             CalculatingDatas = new List<CalculatingData>()

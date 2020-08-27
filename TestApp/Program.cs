@@ -61,8 +61,8 @@ namespace TestApp
             };*/
 
 
-            var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));
-            userStream.StreamStart();
+            /*var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));
+            userStream.StreamStart();*/
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

@@ -11,15 +11,18 @@ using WebSocketSharp;
 
 namespace StockExchenge.StreamWs
 {
+    /// <summary>
+    /// Поток с изменениями
+    /// </summary>
     public class UserStreamData
     {
-        readonly APIKeyRepository repository;
+        readonly RepositoriesModel repositories;
         readonly List<WebSocketUser> webSockets;
         private Timer timer;
         private IEnumerable<APIKey> keys;
-        public UserStreamData(APIKeyRepository repository)
+        public UserStreamData(RepositoriesModel repositories)
         {
-            this.repository = repository;
+            this.repositories = repositories;
             webSockets = new List<WebSocketUser>();
             timer = new Timer(1800000);
             timer.Elapsed += Timer_Elapsed;
@@ -37,7 +40,7 @@ namespace StockExchenge.StreamWs
             foreach (var key in keys)
             {
                 var listenKey = ListenKeyParse(GetListenKeyUserStream(key.PublicKey));
-                webSockets.Add(new WebSocketUser(listenKey, key));
+                webSockets.Add(new WebSocketUser(repositories, listenKey, key));
             }
         }
 
@@ -54,7 +57,7 @@ namespace StockExchenge.StreamWs
 
         private IEnumerable<APIKey> GetApiKeys()
         {
-            return repository.Get();
+            return repositories.APIKeyRepository.Get();
         }
 
         // POST /api/v3/userDataStream - Запустить новый поток пользовательских данных.
@@ -90,10 +93,12 @@ namespace StockExchenge.StreamWs
     public class WebSocketUser
     {
         readonly WebSocket webSocket;
+        readonly RepositoriesModel repositories;
         readonly APIKey key;
 
-        public WebSocketUser(string listenKey, APIKey key)
+        public WebSocketUser(RepositoriesModel repositories, string listenKey, APIKey key)
         {
+            this.repositories = repositories;
             this.key = key;
             webSocket = new WebSocket($"{Resources.SOCKET}{listenKey}");
             webSocket.OnMessage += WebSocket_OnMessage;
@@ -111,14 +116,25 @@ namespace StockExchenge.StreamWs
         private void UpdateBalance(string data)
         {
             var balance = JConverter.JsonConver<BalanceInfo>(data);
-
-            // test
-            Console.WriteLine(balance.e);
-            Console.WriteLine(balance.E);
-            Console.WriteLine(balance.u);
-            foreach (var b in balance.B)
+            
+            if (balance != null)
             {
-                Console.WriteLine($"{b.a} {b.f} {b.l}");
+                if (balance.B != null)
+                {
+                    foreach (var b in balance.B)
+                    {
+                        if (PrimitiveConverter.ToDouble(b.f) != 0 || PrimitiveConverter.ToDouble(b.l) != 0)
+                        {
+                            repositories.BalanceRepository.Update(new DataBaseWork.Models.Balance()
+                            {
+                                FK_PublicKey = key.PublicKey,
+                                Asset = b.a,
+                                Free = b.f,
+                                Locked = b.l
+                            });
+                        }
+                    }
+                }
             }
         }
     }

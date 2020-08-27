@@ -6,6 +6,9 @@ using System.Text;
 using System.Linq;
 using BinanceClient.Models;
 using System.Windows;
+using BinanceClient.Services;
+using StockExchenge.StreamWs;
+using StockExchenge.TradeAccount;
 
 namespace BinanceClient.ViewModel.Scrin1
 {
@@ -13,10 +16,14 @@ namespace BinanceClient.ViewModel.Scrin1
     {
         public TradeConfigurationView TradeConfiguration { get; private set; }
         readonly TradeConfigRepository configRepository;
+        readonly APIKeyRepository aPIKeyRepository;
+        readonly BalanceRepository balanceRepository;
 
-        public CentralPanelScrin1(TradeConfigRepository configRepository)
+        public CentralPanelScrin1(APIKeyRepository aPIKeyRepository, BalanceRepository balanceRepository, TradeConfigRepository configRepository)
         {
             TradeConfiguration = new TradeConfigurationView();
+            this.aPIKeyRepository = aPIKeyRepository;
+            this.balanceRepository = balanceRepository;
             this.configRepository = configRepository;
             SetConfigView();
             // получаем сохраненные конфиги для правых кнопок
@@ -43,6 +50,37 @@ namespace BinanceClient.ViewModel.Scrin1
                 TradeConfiguration.Strategy = config.Strategy;
                 TradeConfiguration.TrallingForvard = config.TrallingForvard;
                 TradeConfiguration.TrallingStop = config.TrallingStop;
+            }
+        }
+
+        private RelayCommand startCommand;
+        public RelayCommand StartCommand
+        {
+            get
+            {
+                return startCommand ?? new RelayCommand((object o) =>
+                {
+                    // старт торговли
+                    // запуск сокетов и др.
+
+                    // test balance
+                    //var balanceService = new BalanceService(new StockExchenge.BalanceAccount.AccountInfo(aPIKeyRepository, balanceRepository));
+                    //balanceService.GetBalance();
+
+                    //var userstreamData = new UserStreamData(new StockExchenge.RepositoriesModel()
+                    //{
+                    //    APIKeyRepository = aPIKeyRepository,
+                    //    BalanceRepository = balanceRepository
+                    //});
+                    //userstreamData.StreamStart();
+                    // ----
+                    var tradeaccountinfo = new TradeAccountInfo(aPIKeyRepository, configRepository);
+                    tradeaccountinfo.RequestedTrades();
+                    // test TradeAccount
+
+
+                    //-------
+                });
             }
         }
 

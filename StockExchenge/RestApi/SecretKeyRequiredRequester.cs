@@ -81,7 +81,6 @@ namespace StockExchenge.RestApi
         {
             var keyByte = Encoding.UTF8.GetBytes(secret);
 
-            string sign1 = string.Empty;
             byte[] inputBytes = Encoding.UTF8.GetBytes(api_parameters);
             using (var hmac = new HMACSHA256(keyByte))
             {
@@ -92,7 +91,7 @@ namespace StockExchenge.RestApi
                 {
                     hex1.AppendFormat("{0:x2}", b);
                 }
-                return sign1 = hex1.ToString();
+                return hex1.ToString();
             }
         }
     }

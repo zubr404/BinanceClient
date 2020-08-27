@@ -53,7 +53,8 @@ namespace DataBaseWork.Repositories
 
         public IEnumerable<APIKey> Get()
         {
-            return db.APIKeys;
+            var keys = db.APIKeys.AsNoTracking();
+            return keys;
         }
 
         public APIKey Get(string apiKeyName)

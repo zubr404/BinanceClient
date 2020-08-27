@@ -27,7 +27,7 @@ namespace BinanceClient.Models
                 base.NotifyPropertyChanged();
             }
         }
-        private string strategy;
+        private string strategy = "Long";
         public string Strategy 
         {
             get { return strategy; }

@@ -59,7 +59,7 @@
 
                 <!--Start-->
                 <StackPanel Margin="20,10,0,0">
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.StartCommand}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidGreen}" StrokeThickness="1.2">
                                 <Ellipse.Fill>

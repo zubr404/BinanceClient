@@ -21,42 +21,55 @@ namespace DataBaseWork.Repositories
             return config;
         }
 
+        public IEnumerable<TradeConfiguration> GetActive()
+        {
+            var config = db.TradeConfigurations.Where(x => x.Active);
+            return config;
+        }
+
         public TradeConfiguration Update(TradeConfiguration configuration)
         {
-            var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin);
-            if(config == null)
+            if (string.IsNullOrWhiteSpace(configuration.AltCoin) || string.IsNullOrWhiteSpace(configuration.MainCoin))
             {
-                configuration.ActivationTime = GetTimeString();
-                configuration.DeactivationTime = "";
-                config = db.TradeConfigurations.Add(configuration).Entity;
-                Save();
-                DeactivationConfig(config.ID);
+                throw new ArgumentException("Поля AltCoin и MainCoin не должны содержать пустых значений.", "configuration");
             }
             else
             {
-                config.MainCoin = configuration.MainCoin;
-                config.AltCoin = configuration.AltCoin;
-                config.Strategy = configuration.Strategy;
-                config.IntervalHttp = configuration.IntervalHttp;
-                config.Margin = configuration.Margin;
-                config.OpenOrders = configuration.OpenOrders;
-                config.OrderIndent = configuration.OrderIndent;
-                config.OrderDeposit = configuration.OrderDeposit;
-                config.FirstStep = configuration.FirstStep;
-                config.OrderStepPlus = configuration.OrderStepPlus;
-                config.Martingale = configuration.Martingale;
-                config.DepositLimit = configuration.DepositLimit;
-                config.TrallingStop = configuration.TrallingStop;
-                config.Profit = configuration.Profit;
-                config.TrallingForvard = configuration.TrallingForvard;
-                config.SqueezeProfit = configuration.SqueezeProfit;
-                config.Active = configuration.Active;
-                config.ActivationTime = GetTimeString();
-                config.DeactivationTime = "";
-                Save();
-                DeactivationConfig(config.ID);
+                var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin);
+                if (config == null)
+                {
+                    configuration.ActivationTime = GetTimeString();
+                    configuration.DeactivationTime = "";
+                    config = db.TradeConfigurations.Add(configuration).Entity;
+                    Save();
+                    DeactivationConfig(config.ID);
+                }
+                else
+                {
+                    config.MainCoin = configuration.MainCoin;
+                    config.AltCoin = configuration.AltCoin;
+                    config.Strategy = configuration.Strategy;
+                    config.IntervalHttp = configuration.IntervalHttp;
+                    config.Margin = configuration.Margin;
+                    config.OpenOrders = configuration.OpenOrders;
+                    config.OrderIndent = configuration.OrderIndent;
+                    config.OrderDeposit = configuration.OrderDeposit;
+                    config.FirstStep = configuration.FirstStep;
+                    config.OrderStepPlus = configuration.OrderStepPlus;
+                    config.Martingale = configuration.Martingale;
+                    config.DepositLimit = configuration.DepositLimit;
+                    config.TrallingStop = configuration.TrallingStop;
+                    config.Profit = configuration.Profit;
+                    config.TrallingForvard = configuration.TrallingForvard;
+                    config.SqueezeProfit = configuration.SqueezeProfit;
+                    config.Active = configuration.Active;
+                    config.ActivationTime = GetTimeString();
+                    config.DeactivationTime = "";
+                    Save();
+                    DeactivationConfig(config.ID);
+                }
+                return config;
             }
-            return config;
         }
 
         private void DeactivationConfig(int id)

@@ -17,7 +17,7 @@ namespace DataBaseWork.Repositories
 
         public Balance Update(Balance item) 
         {
-            var balance = db.Balances.FirstOrDefault(x => x.APIKeyID == item.APIKeyID && x.Asset == item.Asset);
+            var balance = db.Balances.FirstOrDefault(x => x.FK_PublicKey == item.FK_PublicKey && x.Asset == item.Asset);
             if(balance == null)
             {
                 balance = db.Balances.Add(item).Entity;
@@ -27,6 +27,7 @@ namespace DataBaseWork.Repositories
             {
                 balance.Free = item.Free;
                 balance.Locked = item.Locked;
+                Save();
             }
             return balance;
         }

@@ -7,7 +7,7 @@ namespace DataBaseWork.Models
     public class Trade
     {
         public int ID { get; set; }
-        public int APIKeyID { get; set; }
+        public string FK_PublicKey { get; set; }
         public string Symbol { get; set; }
         public int TradeID { get; set; }
         public int OrderID { get; set; }
@@ -21,5 +21,6 @@ namespace DataBaseWork.Models
         public bool IsBuyer { get; set; }
         public bool IsMarket { get; set; }
         public bool IsBestMatch { get; set; }
+        public APIKey APIKey { get; set; }
     }
 }

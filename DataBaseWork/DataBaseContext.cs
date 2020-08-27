@@ -35,7 +35,16 @@ namespace DataBaseWork
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Trade>().HasAlternateKey(t => new { t.TradeID });
+            modelBuilder.Entity<Balance>() // отношение по альтернативному ключу
+                .HasOne(b => b.APIKey)
+                .WithMany(a => a.Balances)
+                .HasForeignKey(b => b.FK_PublicKey)
+                .HasPrincipalKey(a => a.PublicKey);
+            modelBuilder.Entity<Trade>() // отношение по альтернативному ключу
+                .HasOne(b => b.APIKey)
+                .WithMany(a => a.Trades)
+                .HasForeignKey(b => b.FK_PublicKey)
+                .HasPrincipalKey(a => a.PublicKey);
         }
     }
 }
