@@ -16,7 +16,7 @@ namespace Services
             }
             catch (ArgumentException ex)
             {
-                throw ex;
+                // TODO: loging
             }
             return result;
         }

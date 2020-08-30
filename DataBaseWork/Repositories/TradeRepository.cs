@@ -1,6 +1,7 @@
 ﻿using DataBaseWork.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DataBaseWork.Repositories
@@ -13,26 +14,22 @@ namespace DataBaseWork.Repositories
             this.db = db;
         }
 
-        public void Create(IEnumerable<Trade> items)
+        public bool Exists(Trade item)
         {
-            try
-            {
-                db.Trades.AddRange(items);
-                Save();
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw ex;
-            }
+            return db.Trades.Any(x => x.FK_PublicKey == item.FK_PublicKey && x.TradeID == item.TradeID);
         }
 
         public Trade Create(Trade item)
         {
             try
             {
-                var trade = db.Trades.Add(item);
-                Save();
-                return trade.Entity;
+                if (!Exists(item))
+                {
+                    var trade = db.Trades.Add(item);
+                    Save();
+                    return trade.Entity;
+                }
+                return null;
             }
             catch (InvalidOperationException ex)
             {

@@ -18,13 +18,15 @@ namespace StockExchenge.TradeAccount
 
         readonly APIKeyRepository keyRepo;
         readonly TradeConfigRepository configRepository;
+        readonly TradeRepository tradeRepository;
         private IEnumerable<APIKey> keys;
         private IEnumerable<TradeConfiguration> configurations;
 
-        public TradeAccountInfo(APIKeyRepository keyRepo, TradeConfigRepository configRepository)
+        public TradeAccountInfo(APIKeyRepository keyRepo, TradeConfigRepository configRepository, TradeRepository tradeRepository)
         {
             this.keyRepo = keyRepo;
             this.configRepository = configRepository;
+            this.tradeRepository = tradeRepository;
         }
 
         public void RequestedTrades()
@@ -39,10 +41,29 @@ namespace StockExchenge.TradeAccount
                     {
                         foreach (var configuration in configurations)
                         {
-                            var trade = TradesRequest(key.PublicKey, key.SecretKey, $"{configuration.MainCoin}{configuration.AltCoin}");
-                            if (trade != null)
+                            var trades = TradesRequest(key.PublicKey, key.SecretKey, $"{configuration.MainCoin}{configuration.AltCoin}");
+                            if (trades != null)
                             {
-                                // save in DB
+                                foreach (var trade in trades)
+                                {
+                                    tradeRepository.Create(new DataBaseWork.Models.Trade() 
+                                    {
+                                        FK_PublicKey = key.PublicKey,
+                                        Symbol = trade.symbol,
+                                        TradeID = trade.id,
+                                        OrderID = trade.orderId,
+                                        OrderListID = trade.orderListId,
+                                        Price = trade.price,
+                                        Qty = trade.qty,
+                                        QuoteQty = trade.quoteQty,
+                                        Commission = trade.commission,
+                                        CommissionAsset = trade.commissionAsset,
+                                        Time = trade.time,
+                                        IsBuyer = trade.isBuyer,
+                                        IsMaker = trade.isMaker,
+                                        IsBestMatch = trade.isBestMatch
+                                    });
+                                }
                             }
                         }
                     }

@@ -48,17 +48,19 @@ namespace TestApp
             //Console.WriteLine(listenKey);
             //userStreamData.UserStreamWebSocket(listenKey);
 
-            /*var tradesWs = new CurrentTrades(new string[] { "ETHBTC", "BTCUSDT" });
+            var db = new DataBaseContext();
+            var connectedPairRepo = new ConnectedPairRepository(db);
+            var tradesWs = new CurrentTrades(connectedPairRepo);
             tradesWs.SocketOpen();
 
             tradesWs.ConnectStateEvent += (object sender, string e) =>
             {
                 Console.WriteLine(e);
             };
-            tradesWs.MessageEvent += (object sender, CurrentTradeEventArgs e) =>
+            tradesWs.LastPriceEvent += (object sender, LastPriceEventArgs e) =>
             {
-                Console.WriteLine(e.Message);
-            };*/
+                Console.WriteLine($"{e.Pair} - {e.LastPrice}");
+            };
 
 
             /*var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));

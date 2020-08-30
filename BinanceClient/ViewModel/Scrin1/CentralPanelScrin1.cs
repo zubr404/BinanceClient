@@ -9,21 +9,27 @@ using System.Windows;
 using BinanceClient.Services;
 using StockExchenge.StreamWs;
 using StockExchenge.TradeAccount;
+using StockExchenge.BalanceAccount;
+using StockExchenge.MarketTrades;
 
 namespace BinanceClient.ViewModel.Scrin1
 {
     public class CentralPanelScrin1
     {
-        public TradeConfigurationView TradeConfiguration { get; private set; }
+        public TradeConfigurationView TradeConfigurationView { get; private set; }
         readonly TradeConfigRepository configRepository;
-        readonly APIKeyRepository aPIKeyRepository;
-        readonly BalanceRepository balanceRepository;
+        readonly AccountInfo accountInfo;
+        readonly TradeAccountInfo tradeAccountInfo;
+        readonly CurrentTrades currentTrades;
+        readonly UserStreamData userStreamData;
 
-        public CentralPanelScrin1(APIKeyRepository aPIKeyRepository, BalanceRepository balanceRepository, TradeConfigRepository configRepository)
+        public CentralPanelScrin1(AccountInfo accountInfo, TradeAccountInfo tradeAccountInfo, CurrentTrades currentTrades, UserStreamData userStreamData, TradeConfigRepository configRepository)
         {
-            TradeConfiguration = new TradeConfigurationView();
-            this.aPIKeyRepository = aPIKeyRepository;
-            this.balanceRepository = balanceRepository;
+            TradeConfigurationView = new TradeConfigurationView();
+            this.accountInfo = accountInfo;
+            this.tradeAccountInfo = tradeAccountInfo;
+            this.currentTrades = currentTrades;
+            this.userStreamData = userStreamData;
             this.configRepository = configRepository;
             SetConfigView();
             // получаем сохраненные конфиги для правых кнопок
@@ -34,22 +40,22 @@ namespace BinanceClient.ViewModel.Scrin1
             var config = configRepository.GetLast();
             if(config != null)
             {
-                TradeConfiguration.AltCoin = config.AltCoin;
-                TradeConfiguration.DepositLimit = config.DepositLimit;
-                TradeConfiguration.FirstStep = config.FirstStep;
-                TradeConfiguration.IntervalHttp = config.IntervalHttp;
-                TradeConfiguration.MainCoin = config.MainCoin;
-                TradeConfiguration.Margin = config.Margin;
-                TradeConfiguration.Martingale = config.Martingale;
-                TradeConfiguration.OpenOrders = config.OpenOrders;
-                TradeConfiguration.OrderDeposit = config.OrderDeposit;
-                TradeConfiguration.OrderIndent = config.OrderIndent;
-                TradeConfiguration.OrderStepPlus = config.OrderStepPlus;
-                TradeConfiguration.Profit = config.Profit;
-                TradeConfiguration.SqueezeProfit = config.SqueezeProfit;
-                TradeConfiguration.Strategy = config.Strategy;
-                TradeConfiguration.TrallingForvard = config.TrallingForvard;
-                TradeConfiguration.TrallingStop = config.TrallingStop;
+                TradeConfigurationView.AltCoin = config.AltCoin;
+                TradeConfigurationView.DepositLimit = config.DepositLimit;
+                TradeConfigurationView.FirstStep = config.FirstStep;
+                TradeConfigurationView.IntervalHttp = config.IntervalHttp;
+                TradeConfigurationView.MainCoin = config.MainCoin;
+                TradeConfigurationView.Margin = config.Margin;
+                TradeConfigurationView.Martingale = config.Martingale;
+                TradeConfigurationView.OpenOrders = config.OpenOrders;
+                TradeConfigurationView.OrderDeposit = config.OrderDeposit;
+                TradeConfigurationView.OrderIndent = config.OrderIndent;
+                TradeConfigurationView.OrderStepPlus = config.OrderStepPlus;
+                TradeConfigurationView.Profit = config.Profit;
+                TradeConfigurationView.SqueezeProfit = config.SqueezeProfit;
+                TradeConfigurationView.Strategy = config.Strategy;
+                TradeConfigurationView.TrallingForvard = config.TrallingForvard;
+                TradeConfigurationView.TrallingStop = config.TrallingStop;
             }
         }
 
@@ -60,26 +66,10 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 return startCommand ?? new RelayCommand((object o) =>
                 {
-                    // старт торговли
-                    // запуск сокетов и др.
-
-                    // test balance
-                    //var balanceService = new BalanceService(new StockExchenge.BalanceAccount.AccountInfo(aPIKeyRepository, balanceRepository));
-                    //balanceService.GetBalance();
-
-                    //var userstreamData = new UserStreamData(new StockExchenge.RepositoriesModel()
-                    //{
-                    //    APIKeyRepository = aPIKeyRepository,
-                    //    BalanceRepository = balanceRepository
-                    //});
-                    //userstreamData.StreamStart();
-                    // ----
-                    var tradeaccountinfo = new TradeAccountInfo(aPIKeyRepository, configRepository);
-                    tradeaccountinfo.RequestedTrades();
-                    // test TradeAccount
-
-
-                    //-------
+                    accountInfo.RequestedBalances();
+                    tradeAccountInfo.RequestedTrades();
+                    currentTrades.SocketOpen();
+                    userStreamData.StreamStart();
                 });
             }
         }
@@ -94,22 +84,22 @@ namespace BinanceClient.ViewModel.Scrin1
                     var config = new TradeConfiguration()
                     {
                         Active = true,
-                        AltCoin = TradeConfiguration.AltCoin,
-                        DepositLimit = TradeConfiguration.DepositLimit,
-                        FirstStep = TradeConfiguration.FirstStep,
-                        IntervalHttp = TradeConfiguration.IntervalHttp,
-                        MainCoin = TradeConfiguration.MainCoin,
-                        Margin = TradeConfiguration.Margin,
-                        Martingale = TradeConfiguration.Martingale,
-                        OpenOrders = TradeConfiguration.OpenOrders,
-                        OrderDeposit = TradeConfiguration.OrderDeposit,
-                        OrderIndent = TradeConfiguration.OrderIndent,
-                        OrderStepPlus = TradeConfiguration.OrderStepPlus,
-                        Profit = TradeConfiguration.Profit,
-                        SqueezeProfit = TradeConfiguration.SqueezeProfit,
-                        Strategy = TradeConfiguration.Strategy,
-                        TrallingForvard = TradeConfiguration.TrallingForvard,
-                        TrallingStop = TradeConfiguration.TrallingStop
+                        AltCoin = TradeConfigurationView.AltCoin,
+                        DepositLimit = TradeConfigurationView.DepositLimit,
+                        FirstStep = TradeConfigurationView.FirstStep,
+                        IntervalHttp = TradeConfigurationView.IntervalHttp,
+                        MainCoin = TradeConfigurationView.MainCoin,
+                        Margin = TradeConfigurationView.Margin,
+                        Martingale = TradeConfigurationView.Martingale,
+                        OpenOrders = TradeConfigurationView.OpenOrders,
+                        OrderDeposit = TradeConfigurationView.OrderDeposit,
+                        OrderIndent = TradeConfigurationView.OrderIndent,
+                        OrderStepPlus = TradeConfigurationView.OrderStepPlus,
+                        Profit = TradeConfigurationView.Profit,
+                        SqueezeProfit = TradeConfigurationView.SqueezeProfit,
+                        Strategy = TradeConfigurationView.Strategy,
+                        TrallingForvard = TradeConfigurationView.TrallingForvard,
+                        TrallingStop = TradeConfigurationView.TrallingStop
                     };
 
                     try

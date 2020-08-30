@@ -3,7 +3,11 @@ using BinanceClient.ViewModel.Scrin1;
 using BinanceClient.ViewModel.ScrinCalculator;
 using DataBaseWork;
 using DataBaseWork.Repositories;
+using StockExchenge.BalanceAccount;
+using StockExchenge.MarketTrades;
 using StockExchenge.MarketTradesHistory;
+using StockExchenge.StreamWs;
+using StockExchenge.TradeAccount;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Windows.Controls;
@@ -20,10 +24,17 @@ namespace BinanceClient
         private readonly DataBaseContext dataBase;
         private readonly APIKeyRepository aPIKeyRepository;
         private readonly BalanceRepository balanceRepository;
+        private readonly TradeRepository tradeRepository;
         private readonly TradeHistoryRepository tradeHistoryRepository;
         private readonly TradeConfigRepository tradeConfigRepository;
+        private readonly ConnectedPairRepository connectedPairRepository;
         public ChartService ChartService { get; private set; }
         private TradesHistory tradesHistory;
+
+        private readonly AccountInfo accountInfo;
+        private readonly TradeAccountInfo tradeAccountInfo;
+        private readonly CurrentTrades currentTrades;
+        private readonly UserStreamData userStreamData;
 
         public ScrinManager ScrinManager { get; private set; }
         public static ConsoleScrin1 ConsoleScrin1 { get; private set; }
@@ -41,15 +52,26 @@ namespace BinanceClient
             dataBase = new DataBaseContext();
             balanceRepository = new BalanceRepository(dataBase);
             aPIKeyRepository = new APIKeyRepository(dataBase);
+            tradeRepository = new TradeRepository(dataBase);
             tradeHistoryRepository = new TradeHistoryRepository(dataBase);
             tradeConfigRepository = new TradeConfigRepository(dataBase);
+            connectedPairRepository = new ConnectedPairRepository(dataBase);
+
+            accountInfo = new AccountInfo(aPIKeyRepository, balanceRepository);
+            tradeAccountInfo = new TradeAccountInfo(aPIKeyRepository, tradeConfigRepository, tradeRepository);
+            currentTrades = new CurrentTrades(connectedPairRepository);
+            userStreamData = new UserStreamData(new StockExchenge.RepositoriesModel()
+            {
+                APIKeyRepository = aPIKeyRepository,
+                BalanceRepository = balanceRepository
+            });
 
             ScrinManager = new ScrinManager();
             ConsoleScrin1 = new ConsoleScrin1();
             KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository);
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(aPIKeyRepository, balanceRepository, tradeConfigRepository);
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository);
             ChartService = new ChartService(dispatcher);
 
             CalculatingDatas = new List<CalculatingData>()

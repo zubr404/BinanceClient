@@ -1,7 +1,9 @@
 ﻿using DataBaseWork.Models;
 using Microsoft.EntityFrameworkCore;
+using Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
@@ -38,7 +40,7 @@ namespace DataBaseWork.Repositories
                 var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin);
                 if (config == null)
                 {
-                    configuration.ActivationTime = GetTimeString();
+                    configuration.ActivationTime = TimeConverter.ToStringTime(DateTime.Now);
                     configuration.DeactivationTime = "";
                     config = db.TradeConfigurations.Add(configuration).Entity;
                     Save();
@@ -63,7 +65,7 @@ namespace DataBaseWork.Repositories
                     config.TrallingForvard = configuration.TrallingForvard;
                     config.SqueezeProfit = configuration.SqueezeProfit;
                     config.Active = configuration.Active;
-                    config.ActivationTime = GetTimeString();
+                    config.ActivationTime = TimeConverter.ToStringTime(DateTime.Now);
                     config.DeactivationTime = "";
                     Save();
                     DeactivationConfig(config.ID);
@@ -79,7 +81,7 @@ namespace DataBaseWork.Repositories
                 c.Active = false;
                 if (string.IsNullOrWhiteSpace(c.DeactivationTime))
                 {
-                    c.DeactivationTime = GetTimeString();
+                    c.DeactivationTime = TimeConverter.ToStringTime(DateTime.Now);
                 }
                 return c; 
             });
@@ -88,12 +90,6 @@ namespace DataBaseWork.Repositories
                 db.Entry(config).State = EntityState.Modified;
             }
             Save();
-        }
-
-        private string GetTimeString()
-        {
-            var now = DateTime.Now;
-            return $"{now.Year}-{now.Month.ToString("00")}-{now.Day.ToString("00")} {now.Hour.ToString("00")}:{now.Minute.ToString("00")}:{now.Second.ToString("00")}";
         }
 
         private void Save()

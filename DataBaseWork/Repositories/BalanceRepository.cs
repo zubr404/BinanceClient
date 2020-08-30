@@ -15,6 +15,16 @@ namespace DataBaseWork.Repositories
             this.db = db;
         }
 
+        public IEnumerable<Balance> Get()
+        {
+            return db.Balances.AsNoTracking();
+        }
+
+        public Balance Get(string publicKey)
+        {
+            return db.Balances.AsNoTracking().FirstOrDefault(x => x.FK_PublicKey == publicKey);
+        }
+
         public Balance Update(Balance item) 
         {
             var balance = db.Balances.FirstOrDefault(x => x.FK_PublicKey == item.FK_PublicKey && x.Asset == item.Asset);

@@ -1,6 +1,7 @@
 ﻿using DataBaseWork.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DataBaseWork.Repositories
@@ -13,9 +14,9 @@ namespace DataBaseWork.Repositories
             this.db = db;
         }
 
-        public IEnumerable<ConnectedPair> Get()
+        public IEnumerable<ConnectedPair> GetActive()
         {
-            return db.ConnectedPairs;
+            return db.ConnectedPairs.Where(x=>x.Active);
         }
     }
 }
