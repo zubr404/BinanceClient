@@ -23,15 +23,15 @@ namespace StockExchenge.StreamWs
     public class BalanceInfo
     {
         public string e { get; set; }
-        public string E { get; set; }
-        public string u { get; set; }
+        public long E { get; set; }
+        public long u { get; set; }
         public Balance[] B { get; set; }
     }
 
     public class Balance
     {
         public string a { get; set; }
-        public string f { get; set; }
-        public string l { get; set; }
+        public double f { get; set; }
+        public double l { get; set; }
     }
 }

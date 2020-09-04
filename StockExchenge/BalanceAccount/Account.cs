@@ -7,8 +7,8 @@ namespace StockExchenge.BalanceAccount
     public class Balance
     {
         public string Asset { get; set; }
-        public string Free { get; set; }
-        public string Locked { get; set; }
+        public double Free { get; set; }
+        public double Locked { get; set; }
     }
 
     public class Account

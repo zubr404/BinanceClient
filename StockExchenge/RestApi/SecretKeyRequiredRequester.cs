@@ -43,7 +43,7 @@ namespace StockExchenge.RestApi
                 catch (WebException wex)
                 {
                     string strEr;
-                    using (Stream stream = wex.Response.GetResponseStream())
+                    using (Stream stream = wex.Response?.GetResponseStream())
                     {
                         using (StreamReader reader = new StreamReader(stream))
                         {

@@ -57,6 +57,11 @@ namespace DataBaseWork.Repositories
             return keys;
         }
 
+        public string GetSecretKey(string publicKey)
+        {
+            return db.APIKeys.AsNoTracking().Where(x=>x.PublicKey == publicKey).Select(x=>x.SecretKey).FirstOrDefault();
+        }
+
         public APIKey Get(string apiKeyName)
         {
             return db.APIKeys.FirstOrDefault(u => u.Name == apiKeyName);

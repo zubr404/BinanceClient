@@ -28,8 +28,11 @@ namespace BinanceClient
         private readonly TradeHistoryRepository tradeHistoryRepository;
         private readonly TradeConfigRepository tradeConfigRepository;
         private readonly ConnectedPairRepository connectedPairRepository;
+        private readonly StopLimitOrderRepository stopLimitOrderRepository;
+        private readonly TakeProfitOrderRepository takeProfitOrderRepository;
         public ChartService ChartService { get; private set; }
         private TradesHistory tradesHistory;
+        private readonly Algoritms.Real.Martingale MartingaleReal;
 
         private readonly AccountInfo accountInfo;
         private readonly TradeAccountInfo tradeAccountInfo;
@@ -56,6 +59,8 @@ namespace BinanceClient
             tradeHistoryRepository = new TradeHistoryRepository(dataBase);
             tradeConfigRepository = new TradeConfigRepository(dataBase);
             connectedPairRepository = new ConnectedPairRepository(dataBase);
+            stopLimitOrderRepository = new StopLimitOrderRepository(dataBase);
+            takeProfitOrderRepository = new TakeProfitOrderRepository(dataBase);
 
             accountInfo = new AccountInfo(aPIKeyRepository, balanceRepository);
             tradeAccountInfo = new TradeAccountInfo(aPIKeyRepository, tradeConfigRepository, tradeRepository);
@@ -66,12 +71,27 @@ namespace BinanceClient
                 BalanceRepository = balanceRepository
             });
 
+            MartingaleReal = new Algoritms.Real.Martingale(new Algoritms.Real.RepositoriesM()
+            {
+                APIKeyRepository = aPIKeyRepository,
+                BalanceRepository = balanceRepository,
+                CurrentTrades = currentTrades,
+                ExchangeInfo = MainWindow.ExchangeInfo,
+                TradeConfigRepository = tradeConfigRepository,
+                StopLimitOrderRepository = stopLimitOrderRepository,
+                TakeProfitOrderRepository = takeProfitOrderRepository,
+                TradeRepository = tradeRepository,
+                TradeAccountInfo = tradeAccountInfo
+            }); ;
+            MartingaleReal.MessageErrorEvent += MartingaleReal_MessageErrorEvent;
+            MartingaleReal.MessageDebugEvent += MartingaleReal_MessageDebugEvent;
+
             ScrinManager = new ScrinManager();
             ConsoleScrin1 = new ConsoleScrin1();
             KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository);
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository);
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, MartingaleReal);
             ChartService = new ChartService(dispatcher);
 
             CalculatingDatas = new List<CalculatingData>()
@@ -79,6 +99,17 @@ namespace BinanceClient
                 new CalculatingData(){ Amount = "0.001432", Equivalent = "10.00710240", PriceInGrid = "6993.37", ProfitPrice = "6993.37", Rebount = "1.5"},
                 new CalculatingData(){  Amount = "0.001432", Equivalent = "10.00710240", PriceInGrid = "6993.37", ProfitPrice = "6993.37", Rebount = "1.5"}
             };
+        }
+
+        private void MartingaleReal_MessageDebugEvent(object sender, string e)
+        {
+            ConsoleScrin1.Message = e;
+        }
+
+        // выводим ошибки алгоритма
+        private void MartingaleReal_MessageErrorEvent(object sender, string e)
+        {
+            ConsoleScrin1.Message = e;
         }
 
         #region Commands

@@ -41,32 +41,37 @@ namespace StockExchenge.TradeAccount
                     {
                         foreach (var configuration in configurations)
                         {
-                            var trades = TradesRequest(key.PublicKey, key.SecretKey, $"{configuration.MainCoin}{configuration.AltCoin}");
-                            if (trades != null)
-                            {
-                                foreach (var trade in trades)
-                                {
-                                    tradeRepository.Create(new DataBaseWork.Models.Trade() 
-                                    {
-                                        FK_PublicKey = key.PublicKey,
-                                        Symbol = trade.symbol,
-                                        TradeID = trade.id,
-                                        OrderID = trade.orderId,
-                                        OrderListID = trade.orderListId,
-                                        Price = trade.price,
-                                        Qty = trade.qty,
-                                        QuoteQty = trade.quoteQty,
-                                        Commission = trade.commission,
-                                        CommissionAsset = trade.commissionAsset,
-                                        Time = trade.time,
-                                        IsBuyer = trade.isBuyer,
-                                        IsMaker = trade.isMaker,
-                                        IsBestMatch = trade.isBestMatch
-                                    });
-                                }
-                            }
+                            RequestedTrades(key.PublicKey, key.SecretKey, configuration);
                         }
                     }
+                }
+            }
+        }
+
+        public void RequestedTrades(string publicKey, string secretKey, TradeConfiguration configuration)
+        {
+            var trades = TradesRequest(publicKey, secretKey, $"{configuration.MainCoin}{configuration.AltCoin}");
+            if (trades != null)
+            {
+                foreach (var trade in trades)
+                {
+                    tradeRepository.Create(new DataBaseWork.Models.Trade()
+                    {
+                        FK_PublicKey = publicKey,
+                        Symbol = trade.symbol,
+                        TradeID = trade.id,
+                        OrderID = trade.orderId,
+                        OrderListID = trade.orderListId,
+                        Price = trade.price,
+                        Qty = trade.qty,
+                        QuoteQty = trade.quoteQty,
+                        Commission = trade.commission,
+                        CommissionAsset = trade.commissionAsset,
+                        Time = trade.time,
+                        IsBuyer = trade.isBuyer,
+                        IsMaker = trade.isMaker,
+                        IsBestMatch = trade.isBestMatch
+                    });
                 }
             }
         }

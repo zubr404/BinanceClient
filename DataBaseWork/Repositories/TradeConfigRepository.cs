@@ -40,8 +40,8 @@ namespace DataBaseWork.Repositories
                 var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin);
                 if (config == null)
                 {
-                    configuration.ActivationTime = TimeConverter.ToStringTime(DateTime.Now);
-                    configuration.DeactivationTime = "";
+                    configuration.ActivationTime = DateTime.UtcNow.ToUnixTime();
+                    configuration.DeactivationTime = 0;
                     config = db.TradeConfigurations.Add(configuration).Entity;
                     Save();
                     DeactivationConfig(config.ID);
@@ -55,18 +55,19 @@ namespace DataBaseWork.Repositories
                     config.Margin = configuration.Margin;
                     config.OpenOrders = configuration.OpenOrders;
                     config.OrderIndent = configuration.OrderIndent;
+                    config.OrderReload = configuration.OrderReload;
                     config.OrderDeposit = configuration.OrderDeposit;
                     config.FirstStep = configuration.FirstStep;
                     config.OrderStepPlus = configuration.OrderStepPlus;
                     config.Martingale = configuration.Martingale;
                     config.DepositLimit = configuration.DepositLimit;
-                    config.TrallingStop = configuration.TrallingStop;
+                    config.Loss = configuration.Loss;
                     config.Profit = configuration.Profit;
-                    config.TrallingForvard = configuration.TrallingForvard;
-                    config.SqueezeProfit = configuration.SqueezeProfit;
+                    config.IndentExtremum = configuration.IndentExtremum;
+                    config.ProtectiveSpread = configuration.ProtectiveSpread;
                     config.Active = configuration.Active;
-                    config.ActivationTime = TimeConverter.ToStringTime(DateTime.Now);
-                    config.DeactivationTime = "";
+                    config.ActivationTime = DateTime.UtcNow.ToUnixTime();
+                    config.DeactivationTime = 0;
                     Save();
                     DeactivationConfig(config.ID);
                 }
@@ -79,9 +80,9 @@ namespace DataBaseWork.Repositories
             var configs = db.TradeConfigurations.Where(x => x.ID != id).AsEnumerable().Select(c => 
             { 
                 c.Active = false;
-                if (string.IsNullOrWhiteSpace(c.DeactivationTime))
+                if (c.DeactivationTime == 0)
                 {
-                    c.DeactivationTime = TimeConverter.ToStringTime(DateTime.Now);
+                    c.DeactivationTime = DateTime.UtcNow.ToUnixTime();
                 }
                 return c; 
             });

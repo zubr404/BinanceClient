@@ -173,7 +173,7 @@ namespace BinanceClient.Services
                 {
                     OhclValues.Add(ohlcPoint);
                     OhclValues.Remove(firstCandle);
-                    LabelsX.Add(candle.k.t.ConvertUnixTime().ToString(formatX));
+                    LabelsX.Add(candle.k.t.UnixToDateTime().ToString(formatX));
                     isClose = false;
 
                     // test
@@ -198,7 +198,7 @@ namespace BinanceClient.Services
                     else
                     {
                         OhclValues.Add(ohlcPoint);
-                        LabelsX.Add(candle.k.t.ConvertUnixTime().ToString(formatX));
+                        LabelsX.Add(candle.k.t.UnixToDateTime().ToString(formatX));
                     }
                 }
 
@@ -230,7 +230,7 @@ namespace BinanceClient.Services
                         Close = Convert.ToDouble(k[4], new CultureInfo("en-US"))
                     };
                     OhclValues.Add(ohlcPoint);
-                    LabelsX.Add(Convert.ToInt64(k[0]).ConvertUnixTime().ToString(formatX));
+                    LabelsX.Add(Convert.ToInt64(k[0]).UnixToDateTime().ToString(formatX));
                 }
             }
             catch (Exception ex)

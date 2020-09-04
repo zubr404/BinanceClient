@@ -48,23 +48,25 @@ namespace TestApp
             //Console.WriteLine(listenKey);
             //userStreamData.UserStreamWebSocket(listenKey);
 
-            var db = new DataBaseContext();
-            var connectedPairRepo = new ConnectedPairRepository(db);
-            var tradesWs = new CurrentTrades(connectedPairRepo);
-            tradesWs.SocketOpen();
+            //var db = new DataBaseContext();
+            //var connectedPairRepo = new ConnectedPairRepository(db);
+            //var tradesWs = new CurrentTrades(connectedPairRepo);
+            //tradesWs.SocketOpen();
 
-            tradesWs.ConnectStateEvent += (object sender, string e) =>
-            {
-                Console.WriteLine(e);
-            };
-            tradesWs.LastPriceEvent += (object sender, LastPriceEventArgs e) =>
-            {
-                Console.WriteLine($"{e.Pair} - {e.LastPrice}");
-            };
+            //tradesWs.ConnectStateEvent += (object sender, string e) =>
+            //{
+            //    Console.WriteLine(e);
+            //};
+            //tradesWs.LastPriceEvent += (object sender, LastPriceEventArgs e) =>
+            //{
+            //    Console.WriteLine($"{e.Pair} - {e.LastPrice}");
+            //};
 
 
             /*var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));
             userStream.StreamStart();*/
+
+
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

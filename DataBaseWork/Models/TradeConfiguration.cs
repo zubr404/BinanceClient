@@ -19,12 +19,13 @@ namespace DataBaseWork.Models
         public double OrderStepPlus { get; set; }
         public double Martingale { get; set; }
         public double DepositLimit { get; set; }
-        public double TrallingStop { get; set; }
+        public double OrderReload { get; set; }
+        public double Loss { get; set; }
         public double Profit { get; set; }
-        public double TrallingForvard { get; set; }
-        public double SqueezeProfit { get; set; }
+        public double IndentExtremum { get; set; }
+        public double ProtectiveSpread { get; set; }
         public bool Active { get; set; }
-        public string ActivationTime { get; set; }
-        public string DeactivationTime { get; set; }
+        public long ActivationTime { get; set; }
+        public long DeactivationTime { get; set; }
     }
 }

@@ -12,11 +12,15 @@ namespace DataBaseWork.Models
         public string SecretKey { get; set; }
         public List<Trade> Trades { get; set; }
         public List<Balance> Balances { get; set; }
+        public List<StopLimitOrder> StopLimitOrders { get; set; }
+        public List<TakeProfitOrder> TakeProfitOrders { get; set; }
 
         public APIKey()
         {
             Trades = new List<Trade>();
             Balances = new List<Balance>();
+            StopLimitOrders = new List<StopLimitOrder>();
+            TakeProfitOrders = new List<TakeProfitOrder>();
         }
     }
 }

@@ -24,15 +24,15 @@ namespace StockExchenge.TradeAccount
     public class Trade
     {
         public string symbol { get; set; }
-        public string id { get; set; }
-        public string orderId { get; set; }
-        public string orderListId { get; set; }
-        public string price { get; set; }
-        public string qty { get; set; }
-        public string quoteQty { get; set; }
-        public string commission { get; set; }
+        public long id { get; set; }
+        public long orderId { get; set; }
+        public int orderListId { get; set; }
+        public double price { get; set; }
+        public double qty { get; set; }
+        public double quoteQty { get; set; }
+        public double commission { get; set; }
         public string commissionAsset { get; set; }
-        public string time { get; set; }
+        public long time { get; set; }
         public bool isBuyer { get; set; }
         public bool isMaker { get; set; }
         public bool isBestMatch { get; set; }

@@ -123,7 +123,7 @@ namespace StockExchenge.StreamWs
                 {
                     foreach (var b in balance.B)
                     {
-                        if (PrimitiveConverter.ToDouble(b.f) != 0 || PrimitiveConverter.ToDouble(b.l) != 0)
+                        if (b.f != 0 || b.l != 0)
                         {
                             repositories.BalanceRepository.Update(new DataBaseWork.Models.Balance()
                             {

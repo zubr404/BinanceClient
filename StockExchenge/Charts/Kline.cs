@@ -41,7 +41,7 @@ namespace StockExchenge.Charts
                 {
                     if (WebSocket.Ping())
                     {
-                        OnConnectStateEvent("Kline: Ping ok");
+                        //OnConnectStateEvent("Kline: Ping ok");
                     }
                     else
                     {

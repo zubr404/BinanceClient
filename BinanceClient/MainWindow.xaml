@@ -59,7 +59,7 @@
 
                 <!--Start-->
                 <StackPanel Margin="20,10,0,0">
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.StartCommand}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding CentralPanelScrin1.StartButton.IsEnabled}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.StartCommand}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidGreen}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -77,7 +77,7 @@
 
                 <!--Stop-->
                 <StackPanel Grid.Column="1" Margin="42,10,0,0">
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.StopCommand}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidRed}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -526,16 +526,16 @@
                     <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource Header2}">Strategy</Label>
                     <Label Grid.Row="1" Grid.Column="3" Style="{StaticResource Header2}">Intervals (http)</Label>
                     <Label Grid.Row="1" Grid.Column="4" Style="{StaticResource Header2}">Margin</Label>
-                    <Label Grid.Row="1" Grid.Column="5" Style="{StaticResource Header2}">Tralling stop</Label>
+                    <Label Grid.Row="1" Grid.Column="5" Style="{StaticResource Header2}">Loss</Label>
 
                     <!--row 2-->
-                    <TextBox Grid.Row="2" Grid.Column="0" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfiguration.AltCoin}"></TextBox>
-                    <TextBox Grid.Row="2" Grid.Column="1" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfiguration.MainCoin}"></TextBox>
+                    <TextBox Grid.Row="2" Grid.Column="0" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin}"></TextBox>
+                    <TextBox Grid.Row="2" Grid.Column="1" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfigurationView.MainCoin}"></TextBox>
                     <ComboBox Grid.Row="2" Grid.Column="2" Height="37" Width="107" Foreground="#c3c3c5" FontSize="21"
-                              Style="{StaticResource ComboBoxOther}" ItemsSource="{StaticResource strategies}" SelectedItem="{Binding CentralPanelScrin1.TradeConfiguration.Strategy}"></ComboBox>
-                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfiguration.IntervalHttp}"></TextBox>
-                    <CheckBox Grid.Row="2" Grid.Column="4" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding CentralPanelScrin1.TradeConfiguration.Margin}"></CheckBox>
-                    <TextBox Grid.Row="2" Grid.Column="5" Text="{Binding CentralPanelScrin1.TradeConfiguration.TrallingStop}"></TextBox>
+                              Style="{StaticResource ComboBoxOther}" ItemsSource="{StaticResource strategies}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.Strategy}"></ComboBox>
+                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.IntervalHttp}"></TextBox>
+                    <CheckBox Grid.Row="2" Grid.Column="4" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding CentralPanelScrin1.TradeConfigurationView.Margin}"></CheckBox>
+                    <TextBox Grid.Row="2" Grid.Column="5" Text="{Binding CentralPanelScrin1.TradeConfigurationView.Loss}"></TextBox>
 
                     <!--row 3-->
                     <Label Grid.Row="3" Grid.ColumnSpan="5" Style="{StaticResource Header1}">Grid</Label>
@@ -547,17 +547,18 @@
                     <Label Grid.Row="4" Grid.Column="2" Style="{StaticResource Header2}">Martingale</Label>
                     <Label Grid.Row="4" Grid.Column="3" Style="{StaticResource Header2}">Deposit limit</Label>
                     <Label Grid.Row="4" Grid.Column="5" Style="{StaticResource Header2}">Profit</Label>
-                    <Label Grid.Row="4" Grid.Column="6" Style="{StaticResource Header2}">Tralling forward</Label>
-                    <Label Grid.Row="4" Grid.Column="7" Style="{StaticResource Header2}">Squeeze profit</Label>
+                    <Label Grid.Row="4" Grid.Column="6" Style="{StaticResource Header2}">Indent extrem</Label>
+                    <Label Grid.Row="4" Grid.Column="7" Style="{StaticResource Header2}">Protect spread</Label>
 
                     <!--row 5-->
-                    <TextBox Grid.Row="5" Grid.Column="0" Text="{Binding CentralPanelScrin1.TradeConfiguration.OpenOrders}"></TextBox>
-                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderDeposit}"></TextBox>
-                    <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding CentralPanelScrin1.TradeConfiguration.Martingale}"></TextBox>
-                    <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfiguration.DepositLimit}"></TextBox>
-                    <TextBox Grid.Row="5" Grid.Column="5" Text="{Binding CentralPanelScrin1.TradeConfiguration.Profit}"></TextBox>
-                    <TextBox Grid.Row="5" Grid.Column="6" Text="{Binding CentralPanelScrin1.TradeConfiguration.TrallingForvard}"></TextBox>
-                    <TextBox Grid.Row="5" Grid.Column="7" Text="{Binding CentralPanelScrin1.TradeConfiguration.SqueezeProfit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="0" Text="{Binding CentralPanelScrin1.TradeConfigurationView.OpenOrders}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CentralPanelScrin1.TradeConfigurationView.OrderDeposit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding CentralPanelScrin1.TradeConfigurationView.Martingale}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="5" Text="{Binding CentralPanelScrin1.TradeConfigurationView.Profit}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="6" Text="{Binding CentralPanelScrin1.TradeConfigurationView.IndentExtremum}"></TextBox>
+                    <TextBox Grid.Row="5" Grid.Column="7" Text="{Binding CentralPanelScrin1.TradeConfigurationView.ProtectiveSpread}"
+                             ToolTip="Используется и при стоп-лоссе"></TextBox>
 
                     <!--row 6-->
                     <Label Grid.Row="6" Grid.Column="0" Style="{StaticResource Header2}">Order indent</Label>
@@ -566,10 +567,10 @@
                     <Label Grid.Row="6" Grid.Column="3" Style="{StaticResource Header2}">Order reload</Label>
                     
                     <!--row 7-->
-                    <TextBox Grid.Row="7" Grid.Column="0" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderIndent}"></TextBox>
-                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding CentralPanelScrin1.TradeConfiguration.FirstStep}"></TextBox>
-                    <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderStepPlus}"></TextBox>
-                    <TextBox Grid.Row="7" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfiguration.OrderReload}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="0" Text="{Binding CentralPanelScrin1.TradeConfigurationView.OrderIndent}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding CentralPanelScrin1.TradeConfigurationView.FirstStep}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding CentralPanelScrin1.TradeConfigurationView.OrderStepPlus}"></TextBox>
+                    <TextBox Grid.Row="7" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.OrderReload}"></TextBox>
                 </Grid>
             </Grid>
             

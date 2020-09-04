@@ -50,7 +50,7 @@ namespace StockExchenge.BalanceAccount
 
         private void SaveBalance(Balance balance, string publicKey)
         {
-            if(PrimitiveConverter.ToDouble(balance.Free) != 0 || PrimitiveConverter.ToDouble(balance.Locked) != 0)
+            if(balance.Free != 0 || balance.Free != 0)
             {
                 balanceRepo.Update(new DataBaseWork.Models.Balance()
                 {

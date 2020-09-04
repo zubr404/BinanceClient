@@ -43,7 +43,7 @@ namespace BinanceClient.Models
             get { return intervalHttp; }
             set
             {
-                if(value > 0)
+                if(value >= 0)
                 {
                     intervalHttp = value;
                     base.NotifyPropertyChanged();
@@ -164,15 +164,15 @@ namespace BinanceClient.Models
                 }
             }
         }
-        private double trallingStop;
-        public double TrallingStop
+        private double loss;
+        public double Loss
         {
-            get { return trallingStop; }
+            get { return loss; }
             set
             {
                 if (value > 0)
                 {
-                    trallingStop = value;
+                    loss = value;
                     base.NotifyPropertyChanged();
                 }
             }
@@ -190,28 +190,28 @@ namespace BinanceClient.Models
                 }
             }
         }
-        private double trallingForvard;
-        public double TrallingForvard
+        private double indentExtremum;
+        public double IndentExtremum
         {
-            get { return trallingForvard; }
+            get { return indentExtremum; }
             set
             {
                 if (value > 0)
                 {
-                    trallingForvard = value;
+                    indentExtremum = value;
                     base.NotifyPropertyChanged();
                 }
             }
         }
-        private double squeezeProfit;
-        public double SqueezeProfit
+        private double protectiveSpread;
+        public double ProtectiveSpread
         {
-            get { return squeezeProfit; }
+            get { return protectiveSpread; }
             set
             {
                 if (value > 0)
                 {
-                    squeezeProfit = value;
+                    protectiveSpread = value;
                     base.NotifyPropertyChanged();
                 }
             }

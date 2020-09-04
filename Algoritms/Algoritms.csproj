@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BinanceClient\BinanceClient.csproj" />
     <ProjectReference Include="..\DataBaseWork\DataBaseWork.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
     <ProjectReference Include="..\StockExchenge\StockExchenge.csproj" />

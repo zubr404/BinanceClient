@@ -20,9 +20,9 @@ namespace DataBaseWork.Repositories
             return db.Balances.AsNoTracking();
         }
 
-        public Balance Get(string publicKey)
+        public Balance Get(string publicKey, string asset)
         {
-            return db.Balances.AsNoTracking().FirstOrDefault(x => x.FK_PublicKey == publicKey);
+            return db.Balances.AsNoTracking().FirstOrDefault(x => x.FK_PublicKey == publicKey && x.Asset == asset);
         }
 
         public Balance Update(Balance item) 
