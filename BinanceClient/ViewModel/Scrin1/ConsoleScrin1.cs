@@ -9,13 +9,14 @@ namespace BinanceClient.ViewModel.Scrin1
     /// </summary>
     public class ConsoleScrin1 : PropertyChangedBase
     {
-        private string message;
+        private string message = "";
         public string Message
         {
             get { return message; }
             set
             {
-                message += $"{DateTime.Now} {value}\n";
+                //message += $"{DateTime.Now} {value}\n";
+                message = message.Insert(0, $"{DateTime.Now} {value}\n");
                 base.NotifyPropertyChanged();
             }
         }

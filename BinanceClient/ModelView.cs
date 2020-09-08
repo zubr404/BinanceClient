@@ -10,6 +10,7 @@ using StockExchenge.StreamWs;
 using StockExchenge.TradeAccount;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -52,7 +53,7 @@ namespace BinanceClient
         public ModelView()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
-            dataBase = new DataBaseContext();
+            dataBase = InitializeDataBase();
             balanceRepository = new BalanceRepository(dataBase);
             aPIKeyRepository = new APIKeyRepository(dataBase);
             tradeRepository = new TradeRepository(dataBase);
@@ -99,6 +100,19 @@ namespace BinanceClient
                 new CalculatingData(){ Amount = "0.001432", Equivalent = "10.00710240", PriceInGrid = "6993.37", ProfitPrice = "6993.37", Rebount = "1.5"},
                 new CalculatingData(){  Amount = "0.001432", Equivalent = "10.00710240", PriceInGrid = "6993.37", ProfitPrice = "6993.37", Rebount = "1.5"}
             };
+        }
+
+        private DataBaseContext InitializeDataBase()
+        {
+            try
+            {
+                return new DataBaseContext();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"{ex.Message}\n{ex.InnerException?.Message}", "ERROR DATABASE", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
         }
 
         private void MartingaleReal_MessageDebugEvent(object sender, string e)

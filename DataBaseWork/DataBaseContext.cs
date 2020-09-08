@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.PortableExecutable;
 using System.Text;
+using System.Windows;
 
 namespace DataBaseWork
 {
@@ -27,13 +28,13 @@ namespace DataBaseWork
             }
             catch (Exception ex)
             {
-                
+                throw ex;
             }
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=BinanceDB;Username=postgres;Password=1234567");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=BinanceDB;Username=postgres;Password=123456");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -63,13 +64,13 @@ namespace DataBaseWork
             //-- ('BTC', 'USDT', true),
             //-- ('ETH', 'USDT', true)
 
-            modelBuilder.Entity<ConnectedPair>().HasData(
-            new ConnectedPair[]
-            {
-                new ConnectedPair { ID = 1, MainCoin = "BTC", AltCoin = "ETH", Active = true },
-                new ConnectedPair { ID = 2, MainCoin = "BTC", AltCoin = "USDT", Active = true },
-                new ConnectedPair { ID = 2, MainCoin = "ETH", AltCoin = "USDT", Active = true }
-            });
+            //modelBuilder.Entity<ConnectedPair>().HasData(
+            //new ConnectedPair[]
+            //{
+            //    new ConnectedPair { ID = 1, MainCoin = "BTC", AltCoin = "ETH", Active = true },
+            //    new ConnectedPair { ID = 2, MainCoin = "BTC", AltCoin = "USDT", Active = true },
+            //    new ConnectedPair { ID = 2, MainCoin = "ETH", AltCoin = "USDT", Active = true }
+            //});
         }
     }
 }
