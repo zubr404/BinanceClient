@@ -17,6 +17,10 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 //message += $"{DateTime.Now} {value}\n";
                 message = message.Insert(0, $"{DateTime.Now} {value}\n");
+                if(message.Length > 20000)
+                {
+                    message = message.Remove(15000);
+                }
                 base.NotifyPropertyChanged();
             }
         }

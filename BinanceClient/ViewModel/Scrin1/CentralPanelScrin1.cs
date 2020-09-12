@@ -92,6 +92,23 @@ namespace BinanceClient.ViewModel.Scrin1
                         currentTrades.SocketOpen();
                         userStreamData.StreamStart();
                         martingale.StartAlgoritm();
+
+                        #region test takeprofit
+                        //var lastPrice = 900.0;
+                        //for (int i = 0; i < 10000; i++)
+                        //{
+                        //    martingale.TakeProfitTraking(lastPrice);
+
+                        //    if (i < 300)
+                        //    {
+                        //        lastPrice++;
+                        //    }
+                        //    else if (i >= 300 && i < 600)
+                        //    {
+                        //        lastPrice--;
+                        //    }
+                        //}
+                        #endregion
                     });
                     StartButton.IsEnabled = false;
                     ModelView.ConsoleScrin1.Message = "Алгоритм запущен.";

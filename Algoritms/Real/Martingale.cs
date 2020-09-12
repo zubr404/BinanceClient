@@ -17,26 +17,6 @@ namespace Algoritms.Real
 {
     public class Martingale
     {
-        // загружаем конфиги
-        // загружаем ключи по счетам
-        // загружаем балансы
-        // получаем последние цены по парам
-        // расчет используемого депозита
-        // расчет депозита ордера
-        // расчет отступа от рынка
-        // ...
-
-        // при изменении конфига все активные ордера должны быть удалены.
-
-        // проверить наличие ордеров в БД
-        // если ордеров нет: сохранить оредра в БД
-        // если ордера есть: работаем с ними
-
-        // отслеживаем последнюю цену сделки и исполняем ордера
-        // при исполнении открывающего ордера расчитываем среднюю цену позиции (это можно сделать, выбрав сделки с операцией = настройки Strategy, которые шли после последней сделки с операцией != настройки Strategy)
-
-        // если исполнился лосс или профит все начинаем заново
-
         const string LONG_STRATEGY = "Long";
         const string SHORT_STRATEGY = "Short";
 
@@ -166,11 +146,15 @@ namespace Algoritms.Real
 
                     }
                 }
+                repositoriesM.StopLimitOrderRepository.Create(orders);
+                OnMessageDebugEvent("Сетка ордеров создана.");
             }
-
-            repositoriesM.StopLimitOrderRepository.Create(orders);
+            else
+            {
+                isReload = false;
+                OnMessageDebugEvent("Сетка ордеров уже имеется.");
+            }
             IsActiveAlgoritm = true;
-            OnMessageDebugEvent("Сетка ордеров создана.");
         }
 
         /// <summary>
@@ -190,25 +174,46 @@ namespace Algoritms.Real
         }
 
         bool isDone = true;
+        int countReturn = 0;
         private void CurrentTrades_LastPriceEvent(object sender, LastPriceEventArgs e)
         {
-            if (!isDone) { return; } // ждем окончания выполнения задачи, не останавливая поток данных о сделках
+            if (!isDone) 
+            {
+                countReturn++;
+                if(countReturn > 500)
+                {
+                    isDone = true;
+                    countReturn = 0;
+                    OnMessageDebugEvent("Есть вероятность ошибки!");
+                }
+                return;
+            } // ждем окончания выполнения задачи, не останавливая поток данных о сделках
+
             isDone = false;
+            //OnMessageDebugEvent("isDone = false;");
             Task.Run(() =>
             {
                 if (currentPair != null)
                 {
+                    //OnMessageDebugEvent(currentPair.Pair);
                     if (e.Pair.ToUpper() == currentPair.Pair)
                     {
                         lastPrice = e.LastPrice;
+                        //OnMessageDebugEvent(lastPrice.ToString());
 
                         if (IsActiveAlgoritm)
                         {
+                            //OnMessageDebugEvent("ActiveAlgoritm");
                             if (tradeConfiguration.Strategy == LONG_STRATEGY)
                             {
+                                //OnMessageDebugEvent("LONG_STRATEGY");
                                 // отслеживание OrderReload
                                 var maxPrice = repositoriesM.StopLimitOrderRepository.GetMaxStopPriceBuy(currentPair.Pair);
-                                var indent = ((lastPrice - maxPrice) * 100) / maxPrice;
+                                var indent = 0.0;
+                                if(maxPrice > 0)
+                                {
+                                    indent = ((lastPrice - maxPrice) * 100) / maxPrice;
+                                }
                                 if (indent > tradeConfiguration.OrderReload && tradeConfiguration.OrderReload > 0 && isReload)
                                 {
                                     OnMessageDebugEvent("Перемещение сетки OrderReload.");
@@ -222,6 +227,7 @@ namespace Algoritms.Real
 
                                 foreach (var stopOrder in stopOrders)
                                 {
+                                    //OnMessageDebugEvent("отслеживание исполнения стопов");
                                     try
                                     {
                                         if (lastPrice <= stopOrder.StopPrice)
@@ -241,6 +247,7 @@ namespace Algoritms.Real
 
                                                 if (ProcessingErrorOrder(orderResponse, publicKey))
                                                 {
+                                                    OnMessageDebugEvent("Открытие позы на Бинансе: УСПЕШНО");
                                                     // запрашиваем сделки с биржи
                                                     repositoriesM.TradeAccountInfo.RequestedTrades(publicKey, secretKey, tradeConfiguration);
                                                     // считаем среднюю цену позы
@@ -272,20 +279,31 @@ namespace Algoritms.Real
                                                         Active = true
                                                     });
                                                 }
+                                                else
+                                                {
+                                                    OnMessageDebugEvent("Открытие позы на Бинансе: ОШИБКА");
+                                                }
                                             }
                                             else // сработал стоп-лосс
                                             {
                                                 // выставляеим на Бинансе
                                                 var orderResponse = SendOrder(stopOrder.Pair, stopOrder.IsBuyOperation, stopOrder.Amount, publicKey, secretKey);
-                                                if(!ProcessingErrorOrder(orderResponse, publicKey))
+                                                if (ProcessingErrorOrder(orderResponse, publicKey))
+                                                {
+                                                    OnMessageDebugEvent("Стоп-лосс на Бинансе: УСПЕШНО");
+                                                    // все снимаем
+                                                    repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                    repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+                                                    // начинаем заново
+                                                    StartAlgoritm();
+                                                }
+                                                else
                                                 {
                                                     OnMessageErrorEvent("ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета.");
+                                                    // все снимаем
+                                                    repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                    repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
                                                 }
-                                                // все снимаем
-                                                repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
-                                                repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-                                                // начинаем заново
-                                                StartAlgoritm();
                                             }
                                         }
                                         else
@@ -296,6 +314,7 @@ namespace Algoritms.Real
                                     catch (Exception ex)
                                     {
                                         // TODO: loging
+                                        OnMessageDebugEvent($"System error: {ex.Message}");
                                     }
                                 }
 
@@ -303,43 +322,51 @@ namespace Algoritms.Real
                                 var takeProfits = repositoriesM.TakeProfitOrderRepository.GetActive(currentPair.Pair).OrderBy(x => x.StopPrice);
                                 foreach (var order in takeProfits)
                                 {
-                                    if (lastPrice >= order.StopPrice)
+                                    //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
+                                    if (lastPrice >= order.StopPrice && order.ExtremumPrice <= 0)
                                     {
                                         // update ExtremumPrice
+                                        OnMessageDebugEvent($"Initialize ExtremumPrice: {lastPrice}");
                                         repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
-                                    }
-                                    else
-                                    {
-                                        break;
                                     }
                                 }
 
-                                takeProfits = takeProfits.OrderByDescending(x => x.ExtremumPrice);
+                                takeProfits = takeProfits.Where(x => x.ExtremumPrice > 0).OrderByDescending(x => x.ExtremumPrice);
                                 foreach (var order in takeProfits)
                                 {
                                     // get secret key
                                     var publicKey = order.FK_PublicKey;
                                     var secretKey = repositoriesM.APIKeyRepository.GetSecretKey(publicKey);
 
-                                    var indentExtremum = ((order.ExtremumPrice - lastPrice) * 100) / lastPrice;
+                                    var indentExtremum = ((order.ExtremumPrice - lastPrice) * 100) / order.ExtremumPrice;
+                                    //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
                                     if (indentExtremum >= order.IndentExtremum)
                                     {
                                         // выставляеим на Бинансе
                                         var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
-                                        if (!ProcessingErrorOrder(orderResponse, publicKey))
+                                        if (ProcessingErrorOrder(orderResponse, publicKey))
+                                        {
+                                            OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
+                                            // все снимаем
+                                            repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                            repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+                                            // начинаем заново
+                                            StartAlgoritm();
+                                        }
+                                        else
                                         {
                                             OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
+                                            // все снимаем
+                                            repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                            repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
                                         }
-                                        // все снимаем
-                                        repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
-                                        repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-                                        // начинаем заново
-                                        StartAlgoritm();
                                     }
 
+                                    //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
                                     if (lastPrice > order.ExtremumPrice && order.ExtremumPrice > 0)
                                     {
                                         // update ExtremumPrice
+                                        OnMessageDebugEvent($"Update ExtremumPrice: {lastPrice}");
                                         repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
                                     }
                                 }
@@ -352,9 +379,64 @@ namespace Algoritms.Real
                         }
                     }
                 }
+
                 isDone = true;
+                countReturn = 0;
+                //OnMessageDebugEvent("isDone = true;");
             });
         }
+
+        #region test takeprofit
+        public void TakeProfitTraking(double _lastPrice)
+        {
+            //throw new NotImplementedException();
+            // отслеживание тейк-профитов
+            var takeProfits = repositoriesM.TakeProfitOrderRepository.GetActive("BTCUSDT").OrderBy(x => x.StopPrice);
+            foreach (var order in takeProfits)
+            {
+                if (_lastPrice >= order.StopPrice && order.ExtremumPrice <= 0)
+                {
+                    // update ExtremumPrice
+                    repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, _lastPrice);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            takeProfits = takeProfits.Where(x => x.ExtremumPrice > 0).OrderByDescending(x => x.ExtremumPrice);
+            foreach (var order in takeProfits)
+            {
+                // get secret key
+                //var publicKey = order.FK_PublicKey;
+                //var secretKey = repositoriesM.APIKeyRepository.GetSecretKey(publicKey);
+
+                var indentExtremum = ((order.ExtremumPrice - _lastPrice) * 100) / order.ExtremumPrice;
+                if (indentExtremum >= order.IndentExtremum)
+                {
+                    OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился!");
+                    //// выставляеим на Бинансе
+                    //var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
+                    //if (!ProcessingErrorOrder(orderResponse, publicKey))
+                    //{
+                    //    OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
+                    //}
+                    // все снимаем
+                    repositoriesM.StopLimitOrderRepository.DeactivationAllOrders("ztAZCxiv8UEJYU146zdTokXvqB3ygUHFAKbZxBxadZpqw7EZS8pUG9Yos0BezsNO");
+                    repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders("ztAZCxiv8UEJYU146zdTokXvqB3ygUHFAKbZxBxadZpqw7EZS8pUG9Yos0BezsNO");
+                    //// начинаем заново
+                    //StartAlgoritm();
+                }
+
+                if (_lastPrice > order.ExtremumPrice && order.ExtremumPrice > 0)
+                {
+                    // update ExtremumPrice
+                    repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, _lastPrice);
+                }
+            }
+        }
+        #endregion
 
         private OrderResponse SendOrder(string pair, bool isBuyer, double amount, string publicKey, string secretKey)
         {
@@ -437,7 +519,7 @@ namespace Algoritms.Real
             if(trades != null)
             {
                 var sumMoney = trades.Sum(x => x.QuoteQty);
-                var sumAmount = trades.Sum(x => x.Qty);
+                var sumAmount = trades.Sum(x => x.Qty - x.Commission);
                 var avgPrice = 0.0;
                 if (sumAmount != 0)
                 {
@@ -489,25 +571,5 @@ namespace Algoritms.Real
         public CurrentTrades CurrentTrades { get; set; }
         public ExchangeInfo ExchangeInfo { get; set; }
         public TradeAccountInfo TradeAccountInfo { get; set; }
-    }
-
-    public class CurrentPair
-    {
-        public string BaseAsset { get; private set; }
-        public string QuoteAsset { get; private set; }
-        public string Pair { get; private set; }
-
-        public CurrentPair(string baseAsset, string quoteAsset)
-        {
-            BaseAsset = baseAsset;
-            QuoteAsset = quoteAsset;
-            SetCurrentPair();
-        }
-
-        private void SetCurrentPair()
-        {
-            Pair = $"{BaseAsset}{QuoteAsset}".ToUpper();
-        }
-
     }
 }

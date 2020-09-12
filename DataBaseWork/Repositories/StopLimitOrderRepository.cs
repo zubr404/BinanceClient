@@ -26,7 +26,10 @@ namespace DataBaseWork.Repositories
             var orders = db.StopLimitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower() && x.IsBuyOperation).AsNoTracking();
             if(orders != null)
             {
-                return orders.Max(x => x.StopPrice);
+                if(orders.Count() > 0)
+                {
+                    return orders.Max(x => x.StopPrice);
+                }
             }
             return 0;
         }
@@ -36,7 +39,10 @@ namespace DataBaseWork.Repositories
             var orders = db.StopLimitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower() && !x.IsBuyOperation).AsNoTracking();
             if (orders != null)
             {
-                return orders.Min(x => x.StopPrice);
+                if (orders.Count() > 0)
+                {
+                    return orders.Min(x => x.StopPrice);
+                }
             }
             return 0;
         }
