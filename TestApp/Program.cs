@@ -66,7 +66,12 @@ namespace TestApp
             /*var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));
             userStream.StreamStart();*/
 
-
+            var logService = new Services.LogService();
+            //Console.WriteLine(logService.CreateDirLog());
+            logService.CreateLogFile();
+            logService.CreateLogFile();
+            logService.Write("fdsghsklhg");
+            logService.Write("rrrrrrrrrrrrrrrr", true);
 
             Console.WriteLine("FINISH");
             Console.ReadKey();
