@@ -76,6 +76,7 @@ namespace StockExchenge.MarketTrades
 
         public void SocketOpen()
         {
+            GetPairs();
             Disconnect();
             string pairParams = "";
             foreach (var pair in pairs)

@@ -221,10 +221,10 @@ namespace Algoritms.Real
         int countReturn = 0;
         private void CurrentTrades_LastPriceEvent(object sender, LastPriceEventArgs e)
         {
-            if (!isDone) 
+            if (!isDone)
             {
                 countReturn++;
-                if(countReturn > 500)
+                if (countReturn > 500)
                 {
                     isDone = true;
                     countReturn = 0;
@@ -234,22 +234,23 @@ namespace Algoritms.Real
                 return;
             } // ждем окончания выполнения задачи, не останавливая поток данных о сделках
 
-            logService.Write("------------------CurrentTrades_LastPriceEvent------------------");
             isDone = false;
             //OnMessageDebugEvent("isDone = false;");
             Task.Run(() =>
             {
-                if (currentPair != null)
+                if (IsActiveAlgoritm)
                 {
-                    //OnMessageDebugEvent(currentPair.Pair);
-                    if (e.Pair.ToUpper() == currentPair.Pair)
+                    if (currentPair != null)
                     {
-                        lastPrice = e.LastPrice;
-                        //OnMessageDebugEvent(lastPrice.ToString());
-                        logService.Write($"currentPair.Pair: {currentPair.Pair} lastPrice: {lastPrice} IsActiveAlgoritm: {IsActiveAlgoritm} Strategy: {tradeConfiguration.Strategy}");
-
-                        if (IsActiveAlgoritm)
+                        //OnMessageDebugEvent(currentPair.Pair);
+                        if (e.Pair.ToUpper() == currentPair.Pair)
                         {
+                            lastPrice = e.LastPrice;
+                            //OnMessageDebugEvent(lastPrice.ToString());
+                            logService.Write("------------------CurrentTrades_LastPriceEvent------------------");
+                            logService.Write($"currentPair.Pair: {currentPair.Pair} lastPrice: {lastPrice} IsActiveAlgoritm: {IsActiveAlgoritm} Strategy: {tradeConfiguration.Strategy}");
+
+
                             //OnMessageDebugEvent("ActiveAlgoritm");
                             if (tradeConfiguration.Strategy == LONG_STRATEGY)
                             {
@@ -259,7 +260,7 @@ namespace Algoritms.Real
                                 logService.Write($"maxPrice: {maxPrice}");
 
                                 var indent = 0.0;
-                                if(maxPrice > 0)
+                                if (maxPrice > 0)
                                 {
                                     indent = ((lastPrice - maxPrice) * 100) / maxPrice;
                                 }
@@ -295,7 +296,7 @@ namespace Algoritms.Real
 
                                             if (stopOrder.IsBuyOperation)
                                             {
-                                                logService.Write("Сработал стоп на открытие позиции");
+                                                logService.Write($"Сработал стоп на открытие позиции: stopOrder.Pair: {stopOrder.Pair} stopOrder.IsBuyOperation: {stopOrder.IsBuyOperation} stopOrder.Amount: {stopOrder.Amount}");
                                                 isReload = false; // если есть иполнение запрещаем перестановку ордеров
 
                                                 // обновляем стоп
@@ -303,7 +304,8 @@ namespace Algoritms.Real
                                                 // выставляеим на Бинансе
                                                 var orderResponse = SendOrder(stopOrder.Pair, stopOrder.IsBuyOperation, stopOrder.Amount, publicKey, secretKey);
 
-                                                if (ProcessingErrorOrder(orderResponse, publicKey))
+                                                var messageError = "";
+                                                if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                                 {
                                                     OnMessageDebugEvent("Открытие позы на Бинансе: УСПЕШНО");
                                                     logService.Write("Открытие позы на Бинансе: УСПЕШНО");
@@ -351,7 +353,14 @@ namespace Algoritms.Real
                                                 else
                                                 {
                                                     OnMessageDebugEvent("Открытие позы на Бинансе: ОШИБКА");
-                                                    logService.Write("Открытие позы на Бинансе: ОШИБКА");
+                                                    logService.Write($"Открытие позы на Бинансе: ОШИБКА - {messageError}");
+                                                    // все снимаем
+                                                    repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                    repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+
+                                                    IsActiveAlgoritm = false;
+                                                    EndTask();
+                                                    return;
                                                 }
                                             }
                                             else // сработал стоп-лосс
@@ -359,7 +368,9 @@ namespace Algoritms.Real
                                                 logService.Write("Сработал стоп-лосс");
                                                 // выставляеим на Бинансе
                                                 var orderResponse = SendOrder(stopOrder.Pair, stopOrder.IsBuyOperation, stopOrder.Amount, publicKey, secretKey);
-                                                if (ProcessingErrorOrder(orderResponse, publicKey))
+
+                                                var messageError = "";
+                                                if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                                 {
                                                     OnMessageDebugEvent("Стоп-лосс на Бинансе: УСПЕШНО");
                                                     logService.Write("Стоп-лосс на Бинансе: УСПЕШНО");
@@ -374,11 +385,12 @@ namespace Algoritms.Real
                                                 else
                                                 {
                                                     OnMessageErrorEvent("ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета.");
-                                                    logService.Write("ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета.");
+                                                    logService.Write($"ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета. - {messageError}");
                                                     // все снимаем
                                                     repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
                                                     repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-                                                    
+
+                                                    IsActiveAlgoritm = false;
                                                     EndTask();
                                                     return;
                                                 }
@@ -431,9 +443,13 @@ namespace Algoritms.Real
 
                                     if (indentExtremum >= order.IndentExtremum)
                                     {
+                                        logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
+
                                         // выставляеим на Бинансе
                                         var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
-                                        if (ProcessingErrorOrder(orderResponse, publicKey))
+
+                                        var messageError = "";
+                                        if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                         {
                                             OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
                                             logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
@@ -448,12 +464,13 @@ namespace Algoritms.Real
                                         else
                                         {
                                             OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
-                                            logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
+                                            logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
 
                                             // все снимаем
                                             repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
                                             repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
 
+                                            IsActiveAlgoritm = false;
                                             EndTask();
                                             return;
                                         }
@@ -479,7 +496,6 @@ namespace Algoritms.Real
                         }
                     }
                 }
-
                 EndTask();
                 //OnMessageDebugEvent("isDone = true;");
             });
@@ -547,6 +563,9 @@ namespace Algoritms.Real
         {
             var orderSender = new OrderSender();
             var parametrs = orderSender.GetTransacParam(pair, isBuyer, amount);
+            logService.Write($"----------------- SendOrder -----------------");
+            logService.Write($"parametrs: {parametrs}");
+            logService.Write($"---------------------------------------------");
             var orderResponse = orderSender.Order(parametrs, publicKey, secretKey);
             return orderResponse;
         }
@@ -636,18 +655,21 @@ namespace Algoritms.Real
             return result;
         }
 
-        private bool ProcessingErrorOrder(OrderResponse orderResponse, string publicKey)
+        private bool ProcessingErrorOrder(OrderResponse orderResponse, string publicKey, out string messageError)
         {
+            messageError = "";
             if (orderResponse != null)
             {
                 if (!string.IsNullOrWhiteSpace(orderResponse.Msg))
                 {
+                    messageError = $"Ошибка ({orderResponse.Msg}) при выставлении ордера по счету: {publicKey}";
                     OnMessageErrorEvent($"Ошибка ({orderResponse.Msg}) при выставлении ордера по счету: {publicKey}");
                     return false;
                 }
             }
             else
             {
+                messageError = $"Неизвестная ошибка при выставлении ордера по счету: {publicKey}.orderResponse = null";
                 OnMessageErrorEvent($"Неизвестная ошибка при выставлении ордера по счету: {publicKey}.orderResponse = null");
                 return false;
             }
