@@ -27,9 +27,8 @@ namespace Algoritms.Real
         private List<APIKey> apiKeys;
 
         private CurrentPair currentPair;
+        private ExchangeSettingsPair exchangeSettingsPair;
         private double lastPrice;
-        private int basePrecision;
-        private int quotePrecision;
 
         public event EventHandler<string> MessageErrorEvent;
         public event EventHandler<string> MessageDebugEvent;
@@ -113,14 +112,14 @@ namespace Algoritms.Real
                         {
                             continue;
                         }
-                        var allowedBalance = RoundQuote(GetAllowedBalance(freeBalance));
+                        var allowedBalance = RoundQuoteAsset(GetAllowedBalance(freeBalance));
                         logService.Write($"allowedBalance: {allowedBalance}");
 
-                        var stopPricePreviosOrder = RoundQuote(lastPrice - (lastPrice * tradeConfiguration.OrderIndent / 100));
+                        var stopPricePreviosOrder = RoundQuoteAsset(lastPrice - (lastPrice * tradeConfiguration.OrderIndent / 100));
                         //var stopPricePreviosOrder = RoundQuote(10950.0 - (10950.0 * tradeConfiguration.OrderIndent / 100));
                         logService.Write($"stopPricePreviosOrder: {stopPricePreviosOrder}");
 
-                        var amountPreviosOrder = tradeConfiguration.OrderDeposit;
+                        var amountPreviosOrder = RoundLotSize(tradeConfiguration.OrderDeposit);
                         logService.Write($"amountPreviosOrder: {amountPreviosOrder}");
 
                         orders.Add(new StopLimitOrder()
@@ -140,8 +139,8 @@ namespace Algoritms.Real
                         while (true)
                         {
                             logService.Write($"while (true)----------------------");
-                            stopPricePreviosOrder = RoundQuote(stopPricePreviosOrder - ((stopPricePreviosOrder * tradeConfiguration.FirstStep / 100) + (stopPricePreviosOrder * tradeConfiguration.OrderStepPlus / 100)));
-                            amountPreviosOrder = RoundQuote(amountPreviosOrder + (amountPreviosOrder * tradeConfiguration.Martingale / 100));
+                            stopPricePreviosOrder = RoundQuoteAsset(stopPricePreviosOrder - ((stopPricePreviosOrder * tradeConfiguration.FirstStep / 100) + (stopPricePreviosOrder * tradeConfiguration.OrderStepPlus / 100)));
+                            amountPreviosOrder = RoundLotSize(amountPreviosOrder + (amountPreviosOrder * tradeConfiguration.Martingale / 100));
                             allowedBalance -= amountPreviosOrder * stopPricePreviosOrder;
 
                             logService.Write($"stopPricePreviosOrder: {stopPricePreviosOrder}");
@@ -224,7 +223,7 @@ namespace Algoritms.Real
             if (!isDone)
             {
                 countReturn++;
-                if (countReturn > 500)
+                if (countReturn > 5000)
                 {
                     isDone = true;
                     countReturn = 0;
@@ -324,10 +323,10 @@ namespace Algoritms.Real
                                                     {
                                                         FK_PublicKey = publicKey,
                                                         Pair = stopOrder.Pair,
-                                                        StopPrice = getAvgResult.AvgPrice + (getAvgResult.AvgPrice * tradeConfiguration.Profit / 100),
+                                                        StopPrice = RoundQuoteAsset(getAvgResult.AvgPrice + (getAvgResult.AvgPrice * tradeConfiguration.Profit / 100)),
                                                         IndentExtremum = tradeConfiguration.IndentExtremum,
                                                         ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
-                                                        Amount = Math.Abs(getAvgResult.SumAmount),
+                                                        Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
                                                         IsBuyOperation = false,
                                                         Active = true
                                                     };
@@ -340,9 +339,9 @@ namespace Algoritms.Real
                                                     {
                                                         FK_PublicKey = publicKey,
                                                         Pair = stopOrder.Pair,
-                                                        StopPrice = getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100),
+                                                        StopPrice = RoundQuoteAsset(getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100)),
                                                         Price = 0,
-                                                        Amount = getAvgResult.SumAmount,
+                                                        Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
                                                         IsBuyOperation = false,
                                                         Active = true
                                                     };
@@ -559,13 +558,18 @@ namespace Algoritms.Real
         }
         #endregion
 
-        private OrderResponse SendOrder(string pair, bool isBuyer, double amount, string publicKey, string secretKey)
+        public OrderResponse SendOrder(string pair, bool isBuyer, double amount, string publicKey, string secretKey)
         {
             var orderSender = new OrderSender();
             var parametrs = orderSender.GetTransacParam(pair, isBuyer, amount);
-            logService.Write($"----------------- SendOrder -----------------");
-            logService.Write($"parametrs: {parametrs}");
-            logService.Write($"---------------------------------------------");
+
+            if(logService != null)
+            {
+                logService.Write($"----------------- SendOrder -----------------");
+                logService.Write($"parametrs: {parametrs}");
+                logService.Write($"---------------------------------------------");
+            }
+            
             var orderResponse = orderSender.Order(parametrs, publicKey, secretKey);
             return orderResponse;
         }
@@ -594,17 +598,26 @@ namespace Algoritms.Real
             return repositoriesM.BalanceRepository.Get(publicKey, currentPair.QuoteAsset);
         }
 
-        private double RoundBase(double value)
+        private double RoundBaseAsset(double value)
         {
-            return Math.Round(value, basePrecision);
+            return Math.Round(value, exchangeSettingsPair.BasePrecision);
         }
-        private double RoundQuote(double value)
+        private double RoundQuoteAsset(double value)
         {
-            return Math.Round(value, quotePrecision);
+            return Math.Round(value, exchangeSettingsPair.QuotePrecision);
+        }
+
+        private double RoundLotSize(double value)
+        {
+            decimal size = (decimal)value;
+            int sizeInt = (int)(size / exchangeSettingsPair.LotSizeFilter.StepSize);
+            decimal roundSize = sizeInt * exchangeSettingsPair.LotSizeFilter.StepSize;
+            return (double)roundSize;
         }
 
         private void GetExchangeInfo()
         {
+            exchangeSettingsPair = new ExchangeSettingsPair();
             try
             {
                 var jsonString = repositoriesM.ExchangeInfo.Info;
@@ -614,8 +627,17 @@ namespace Algoritms.Real
                 {
                     if (symbol.symbol == currentPair.Pair)
                     {
-                        quotePrecision = symbol.quotePrecision;
-                        basePrecision = symbol.baseAssetPrecision;
+                        exchangeSettingsPair.QuotePrecision = symbol.quotePrecision;
+                        exchangeSettingsPair.BasePrecision = symbol.baseAssetPrecision;
+                        foreach (var filter in symbol.filters)
+                        {
+                            if(filter.filterType == "LOT_SIZE")
+                            {
+                                decimal stepSize;
+                                decimal.TryParse(filter.stepSize.ToString(), NumberStyles.Number, new CultureInfo("en-US"), out stepSize);
+                                exchangeSettingsPair.LotSizeFilter.StepSize = stepSize;
+                            }
+                        }
                         break;
                     }
                 }

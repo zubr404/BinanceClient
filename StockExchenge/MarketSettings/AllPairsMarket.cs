@@ -7,6 +7,8 @@ namespace StockExchenge.MarketSettings
 {
     public class AllPairsMarket
     {
+
+        public const string STATUS_TRADING = "TRADING";
         public List<MarketPair> MarketPairs { get; private set; }
 
         public AllPairsMarket(string data)
@@ -17,24 +19,36 @@ namespace StockExchenge.MarketSettings
 
         private void GetPairs(string data)
         {
-            try
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                var jsonString = data;
-                dynamic entity = JConverter.JsonConvertDynamic(jsonString);
-
-                foreach (var symbol in entity.symbols)
+                try
                 {
-                    //if (symbol.symbol == currentPair.Pair)
-                    //{
-                    //    quotePrecision = symbol.quotePrecision;
-                    //    basePrecision = symbol.baseAssetPrecision;
-                    //    break;
-                    //}
+                    var jsonString = data;
+                    dynamic entity = JConverter.JsonConvertDynamic(jsonString);
+
+                    foreach (var symbol in entity.symbols)
+                    {
+                        if (symbol.status == STATUS_TRADING)
+                        {
+                            MarketPairs.Add(new MarketPair()
+                            {
+                                BaseAsset = symbol.baseAsset,
+                                QuoteAsset = symbol.quoteAsset,
+                                Pair = symbol.symbol,
+                                Status = symbol.status
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // TODO: запись лога в БД
+                    throw ex;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                // TODO: запись лога в БД
+                throw new ArgumentException("Value IsNullOrWhiteSpace", "data");
             }
         }
     }

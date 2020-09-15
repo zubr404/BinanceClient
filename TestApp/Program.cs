@@ -66,12 +66,19 @@ namespace TestApp
             /*var userStream = new StockExchenge.StreamWs.UserStreamData(new APIKeyRepository(new DataBaseContext()));
             userStream.StreamStart();*/
 
-            var logService = new Services.LogService();
-            //Console.WriteLine(logService.CreateDirLog());
-            logService.CreateLogFile();
-            logService.CreateLogFile();
-            logService.Write("fdsghsklhg");
-            logService.Write("rrrrrrrrrrrrrrrr", true);
+            //var alg = new Algoritms.Real.Martingale();
+            //var result = alg.SendOrder("ETHUSDT", false, 0.02997, "ztAZCxiv8UEJYU146zdTokXvqB3ygUHFAKbZxBxadZpqw7EZS8pUG9Yos0BezsNO", "ZzzmG2XkUiBk4hpoF98u3jnP3R5NN39nU6CS5MW65d3WsyzbtGxGT7bboz2fXVDT");
+
+            //Console.WriteLine($"{result.OrderId}\n{result.Msg}");
+
+            double value = 249.03123456;
+            decimal step = 0.00001m;
+            Console.WriteLine(value);
+            int res = (int)((decimal)value / step);
+            decimal roundSize = res * step;
+            double result = (double)roundSize;
+
+            Console.WriteLine(result);
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

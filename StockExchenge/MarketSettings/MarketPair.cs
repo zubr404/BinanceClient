@@ -20,7 +20,6 @@ namespace StockExchenge.MarketSettings
     */
     public class MarketPair
     {
-        public const string STATUS_TRADING = "TRADING";
         public string BaseAsset { get; set; }
         public string QuoteAsset { get; set; }
         public string Pair { get; set; }

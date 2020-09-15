@@ -25,8 +25,14 @@ namespace BinanceClient
         public static ExchangeInfo ExchangeInfo { get; private set; }
         public MainWindow()
         {
-            ExchangeInfo = new ExchangeInfo();
-            ExchangeInfo.GetInfo();
+            try
+            {
+                ExchangeInfo = new ExchangeInfo();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             InitializeComponent();
         }
 

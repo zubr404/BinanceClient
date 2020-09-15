@@ -8,10 +8,13 @@ namespace StockExchenge.MarketSettings
     public class ExchangeInfo
     {
         public string Info { get; private set; }
+        public AllPairsMarket AllPairsMarket { get; private set; }
+
         private readonly PublicRequester publicRequester;
         public ExchangeInfo()
         {
             publicRequester = new PublicRequester();
+            AllPairsMarket = new AllPairsMarket(GetInfo());
         }
         public string GetInfo()
         {
@@ -24,8 +27,8 @@ namespace StockExchenge.MarketSettings
             catch (Exception ex)
             {
                 // TODO: Сохранеие логово
+                throw ex;
             }
-            return "";
         }
     }
 }
