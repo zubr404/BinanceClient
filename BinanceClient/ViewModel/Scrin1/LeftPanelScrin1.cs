@@ -33,7 +33,7 @@ namespace BinanceClient.ViewModel.Scrin1
             colorButtons.Add(CalculatorButton);
             colorButtons.Add(GeneralStatisticsButton);
             colorButtons.Add(BackTestingButton);
-            InicializeColor();
+            InitializeColor();
         }
 
         public void ManagingBackground(ButtonName buttonName)
@@ -51,7 +51,7 @@ namespace BinanceClient.ViewModel.Scrin1
             }
         }
 
-        private void InicializeColor()
+        private void InitializeColor()
         {
             foreach (var item in colorButtons)
             {

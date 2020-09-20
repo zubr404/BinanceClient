@@ -46,6 +46,7 @@ namespace BinanceClient
         public LeftPanelScrin1 LeftPanelScrin1 { get; private set; }
         public RightPanelScrin1 RightPanelScrin1 { get; private set; }
         public CentralPanelScrin1 CentralPanelScrin1 { get; private set; }
+        public PairPanelScrin1 PairPanelScrin1 { get; private set; }
 
         // test
         public List<CalculatingData> CalculatingDatas { get; set; }
@@ -62,6 +63,9 @@ namespace BinanceClient
             connectedPairRepository = new ConnectedPairRepository(dataBase);
             stopLimitOrderRepository = new StopLimitOrderRepository(dataBase);
             takeProfitOrderRepository = new TakeProfitOrderRepository(dataBase);
+
+            var connectedPairService = new ConnectedPairService(connectedPairRepository);
+            connectedPairService.InitializeConnectedPair(MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs);
 
             accountInfo = new AccountInfo(aPIKeyRepository, balanceRepository);
             tradeAccountInfo = new TradeAccountInfo(aPIKeyRepository, tradeConfigRepository, tradeRepository);
@@ -92,7 +96,8 @@ namespace BinanceClient
             KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository);
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, MartingaleReal);
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, MartingaleReal, KeyPanelScrin1);
+            PairPanelScrin1 = new PairPanelScrin1(connectedPairRepository);
             ChartService = new ChartService(dispatcher);
 
             CalculatingDatas = new List<CalculatingData>()
@@ -142,15 +147,16 @@ namespace BinanceClient
             }
         }
 
-        #region Кнопки верхней панели
-        private RelayCommand apiKeyCommand;
-        public RelayCommand ApiKeyCommand
+        #region Кнопки верхней панели (плохо: кнопки Старт, Стоп, Аппли, АпиКей в классе CentralPanelScrin1)
+        private RelayCommand pairCommand;
+        public RelayCommand PairCommand
         {
             get
             {
-                return apiKeyCommand ?? new RelayCommand((object o) =>
+                return pairCommand ?? new RelayCommand((object o) =>
                 {
-                    KeyPanelScrin1.OpenPanel();
+                    ScrinManager.ManagingScrin(ScrinName.ScrinPairConnected);
+                    PairPanelScrin1.GetPairs();
                 });
             }
         }

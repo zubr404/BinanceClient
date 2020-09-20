@@ -13,6 +13,7 @@ namespace BinanceClient
         public Scrin ScrinCalculator { get; set; }
         public Scrin ScrinGeneralStatistic { get; set; }
         public Scrin ScrinBacktesting { get; set; }
+        public Scrin ScrinPairConnected { get; set; }
 
         private List<Scrin> scrins;
 
@@ -24,12 +25,14 @@ namespace BinanceClient
             ScrinCalculator = new Scrin() { Name = ScrinName.ScrinCalculator };
             ScrinGeneralStatistic = new Scrin() { Name = ScrinName.ScrinGeneralStatistic };
             ScrinBacktesting = new Scrin() { Name = ScrinName.ScrinBacktesting };
+            ScrinPairConnected = new Scrin() { Name = ScrinName.ScrinPairConnected };
             scrins.Add(Scrin1);
             scrins.Add(ScrinCurrentStatistic);
             scrins.Add(ScrinCalculator);
             scrins.Add(ScrinGeneralStatistic);
             scrins.Add(ScrinBacktesting);
-            InicializeScrin();
+            scrins.Add(ScrinPairConnected);
+            InitializeScrin();
         }
 
         public void ManagingScrin(ScrinName scrinName)
@@ -47,7 +50,7 @@ namespace BinanceClient
             }
         }
 
-        private void InicializeScrin()
+        private void InitializeScrin()
         {
             foreach (var scrin in scrins)
             {

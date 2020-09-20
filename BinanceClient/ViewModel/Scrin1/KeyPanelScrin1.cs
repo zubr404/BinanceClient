@@ -18,7 +18,7 @@ namespace BinanceClient.ViewModel.Scrin1
             APIKeyView = new APIKeyView();
         }
 
-        private double height;
+        private double height = 0;
         public double Height
         {
             get { return height; }
@@ -29,7 +29,7 @@ namespace BinanceClient.ViewModel.Scrin1
             }
         }
 
-        private double width;
+        private double width = 0;
         public double Width
         {
             get { return width; }

@@ -71,14 +71,17 @@ namespace TestApp
 
             //Console.WriteLine($"{result.OrderId}\n{result.Msg}");
 
-            double value = 249.03123456;
+            /*double value = 249.03123456;
             decimal step = 0.00001m;
             Console.WriteLine(value);
             int res = (int)((decimal)value / step);
             decimal roundSize = res * step;
             double result = (double)roundSize;
 
-            Console.WriteLine(result);
+            Console.WriteLine(result);*/
+
+            Console.WriteLine("AAAAAABBB".GetHashCode());
+            Console.WriteLine("AAAAAABBB".GetHashCode());
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

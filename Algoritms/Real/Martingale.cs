@@ -119,7 +119,7 @@ namespace Algoritms.Real
                         //var stopPricePreviosOrder = RoundQuote(10950.0 - (10950.0 * tradeConfiguration.OrderIndent / 100));
                         logService.Write($"stopPricePreviosOrder: {stopPricePreviosOrder}");
 
-                        var amountPreviosOrder = RoundLotSize(tradeConfiguration.OrderDeposit);
+                        var amountPreviosOrder = RoundLotSize(RoundLotSize(tradeConfiguration.OrderDeposit / lastPrice));
                         logService.Write($"amountPreviosOrder: {amountPreviosOrder}");
 
                         orders.Add(new StopLimitOrder()
@@ -496,7 +496,6 @@ namespace Algoritms.Real
                     }
                 }
                 EndTask();
-                //OnMessageDebugEvent("isDone = true;");
             });
         }
 
@@ -504,6 +503,7 @@ namespace Algoritms.Real
         {
             isDone = true;
             countReturn = 0;
+            logService.Write($"***  end TASK -----------------");
         }
 
         #region test takeprofit
@@ -660,19 +660,30 @@ namespace Algoritms.Real
             var timeLastSell = repositoriesM.TradeRepository.GetTimeLastTrade(publicKey, isBuyer, tradeConfiguration.ActivationTime);
 
             OnMessageDebugEvent($"timeLastSell: {timeLastSell}");
+            logService.Write($"timeLastSell: {timeLastSell}");
 
             var trades = repositoriesM.TradeRepository.Get(publicKey, timeLastSell > 0 ? timeLastSell : tradeConfiguration.ActivationTime, !isBuyer);
             if(trades != null)
             {
                 var sumMoney = trades.Sum(x => x.QuoteQty);
                 var sumAmount = trades.Sum(x => x.Qty - x.Commission);
-                var avgPrice = 0.0;
+                var sumAmountWithoutCommision = trades.Sum(x => x.Qty);
+                var avgPrice = 0.0M;
                 if (sumAmount != 0)
                 {
-                    avgPrice = sumMoney / sumAmount;
+                    avgPrice = (decimal)sumMoney / (decimal)sumAmountWithoutCommision;
                     result.SumAmount = sumAmount;
-                    result.AvgPrice = avgPrice;
+                    result.AvgPrice = (double)avgPrice;
                 }
+
+                foreach (var trade in trades)
+                {
+                    logService.Write($"trade.ID: {trade.ID} trade.FK_PublicKey: {trade.FK_PublicKey.Substring(0,5)} trade.OrderID: {trade.OrderID} trade.Commission: {trade.Commission} trade.IsBuyer: {trade.IsBuyer} trade.Price: {trade.Price} trade.Qty: {trade.Qty} trade.Symbol: {trade.Symbol} trade.Time: {trade.Time} trade.TradeID: {trade.TradeID}");
+                }
+
+                logService.Write($"sumMoney: {sumMoney}");
+                logService.Write($"sumAmount: {sumAmount}");
+                logService.Write($"avgPrice: {avgPrice}");
             }
             return result;
         }

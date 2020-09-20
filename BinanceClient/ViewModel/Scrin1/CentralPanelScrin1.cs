@@ -27,6 +27,8 @@ namespace BinanceClient.ViewModel.Scrin1
         readonly UserStreamData userStreamData;
         readonly Martingale martingale;
 
+        readonly KeyPanelScrin1 keyPanelScrin1;
+
         public StartButton StartButton { get; set; }
         public StopButton StopButton { get; set; }
 
@@ -36,7 +38,8 @@ namespace BinanceClient.ViewModel.Scrin1
             CurrentTrades currentTrades, 
             UserStreamData userStreamData, 
             TradeConfigRepository configRepository,
-            Martingale martingale)
+            Martingale martingale,
+            KeyPanelScrin1 keyPanelScrin1)
         {
             StartButton = new StartButton();
             StopButton = new StopButton();
@@ -48,6 +51,7 @@ namespace BinanceClient.ViewModel.Scrin1
             this.userStreamData = userStreamData;
             this.configRepository = configRepository;
             this.martingale = martingale;
+            this.keyPanelScrin1 = keyPanelScrin1;
             SetConfigView();
             // получаем сохраненные конфиги для правых кнопок
         }
@@ -177,6 +181,18 @@ namespace BinanceClient.ViewModel.Scrin1
                     {
                         SetConfigView();
                     }
+                });
+            }
+        }
+
+        private RelayCommand apiKeyCommand;
+        public RelayCommand ApiKeyCommand
+        {
+            get
+            {
+                return apiKeyCommand ?? new RelayCommand((object o) =>
+                {
+                    keyPanelScrin1.OpenPanel();
                 });
             }
         }
