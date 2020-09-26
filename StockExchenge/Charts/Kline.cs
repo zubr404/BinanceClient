@@ -30,7 +30,6 @@ namespace StockExchenge.Charts
             publicRequester = new PublicRequester();
             timer = new Timer(30000);
             timer.Elapsed += Timer_Elapsed;
-            timer.Start();
         }
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
@@ -46,7 +45,7 @@ namespace StockExchenge.Charts
                     else
                     {
                         OnConnectStateEvent("Kline: Ping no");
-                        WebSocket.Connect();
+                        SocketOpen();
                     }
                 }
                 catch (Exception ex)
@@ -82,6 +81,7 @@ namespace StockExchenge.Charts
 
         public void Disconnect()
         {
+            timer.Stop();
             if (WebSocket != null)
             {
                 WebSocket.OnMessage -= WebSocket_OnMessage;
@@ -91,6 +91,7 @@ namespace StockExchenge.Charts
                 WebSocket.Close();
                 WebSocket = null;
             }
+            timer.Start();
         }
 
         #region// test
@@ -108,6 +109,7 @@ namespace StockExchenge.Charts
         private void WebSocket_OnError(object sender, ErrorEventArgs e)
         {
             OnConnectStateEvent($"Kline Error: {e.Message}");
+            SocketOpen();
         }
 
         private void WebSocket_OnMessage(object sender, MessageEventArgs e)

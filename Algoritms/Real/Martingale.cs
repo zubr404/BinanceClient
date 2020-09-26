@@ -59,17 +59,57 @@ namespace Algoritms.Real
             if (!IsActiveAlgoritm)
             {
                 logService.CreateLogFile();
-                logService.Write("***********Нажата кнопка старт***********");
+                logService.Write("***********Нажата кнопка старт***********", true);
             }
 
-            logService.Write("----------------------Вызов StartAlgoritm----------------------");
+            logService.Write("----------------------Вызов StartAlgoritm----------------------", true);
 
             isReload = true;
             var orders = new List<StopLimitOrder>();
             tradeConfiguration = repositoriesM.TradeConfigRepository.GetLast();
+
+            if(tradeConfiguration != null)
+            {
+                logService.Write("++ получено tradeConfiguration");
+            }
+            else
+            {
+                EndStartAlgoritm("tradeConfiguration = null");
+                return;
+            }
+            
             SetCurrentPair();
-            GetExchangeInfo();
+            logService.Write("++ выполнено SetCurrentPair");
+
+            try
+            {
+                GetExchangeInfo();
+                logService.Write("++ выполнено GetExchangeInfo");
+            }
+            catch (Exception ex)
+            {
+                EndStartAlgoritm($"GetExchangeInfo Error: {ex.Message} InnerException: {ex.InnerException?.Message}");
+                return;
+            }
+            
             apiKeys = repositoriesM.APIKeyRepository.Get().ToList();
+            if(apiKeys == null)
+            {
+                EndStartAlgoritm("apiKeys = null");
+                return;
+            }
+            else
+            {
+                if(apiKeys.Count == 0)
+                {
+                    EndStartAlgoritm("apiKeys.Count == 0");
+                    return;
+                }
+                else
+                {
+                    logService.Write("++ выполнено apiKeys");
+                }
+            }
 
             var lastPriceMarketTrade = new LastPriceMarketTrade();
             var priceResponse = lastPriceMarketTrade.GetInfo(currentPair.Pair);
@@ -80,8 +120,8 @@ namespace Algoritms.Real
             else
             {
                 OnMessageErrorEvent("Ошибка при получении цены последней сделки в блоке выставления начальной сетки. Алгоритм остановлен.");
-                logService.Write("Ошибка при получении цены последней сделки в блоке выставления начальной сетки. Алгоритм остановлен.");
                 IsActiveAlgoritm = false;
+                EndStartAlgoritm("Ошибка при получении цены последней сделки в блоке выставления начальной сетки. Алгоритм остановлен.");
                 return;
             }
 
@@ -197,7 +237,16 @@ namespace Algoritms.Real
             }
             IsActiveAlgoritm = true;
 
-            logService.Write("----------------------End StartAlgoritm----------------------");
+            EndStartAlgoritm();
+        }
+
+        private void EndStartAlgoritm(string message = null)
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                logService.Write($"StartAlgoritm message: {message}");
+            }
+            logService.Write("----------------------End StartAlgoritm----------------------", true);
         }
 
         /// <summary>
@@ -223,7 +272,7 @@ namespace Algoritms.Real
             if (!isDone)
             {
                 countReturn++;
-                if (countReturn > 5000)
+                if (countReturn > 50000)
                 {
                     isDone = true;
                     countReturn = 0;
@@ -237,6 +286,7 @@ namespace Algoritms.Real
             //OnMessageDebugEvent("isDone = false;");
             Task.Run(() =>
             {
+                logService.Write("*** START TASK ***", true);
                 if (IsActiveAlgoritm)
                 {
                     if (currentPair != null)
@@ -255,7 +305,17 @@ namespace Algoritms.Real
                             {
                                 //OnMessageDebugEvent("LONG_STRATEGY");
                                 // отслеживание OrderReload
-                                var maxPrice = repositoriesM.StopLimitOrderRepository.GetMaxStopPriceBuy(currentPair.Pair);
+                                var maxPrice = 0d;
+                                try
+                                {
+                                    maxPrice = repositoriesM.StopLimitOrderRepository.GetMaxStopPriceBuy(currentPair.Pair);
+                                }
+                                catch (Exception ex)
+                                {
+                                    logService.Write($"maxPrice: error - {ex.Message}");
+                                    EndTask();
+                                    return;
+                                }
                                 logService.Write($"maxPrice: {maxPrice}");
 
                                 var indent = 0.0;
@@ -309,7 +369,13 @@ namespace Algoritms.Real
                                                     OnMessageDebugEvent("Открытие позы на Бинансе: УСПЕШНО");
                                                     logService.Write("Открытие позы на Бинансе: УСПЕШНО");
                                                     // запрашиваем сделки с биржи
-                                                    repositoriesM.TradeAccountInfo.RequestedTrades(publicKey, secretKey, tradeConfiguration);
+                                                    if(!RequestedTrades(publicKey, secretKey, long.Parse(orderResponse.OrderId.Trim()), stopOrder.Amount))
+                                                    {
+                                                        OnMessageDebugEvent("Не удалось получить последние сделки по счету.");
+                                                        logService.Write("RequestedTrades: FAILED");
+                                                        EndTask();
+                                                        return;
+                                                    }
                                                     // считаем среднюю цену позы
                                                     var getAvgResult = GetAvgPricePosition(publicKey, false);
                                                     logService.Write($"getAvgResult.AvgPrice: {getAvgResult.AvgPrice} getAvgResult.SumAmount: {getAvgResult.SumAmount}");
@@ -503,7 +569,7 @@ namespace Algoritms.Real
         {
             isDone = true;
             countReturn = 0;
-            logService.Write($"***  end TASK -----------------");
+            logService.Write($"***  end TASK ***", true);
         }
 
         #region test takeprofit
@@ -558,7 +624,37 @@ namespace Algoritms.Real
         }
         #endregion
 
-        public OrderResponse SendOrder(string pair, bool isBuyer, double amount, string publicKey, string secretKey)
+        private bool RequestedTrades(string publicKey, string secretKey, long lastOrderId, double lastOrderQty)
+        {
+            logService.Write($"++ RequestedTrades: START", true);
+            const int countRequest = 10;
+            const int sleepMillisecond = 2000;
+            for (int i = 0; i < countRequest; i++)
+            {
+                var trades = repositoriesM.TradeAccountInfo.RequestedTrades(publicKey, secretKey, tradeConfiguration);
+                if(trades != null)
+                {
+                    var tradesLastOrder = trades.Where(x => x.orderId == lastOrderId);
+
+                    var sumLastTrades = 0d;
+                    if(tradesLastOrder != null)
+                    {
+                        sumLastTrades = tradesLastOrder.Sum(x => x.qty);
+                    }
+
+                    if(sumLastTrades == lastOrderQty)
+                    {
+                        logService.Write($"++ RequestedTrades: SUCCESS", true);
+                        return true;
+                    }
+                }
+                Thread.Sleep(sleepMillisecond);
+            }
+            logService.Write($"++ RequestedTrades: countRequest = {countRequest}. Получить сделки с биржи не удалось", true);
+            return false;
+        }
+
+        private OrderResponse SendOrder(string pair, bool isBuyer, double amount, string publicKey, string secretKey)
         {
             var orderSender = new OrderSender();
             var parametrs = orderSender.GetTransacParam(pair, isBuyer, amount);
@@ -644,7 +740,7 @@ namespace Algoritms.Real
             }
             catch (Exception ex)
             {
-                // TODO: запись лога в БД
+                throw ex;
             }
         }
 

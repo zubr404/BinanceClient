@@ -48,7 +48,7 @@ namespace StockExchenge.TradeAccount
             }
         }
 
-        public void RequestedTrades(string publicKey, string secretKey, TradeConfiguration configuration)
+        public List<Trade> RequestedTrades(string publicKey, string secretKey, TradeConfiguration configuration)
         {
             var trades = TradesRequest(publicKey, secretKey, $"{configuration.MainCoin}{configuration.AltCoin}");
             if (trades != null)
@@ -74,6 +74,7 @@ namespace StockExchenge.TradeAccount
                     });
                 }
             }
+            return trades;
         }
 
         private List<Trade> TradesRequest(string key, string secret, string pair)
