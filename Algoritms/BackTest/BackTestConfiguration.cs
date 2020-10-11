@@ -9,27 +9,40 @@ namespace Algoritms.BackTest
         public GeneralSetting GeneralSetting { get; set; }
         public string MainCoin { get; set; }
         public string AltCoin { get; set; }
-        public int StrategyID { get; set; }
-        public int OpenOrders { get; set; }
+        public string Strategy { get; set; }
+        public bool Margin { get; set; }
         public double OrderIndent { get; set; }
         public double OrderDeposit { get; set; }
-        public double OrderStep { get; set; }
+        public double FirstStep { get; set; }
         public double OrderStepPlus { get; set; }
         public double Martingale { get; set; }
         public double DepositLimit { get; set; }
         public double OrderReload { get; set; }
-        public double StopLoss { get; set; }
+        public double Loss { get; set; }
         public double Profit { get; set; }
-        public double Tralling { get; set; }
-        public bool Active { get; set; }
+        public double IndentExtremum { get; set; }
+        public double ProtectiveSpread { get; set; }
+
+        public BackTestConfiguration()
+        {
+            GeneralSetting = new GeneralSetting();
+        }
     }
 
     public class GeneralSetting
     {
         /// <summary>
-        /// Общий размер счета
+        /// Общий размер счета в валюте котировки
         /// </summary>
-        public double Deposit { get; set; }
+        public double Deposit { get; private set; }
+        /// <summary>
+        /// Депозит основной валюты
+        /// </summary>
+        public double DepositAsset { get; set; }
+        /// <summary>
+        /// Депозит валюты котировки
+        /// </summary>
+        public double DepositQuote { get; set; }
         /// <summary>
         /// Начальная точка исторических данных (timestamp)
         /// </summary>
@@ -38,5 +51,10 @@ namespace Algoritms.BackTest
         /// Конечная точка исторических данных (timestamp)
         /// </summary>
         public long StopTime { get; set; }
+
+        public void SetDeposit(double price)
+        {
+            Deposit = DepositQuote + DepositAsset * price;
+        }
     }
 }

@@ -865,5 +865,182 @@
         </Style>
         
         <!--END CHECK BOX-->
+        
+        <!-- TOGLE BUTTON -->
+        <Color x:Key="Color.Additional.LightGrey">#989EA8</Color>
+        <Color x:Key="Color.Additional.MediumGrey">#61656B</Color>
+        <Color x:Key="Color.MedtronicBranding.MedtronicBlue">#004B87</Color>
+        <Color x:Key="Color.MedtronicBranding.CobaltBlue">#0085CA</Color>
+
+        <Style x:Key="ToggleButtonContentTextbox" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+        </Style>
+        <SolidColorBrush x:Key="ToggleButtonFalseBackground" Color="#FF1c1c23" />
+        <SolidColorBrush x:Key="ToggleButtonTrueBackground" Color="#FF3C4F3E" />
+        <SolidColorBrush x:Key="ToggleButtonFalseForeground" Color="#FF929292" />
+        <SolidColorBrush x:Key="ToggleButtonTrueForeground" Color="#FF79FD83" />
+        <TextBlock x:Key="OffContent" Style="{StaticResource ToggleButtonContentTextbox}" Text="Off" />
+        <Style x:Key="OnContentControl" TargetType="ContentControl">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Top"></Setter>
+            <Setter Property="Margin" Value="2,0,0,2"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBlock FontSize="12"
+                                   FontWeight="Light"
+                                   Foreground="{StaticResource SolidGreen}"
+                                   Style="{StaticResource ToggleButtonContentTextbox}"
+                                   Text="ON" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="OffContentControl"
+               TargetType="ContentControl">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="2,0,5,2"></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBlock FontSize="12"
+                                   Foreground="{StaticResource SolidGray}"
+                                   Style="{StaticResource ToggleButtonContentTextbox}"
+                                   Text="OFF" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="SwitchTypeToggleButton" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Grid x:Name="MainRow">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding ElementName=TopRow,
+                        Path=ActualHeight}" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="{Binding ElementName=TopRow,
+                        Path=ActualHeight}" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition x:Name="TopRow" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <Ellipse x:Name="BackgroundEllipse1"
+                                 Grid.RowSpan="2"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
+                                 Width="{Binding ElementName=MainRow,
+                                                 Path=ActualHeight}"
+                                 Height="{Binding ElementName=MainRow,
+                                                  Path=ActualHeight}"
+                                 HorizontalAlignment="Left"
+                                 Fill="{StaticResource ToggleButtonTrueBackground}"
+                                 StrokeThickness="1" Stroke="#FF79FD83"/>
+                                <Ellipse x:Name="BackgroundEllipse2"
+                                 Grid.Row="0"
+                                 Grid.RowSpan="2"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
+                                 Width="{Binding ElementName=MainRow,
+                                                 Path=ActualHeight}"
+                                 Height="{Binding ElementName=MainRow,
+                                                  Path=ActualHeight}"
+                                 HorizontalAlignment="Right"
+                                 Fill="{StaticResource ToggleButtonTrueBackground}"
+                                 StrokeThickness="1" Stroke="#FF79FD83"/>
+                                <Border x:Name="BackgroundBorder"
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Grid.Column="1"
+                                Background="{StaticResource ToggleButtonTrueBackground}"
+                                BorderThickness="0,1" BorderBrush="#FF79FD83"/>
+                            </Grid>
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="AnimationWidth" />
+                                    <ColumnDefinition Width="{Binding ElementName=MainRow,
+                        Path=ActualHeight}" />
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="AnimationSizeBorder"
+                                Grid.Column="0" />
+                                <ContentControl x:Name="ContentON" Grid.Column="0" Style="{StaticResource OnContentControl}" />
+                            </Grid>
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding ElementName=MainRow,
+                Path=ActualHeight}" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <ContentControl x:Name="ContentOFF" Grid.Column="1" Style="{StaticResource OffContentControl}" />
+                            </Grid>
+                            <Grid Background="Transparent">
+                                <StackPanel HorizontalAlignment="Left"
+                                    Orientation="Horizontal">
+                                    <Border Width="{Binding ElementName=AnimationSizeBorder, Path=ActualWidth}" />
+                                    <Ellipse x:Name="ForegroundEllipse" Margin="4,0"
+                                     Width="15"
+                                     Height="15"
+                                     HorizontalAlignment="Right"
+                                     Fill="{StaticResource ToggleButtonTrueForeground}" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="BackgroundBorder" Property="Background" Value="{StaticResource ToggleButtonFalseBackground}" />
+                                <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{StaticResource ToggleButtonFalseForeground}" />
+                                <Setter TargetName="ForegroundEllipse" Property="Fill" Value="{StaticResource ToggleButtonFalseForeground}" />
+                                <Setter TargetName="BackgroundEllipse1" Property="Fill" Value="{StaticResource ToggleButtonFalseBackground}"></Setter>
+                                <Setter TargetName="BackgroundEllipse2" Property="Fill" Value="{StaticResource ToggleButtonFalseBackground}"></Setter>
+                                <Setter TargetName="BackgroundEllipse1" Property="Stroke" Value="{StaticResource ToggleButtonFalseForeground}"></Setter>
+                                <Setter TargetName="BackgroundEllipse2" Property="Stroke" Value="{StaticResource ToggleButtonFalseForeground}"></Setter>
+                                <Setter TargetName="ContentON" Property="Visibility" Value="Hidden"></Setter>
+                                
+                                <!--<Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName
+                        ="AnimationSizeBorder"
+                        Storyboard.TargetProperty="(Border.Width)"
+                        To="0" Duration="0:0:3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName=
+                        "AnimationSizeBorder"
+                        Storyboard.TargetProperty="(Border.Width)"
+                        From="0" Duration="0:0:3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>-->
+                                <Setter TargetName="AnimationSizeBorder" Property="Width" Value="0" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ContentOFF" Property="Visibility" Value="Hidden"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- END TOGLE-->
+        
     </Application.Resources>
 </Application>

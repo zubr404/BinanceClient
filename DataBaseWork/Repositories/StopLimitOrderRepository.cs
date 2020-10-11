@@ -99,7 +99,7 @@ namespace DataBaseWork.Repositories
             Save();
         }
 
-        public void DeaktivateOrder(int id)
+        public void DeactivateOrder(int id)
         {
             var order = db.StopLimitOrders.FirstOrDefault(x => x.ID == id);
             if(order != null)

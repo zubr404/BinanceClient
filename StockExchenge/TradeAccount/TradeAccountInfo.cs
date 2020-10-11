@@ -79,10 +79,10 @@ namespace StockExchenge.TradeAccount
 
         private List<Trade> TradesRequest(string key, string secret, string pair)
         {
+            List<Trade> result = null;
             SecretKeyRequiredRequester privateApi = new SecretKeyRequiredRequester();
-            string response = string.Empty;
             Regex my_reg = new Regex(@"\D");
-            string serverTime = string.Empty;
+            string serverTime;
             try
             {
                 serverTime = my_reg.Replace(ServiceRequests.ServerTime(), "");
@@ -90,16 +90,18 @@ namespace StockExchenge.TradeAccount
             catch (Exception ex)
             {
                 // TODO loging
+                return null;
             }
             try
             {
-                response = privateApi.GetWebRequest($"{Resources.DOMAIN_V3}myTrades?symbol={pair}&recvWindow=5000&timestamp={serverTime}", $"symbol={pair}&recvWindow=5000&timestamp={serverTime}", key, secret, "GET");
+                string response = privateApi.GetWebRequest($"{Resources.DOMAIN_V3}myTrades?symbol={pair}&recvWindow=5000&timestamp={serverTime}", $"symbol={pair}&recvWindow=5000&timestamp={serverTime}", key, secret, "GET");
+                result = JConverter.JsonConver<List<Trade>>(response);
             }
             catch (Exception ex)
             {
                 // TODO loging
             }
-            return JConverter.JsonConver<List<Trade>>(response);
+            return result;
         }
     }
 }

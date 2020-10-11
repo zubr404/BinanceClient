@@ -42,7 +42,7 @@ namespace DataBaseWork.Repositories
         /// <returns></returns>
         public IEnumerable<TradeHistory> Get(string pair, long startTradeId, long stopTradeId)
         {
-            return db.TradeHistories.AsNoTracking().Where(x => x.Pair == pair && x.TradeId >= startTradeId && x.TradeId <= stopTradeId);
+            return db.TradeHistories.AsNoTracking().Where(x => x.Pair == pair && x.TradeId >= startTradeId && x.TradeId <= stopTradeId).OrderBy(x => x.TradeId);
         }
 
         /// <summary>
@@ -52,7 +52,14 @@ namespace DataBaseWork.Repositories
         /// <returns></returns>
         public long MinId(long startTime)
         {
-            return db.TradeHistories.Where(x => x.Time >= startTime).Min(x => x.TradeId);
+            try
+            {
+                return db.TradeHistories.Where(x => x.Time >= startTime).Min(x => x.TradeId);
+            }
+            catch
+            {
+                return 0;
+            }
         }
         /// <summary>
         /// Максимальный TadeID для финишного времени
@@ -61,7 +68,15 @@ namespace DataBaseWork.Repositories
         /// <returns></returns>
         public long MaxId(long endTime)
         {
-            return db.TradeHistories.Where(x => x.Time <= endTime).Max(x => x.TradeId);
+            try
+            {
+                return db.TradeHistories.Where(x => x.Time <= endTime).Max(x => x.TradeId);
+            }
+            catch
+            {
+                return 0;
+            }
+            
         }
 
         public void AddRange(IEnumerable<TradeHistory> trades)
@@ -72,6 +87,10 @@ namespace DataBaseWork.Repositories
                 Save();
             }
             catch (InvalidOperationException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
             {
                 throw ex;
             }

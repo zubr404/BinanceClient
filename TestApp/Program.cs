@@ -7,6 +7,12 @@ using TestApp.REST;
 using System.Threading.Tasks;
 using StockExchenge.MarketTrades;
 using StockExchenge.StreamWs;
+using System.Threading;
+using StockExchenge.RestApi;
+using System.Text.RegularExpressions;
+using Services;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TestApp
 {
@@ -80,8 +86,37 @@ namespace TestApp
 
             Console.WriteLine(result);*/
 
-            Console.WriteLine("AAAAAABBB".GetHashCode());
-            Console.WriteLine("AAAAAABBB".GetHashCode());
+            //const int countRequest = 10;
+            //const int sleepMillisecond = 2000;
+            //for (int i = 0; i < countRequest; i++)
+            //{
+            //    SecretKeyRequiredRequester privateApi = new SecretKeyRequiredRequester();
+            //    string response = string.Empty;
+            //    Regex my_reg = new Regex(@"\D");
+            //    string serverTime = string.Empty;
+            //    try
+            //    {
+            //        serverTime = my_reg.Replace(ServiceRequests.ServerTime(), "");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex.Message);
+            //    }
+            //    try
+            //    {
+            //        response = privateApi.GetWebRequest($"{Resources.DOMAIN_V3}myTrades?symbol=ETHUSDT&recvWindow=5000&timestamp={serverTime}", $"symbol=ETHUSDT&recvWindow=5000&timestamp={serverTime}", "ztAZCxiv8UEJYU146zdTokXvqB3ygUHFAKbZxBxadZpqw7EZS8pUG9Yos0BezsNO", "ZzzmG2XkUiBk4hpoF98u3jnP3R5NN39nU6CS5MW65d3WsyzbtGxGT7bboz2fXVDT", "GET");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine(ex.Message);
+            //    }
+            //    var list = JConverter.JsonConver<List<Trade>>(response);
+            //    Thread.Sleep(sleepMillisecond);
+            //    Console.WriteLine(i);
+            //}
+
+            List<int> list = new List<int>();
+            Console.WriteLine(list.Sum());
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

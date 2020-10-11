@@ -32,13 +32,15 @@ namespace BinanceClient
         private readonly StopLimitOrderRepository stopLimitOrderRepository;
         private readonly TakeProfitOrderRepository takeProfitOrderRepository;
         public ChartService ChartService { get; private set; }
-        private TradesHistory tradesHistory;
-        private readonly Algoritms.Real.Martingale MartingaleReal;
+        private readonly Algoritms.Real.Martingale martingaleReal;
+        private readonly Algoritms.BackTest.Martingale martingaleBackTest;
+        private readonly Algoritms.BackTest.CurrentGridStatistics currentGridStatistics;
 
         private readonly AccountInfo accountInfo;
         private readonly TradeAccountInfo tradeAccountInfo;
         private readonly CurrentTrades currentTrades;
         private readonly UserStreamData userStreamData;
+        
 
         public ScrinManager ScrinManager { get; private set; }
         public static ConsoleScrin1 ConsoleScrin1 { get; private set; }
@@ -48,17 +50,20 @@ namespace BinanceClient
         public CentralPanelScrin1 CentralPanelScrin1 { get; private set; }
         public PairPanelScrin1 PairPanelScrin1 { get; private set; }
 
+        public CentralPanelScrinCalculator CentralPanelScrinCalculator { get; set; }
+
         // test
-        public List<CalculatingData> CalculatingDatas { get; set; }
+        readonly DataBaseContext dataBaseForTradeHistory; // EF не может обеспечить обращение к БД из разных потоков
 
         public ModelView()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             dataBase = InitializeDataBase();
+            dataBaseForTradeHistory = InitializeDataBase();
             balanceRepository = new BalanceRepository(dataBase);
             aPIKeyRepository = new APIKeyRepository(dataBase);
             tradeRepository = new TradeRepository(dataBase);
-            tradeHistoryRepository = new TradeHistoryRepository(dataBase);
+            tradeHistoryRepository = new TradeHistoryRepository(dataBaseForTradeHistory);
             tradeConfigRepository = new TradeConfigRepository(dataBase);
             connectedPairRepository = new ConnectedPairRepository(dataBase);
             stopLimitOrderRepository = new StopLimitOrderRepository(dataBase);
@@ -76,7 +81,7 @@ namespace BinanceClient
                 BalanceRepository = balanceRepository
             });
 
-            MartingaleReal = new Algoritms.Real.Martingale(new Algoritms.Real.RepositoriesM()
+            martingaleReal = new Algoritms.Real.Martingale(new Algoritms.Real.RepositoriesM()
             {
                 APIKeyRepository = aPIKeyRepository,
                 BalanceRepository = balanceRepository,
@@ -88,23 +93,21 @@ namespace BinanceClient
                 TradeRepository = tradeRepository,
                 TradeAccountInfo = tradeAccountInfo
             }); ;
-            MartingaleReal.MessageErrorEvent += MartingaleReal_MessageErrorEvent;
-            MartingaleReal.MessageDebugEvent += MartingaleReal_MessageDebugEvent;
+            martingaleReal.MessageErrorEvent += MartingaleReal_MessageErrorEvent;
+            martingaleReal.MessageDebugEvent += MartingaleReal_MessageDebugEvent;
+
+            martingaleBackTest = new Algoritms.BackTest.Martingale(tradeHistoryRepository, tradeConfigRepository, MainWindow.ExchangeInfo);
+            currentGridStatistics = new Algoritms.BackTest.CurrentGridStatistics(tradeConfigRepository);
 
             ScrinManager = new ScrinManager();
             ConsoleScrin1 = new ConsoleScrin1();
             KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository);
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, MartingaleReal, KeyPanelScrin1);
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, martingaleReal, KeyPanelScrin1);
             PairPanelScrin1 = new PairPanelScrin1(connectedPairRepository);
             ChartService = new ChartService(dispatcher);
-
-            CalculatingDatas = new List<CalculatingData>()
-            {
-                new CalculatingData(){ Amount = "0.001432", Equivalent = "10.00710240", PriceInGrid = "6993.37", ProfitPrice = "6993.37", Rebount = "1.5"},
-                new CalculatingData(){  Amount = "0.001432", Equivalent = "10.00710240", PriceInGrid = "6993.37", ProfitPrice = "6993.37", Rebount = "1.5"}
-            };
+            CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, tradeHistoryRepository);
         }
 
         private DataBaseContext InitializeDataBase()
@@ -132,20 +135,6 @@ namespace BinanceClient
         }
 
         #region Commands
-        // TODO: пара с морды
-        private RelayCommand tradeHistoryLoad;
-        public RelayCommand TradeHistoryLoad
-        {
-            get
-            {
-                return tradeHistoryLoad ?? new RelayCommand((object o) =>
-                {
-                    tradesHistory = new TradesHistory("ethbtc", tradeHistoryRepository);
-                    tradesHistory.LoadStateEvent += TradesHistory_LoadStateEvent;
-                    var result = tradesHistory.Load();
-                });
-            }
-        }
 
         #region Кнопки верхней панели (плохо: кнопки Старт, Стоп, Аппли, АпиКей в классе CentralPanelScrin1)
         private RelayCommand pairCommand;
@@ -261,11 +250,5 @@ namespace BinanceClient
         }
         #endregion
         #endregion
-
-
-        private void TradesHistory_LoadStateEvent(object sender, string e)
-        {
-            ConsoleScrin1.Message = e;
-        }
     }
 }

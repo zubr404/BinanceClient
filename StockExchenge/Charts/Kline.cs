@@ -51,6 +51,7 @@ namespace StockExchenge.Charts
                 catch (Exception ex)
                 {
                     OnConnectStateEvent($"Kline: Ping Error: {ex.Message}");
+                    SocketOpen();
                 }
             }
         }

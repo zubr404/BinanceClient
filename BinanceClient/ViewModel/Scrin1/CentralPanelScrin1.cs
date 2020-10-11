@@ -32,6 +32,8 @@ namespace BinanceClient.ViewModel.Scrin1
         public StartButton StartButton { get; set; }
         public StopButton StopButton { get; set; }
 
+        Task task;
+
         public CentralPanelScrin1(
             AccountInfo accountInfo, 
             TradeAccountInfo tradeAccountInfo, 
@@ -89,7 +91,7 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 return startCommand ?? new RelayCommand((object o) =>
                 {
-                    Task.Run(() =>
+                    task = Task.Run(() =>
                     {
                         accountInfo.RequestedBalances();
                         tradeAccountInfo.RequestedTrades();

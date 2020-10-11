@@ -31,6 +31,8 @@ namespace StockExchenge.MarketTradesHistory
 			this.fromId = GetFromId();
 		}
 
+		public bool IsActiveLoad { get; set; }
+
 		public async Task<int> Load()
         {
 			return await Task.Run(() =>
@@ -39,7 +41,8 @@ namespace StockExchenge.MarketTradesHistory
 				var url = GetUrl();
 				var requester = new PublicKeyRequiredRequester();
 
-                while (true)
+				IsActiveLoad = true;
+                while (IsActiveLoad)
                 {
                     try
                     {
@@ -79,6 +82,7 @@ namespace StockExchenge.MarketTradesHistory
 									if (headers.GetKey(i).ToLower() == "retry-after")
 									{
 										int.TryParse(headers[i], out secondSleep);
+										OnLoadStateEvent($"TradesHistory retry-after header: secondSleep = {secondSleep})");
 									}
 								}
 								if (secondSleep == 0) { secondSleep = 60; }
@@ -88,11 +92,13 @@ namespace StockExchenge.MarketTradesHistory
 							{
 								if (trades.Count == 0)
                                 {
+									OnLoadStateEvent($"TradesHistory statusCode: {statusCode}. trades.Count == 0)");
 									break;
                                 }
 							}
                             else
                             {
+								OnLoadStateEvent($"TradesHistory: STOP (statusCode: {statusCode})");
 								return -1;
                             }
 						}
@@ -100,6 +106,7 @@ namespace StockExchenge.MarketTradesHistory
                     catch (Exception ex)
                     {
 						// запись лога в БД
+						OnLoadStateEvent($"TradesHistory error: {ex.Message})");
 						return -1;
                     }
 				}
@@ -117,7 +124,7 @@ namespace StockExchenge.MarketTradesHistory
 			long max = 1;
             try
             {
-				max = repository.Get(pair).Max(x => x.TradeId) + 1;
+				max = repository.Get(pair).ToList().Max(x => x.TradeId) + 1;
 			}
             catch (Exception ex)
             {
