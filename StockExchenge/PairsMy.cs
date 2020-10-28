@@ -14,7 +14,8 @@ namespace StockExchenge
         {
             "ETHBTC",
             "GNTBTC",
-            "BTCUSDT"
+            "BTCUSDT",
+            "ETHUSDT"
         };
     }
 }

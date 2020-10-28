@@ -19,7 +19,11 @@ namespace BinanceClient.ViewModel.Scrin1
 {
     public class CentralPanelScrin1
     {
+        public delegate void LoadChart(string value);
+        public LoadChart loadChart;
+
         public TradeConfigurationView TradeConfigurationView { get; private set; }
+        readonly RightPanelScrin1 rightPanelScrin1;
         readonly TradeConfigRepository configRepository;
         readonly AccountInfo accountInfo;
         readonly TradeAccountInfo tradeAccountInfo;
@@ -41,7 +45,8 @@ namespace BinanceClient.ViewModel.Scrin1
             UserStreamData userStreamData, 
             TradeConfigRepository configRepository,
             Martingale martingale,
-            KeyPanelScrin1 keyPanelScrin1)
+            KeyPanelScrin1 keyPanelScrin1,
+            RightPanelScrin1 rightPanelScrin1)
         {
             StartButton = new StartButton();
             StopButton = new StopButton();
@@ -54,8 +59,22 @@ namespace BinanceClient.ViewModel.Scrin1
             this.configRepository = configRepository;
             this.martingale = martingale;
             this.keyPanelScrin1 = keyPanelScrin1;
+            this.rightPanelScrin1 = rightPanelScrin1;
             SetConfigView();
+            SetPairs();
             // получаем сохраненные конфиги для правых кнопок
+        }
+
+        private void SetPairs()
+        {
+            TradeConfigurationView.Coins = MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs.OrderBy(x => x.Pair).Select(x => x.BaseAsset).Distinct().ToList();
+            var altCoins = MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs.OrderBy(x => x.Pair).Select(x => x.QuoteAsset);
+            var exceptCoins = altCoins.Except(TradeConfigurationView.Coins);
+            foreach (var altCoin in exceptCoins)
+            {
+                TradeConfigurationView.Coins.Add(altCoin);
+            }
+            TradeConfigurationView.Coins.Sort();
         }
 
         private void SetConfigView()
@@ -173,6 +192,8 @@ namespace BinanceClient.ViewModel.Scrin1
                             ModelView.ConsoleScrin1.Message = $"Конфигурация для {config.MainCoin}/{config.AltCoin} успешно применена.";
                             martingale.CancelAllStopOrders();
                             martingale.CancelAllTakeProfitOrder();
+
+                            loadChart?.Invoke(TradeConfigurationView.MainCoin + TradeConfigurationView.AltCoin);
                         }
                         catch (Exception ex)
                         {
@@ -187,16 +208,88 @@ namespace BinanceClient.ViewModel.Scrin1
             }
         }
 
-        private RelayCommand apiKeyCommand;
-        public RelayCommand ApiKeyCommand
+        #region Кнопки правой панели
+        private RelayCommand btcusd_longCommand;
+        public RelayCommand BTCUSD_LONGCommand
         {
             get
             {
-                return apiKeyCommand ?? new RelayCommand((object o) =>
+                return btcusd_longCommand ?? new RelayCommand((object o) =>
                 {
-                    keyPanelScrin1.OpenPanel();
+                    rightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_LONG);
+                    var config = configRepository.Get("BTC", "USDT", "long");
+                    if (config != null)
+                    {
+                        SetConfigView(config);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 });
             }
+        }
+        private RelayCommand btcusd_shortCommand;
+        public RelayCommand BTCUSD_SHORTCommand
+        {
+            get
+            {
+                return btcusd_shortCommand ?? new RelayCommand((object o) =>
+                {
+                    rightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_SHORT);
+                    var config = configRepository.Get("BTC", "USDT", "short");
+                    if (config != null)
+                    {
+                        SetConfigView(config);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                });
+            }
+        }
+        private RelayCommand ethusd_shortCommand;
+        public RelayCommand ETHUSD_SHORTCommand
+        {
+            get
+            {
+                return ethusd_shortCommand ?? new RelayCommand((object o) =>
+                {
+                    rightPanelScrin1.ManagingBackground(ButtonName.ETHUSD_SHORT);
+                    var config = configRepository.Get("ETH", "USDT", "short");
+                    if (config != null)
+                    {
+                        SetConfigView(config);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                });
+            }
+        }
+        #endregion
+
+        private void SetConfigView(TradeConfiguration config)
+        {
+            TradeConfigurationView.AltCoin = config.AltCoin;
+            TradeConfigurationView.DepositLimit = config.DepositLimit;
+            TradeConfigurationView.FirstStep = config.FirstStep;
+            TradeConfigurationView.IntervalHttp = config.IntervalHttp;
+            TradeConfigurationView.MainCoin = config.MainCoin;
+            TradeConfigurationView.Margin = config.Margin;
+            TradeConfigurationView.Martingale = config.Martingale;
+            TradeConfigurationView.OpenOrders = config.OpenOrders;
+            TradeConfigurationView.OrderDeposit = config.OrderDeposit;
+            TradeConfigurationView.OrderIndent = config.OrderIndent;
+            TradeConfigurationView.OrderStepPlus = config.OrderStepPlus;
+            TradeConfigurationView.Profit = config.Profit;
+            TradeConfigurationView.ProtectiveSpread = config.ProtectiveSpread;
+            TradeConfigurationView.Strategy = config.Strategy;
+            TradeConfigurationView.IndentExtremum = config.IndentExtremum;
+            TradeConfigurationView.Loss = config.Loss;
+            TradeConfigurationView.OrderReload = config.OrderReload;
         }
     }
 

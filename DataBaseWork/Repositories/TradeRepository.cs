@@ -25,6 +25,11 @@ namespace DataBaseWork.Repositories
             return db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Time > unixTime && x.IsBuyer == isBuyer);
         }
 
+        public List<Trade> Get(string simbol, double minPrice, double maxPrice)
+        {
+            return db.Trades.AsNoTracking().Where(x => x.Symbol == simbol && x.Price >= minPrice && x.Price <= maxPrice).ToList();
+        }
+
         public long GetTimeLastTrade(string publicKey, bool isBuyer, long unixTime)
         {
             return db.Trades.Where(x => x.FK_PublicKey == publicKey && x.IsBuyer == isBuyer && x.Time >= unixTime).OrderByDescending(x => x.Time).Select(x => x.Time).FirstOrDefault();

@@ -15,6 +15,8 @@ using System.Windows.Threading;
 using System.Threading.Tasks;
 using StockExchenge.Charts;
 using System.Threading;
+using DataBaseWork.Repositories;
+using DataBaseWork.Models;
 
 namespace BinanceClient.Services
 {
@@ -36,12 +38,26 @@ namespace BinanceClient.Services
         public SeriesCollection Series { get; set; }
         public CandleSeries CandleSeries { get; set; }
 
+
         private Kline kline;
         private bool isClose = false;   // признак, что предыдущая свеча закрыта
         private string formatX = "";
         private int quotePrecision;
+        private string pair = "";
 
-        private Dispatcher dispatcher;
+        readonly Dispatcher dispatcher;
+
+        private RelayCommand refrashChart;
+        public RelayCommand RefrashChart
+        {
+            get
+            {
+                return refrashChart ?? new RelayCommand((object o) =>
+                {
+                    LoadChart(pair);
+                });
+            }
+        }
 
         #region Properties
         private string selectedInterval;
@@ -58,7 +74,7 @@ namespace BinanceClient.Services
                 Task.Run(() =>
                 {
                     GetExchangeInfo();
-                    LoadChart(selectedPair);
+                    LoadChart(pair);
                 });
             }
         }
@@ -76,7 +92,7 @@ namespace BinanceClient.Services
                 Task.Run(() =>
                 {
                     GetExchangeInfo();
-                    LoadChart(value);
+                    //LoadChart(value);
                 });
             }
         }
@@ -97,23 +113,71 @@ namespace BinanceClient.Services
             CreateCandleSeries();
         }
 
-        // добавляет линии на график
-        private void CreateLineSeries(ChartValues<double> values, string name)
+        #region добавляет линии на график
+        private void CreateLineSeries(ChartValues<double> values, bool isBuyer, string name)
         {
             dispatcher.InvokeAsync(() =>
             {
-                Series.Add(new LineSeries()
+                SolidColorBrush brush = Brushes.Red;
+                if (isBuyer)
                 {
-                    Values = values,
-                    StrokeThickness = 2,
-                    Stroke = Brushes.Green,
-                    PointGeometry = null,
-                    StrokeDashArray = new DoubleCollection() { 2 },
-                    Fill = Brushes.Transparent,
-                    Title = name
-                });
+                    brush = Brushes.Green;
+                }
+                if(!Series.Any(x=>x.Title == name))
+                {
+                    Series.Add(new LineSeries()
+                    {
+                        Values = values,
+                        StrokeThickness = 1,
+                        Stroke = brush,
+                        PointGeometry = null,
+                        StrokeDashArray = new DoubleCollection() { 4 },
+                        Fill = Brushes.Transparent,
+                        Title = name
+                    });
+                }
             });
         }
+
+        private async Task<List<TradeLine>> GetTrades(string simbol, double minPrice, double maxPrice)
+        {
+            var result = new List<TradeLine>();
+            await Task.Run(() =>
+            {
+                var tradeRepository = new TradeRepository(new DataBaseWork.DataBaseContext());
+                var trades = tradeRepository.Get(simbol, minPrice, maxPrice).ToList();
+                var resGroup = trades.GroupBy(x => new {x.Price, x.IsBuyer }).ToList();
+                foreach (var item in resGroup)
+                {
+                    result.Add(new TradeLine()
+                    {
+                        Price = item.Key.Price,
+                        IsBuyer = item.Key.IsBuyer
+                    });
+                }
+            });
+            return result;
+        }
+
+        private async Task CreateChartValuesLines()
+        {
+            await Task.Run(async () =>
+            {
+                var trades = await GetTrades(pair, OhclValues.Min(x => x.Low), OhclValues.Max(x => x.High));
+
+                foreach (var trade in trades)
+                {
+                    var values = new ChartValues<double>();
+                    for (int i = 0; i < OhclValues.Count; i++)
+                    {
+                        values.Add(trade.Price);
+                    }
+                    CreateLineSeries(values, trade.IsBuyer, trade.Price.ToString());
+                }
+            });
+        }
+        #endregion
+
         private void CreateCandleSeries()
         {
             CandleSeries = new CandleSeries();
@@ -125,6 +189,7 @@ namespace BinanceClient.Services
 
         public void LoadChart(string pair)
         {
+            this.pair = pair;
             var formatPrecision = PrecisionFormatting();
             FormatterY = value => Math.Round(value, quotePrecision).ToString(formatPrecision); // настроить величину оеругления в зависимоти от спецификации инструмента
             isClose = false;
@@ -175,15 +240,6 @@ namespace BinanceClient.Services
                     OhclValues.Remove(firstCandle);
                     LabelsX.Add(candle.k.t.UnixToDateTime().ToString(formatX));
                     isClose = false;
-
-                    // test
-                    //var values = new ChartValues<double>();
-                    //foreach (var item in OhclValues)
-                    //{
-                    //    values.Add(0.0261);
-                    //}
-                    //CreateLineSeries(values, "123");
-                    //------
                 }
                 else
                 {
@@ -211,6 +267,7 @@ namespace BinanceClient.Services
             {
                 //TODO: запись логов в БД
             }
+            //CreateChartValuesLines();
         }
 
         private void GetHistoryCandle()

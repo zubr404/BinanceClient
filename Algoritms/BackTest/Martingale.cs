@@ -228,6 +228,19 @@ namespace Algoritms.BackTest
                         logService.Write($"while (end)----------------------");
                         break;
                     }
+
+                    var avgStopPrice = GetAvgPriceOrders(orders);
+
+                    if(tradeConfiguration.Loss > 0)
+                    {
+                        var stopLoss = RoundAsset(avgStopPrice - (avgStopPrice * tradeConfiguration.Loss / 100));
+                        if (stopPricePreviosOrder < stopLoss)
+                        {
+                            logService.Write($"Цена стопа {stopPricePreviosOrder} ниже стоп-лосса {stopLoss}\nwhile (end)----------------------");
+                            break;
+                        }
+                    }
+
                     orders.Add(CreateStopLimitOrder(PUBLIC_KEY, simbol, stopPricePreviosOrder, amountPreviosOrder, true));
 
                     if (counter > 999888)
@@ -275,6 +288,19 @@ namespace Algoritms.BackTest
                         //logService.Write($"while (end)----------------------");
                         break;
                     }
+
+                    var avgStopPrice = GetAvgPriceOrders(orders);
+
+                    if (tradeConfiguration.Loss > 0)
+                    {
+                        var stopLoss = RoundAsset(avgStopPrice - (avgStopPrice * tradeConfiguration.Loss / 100));
+                        if (stopPricePreviosOrder > stopLoss)
+                        {
+                            logService.Write($"Цена стопа {stopPricePreviosOrder} выше стоп-лосса {stopLoss}\nwhile (end)----------------------");
+                            break;
+                        }
+                    }
+
                     orders.Add(CreateStopLimitOrder(PUBLIC_KEY, simbol, stopPricePreviosOrder, amountPreviosOrder, false));
 
                     if (counter > 999888)
@@ -734,6 +760,18 @@ namespace Algoritms.BackTest
         private void EndTask()
         {
             //logService.Write($"***  end TASK ***", true);
+        }
+
+        private double GetAvgPriceOrders(List<StopLimitOrderTest> orders)
+        {
+            double result = 0;
+            if (orders != null)
+            {
+                var sumMoney = orders.Sum(x => x.StopPrice * x.Amount);
+                var sumAmount = orders.Sum(x => x.Amount);
+                result = (double)((decimal)sumMoney / (decimal)sumAmount);
+            }
+            return result;
         }
 
         private double GetStopPriceFirstOrder(double lastPrice, bool isBuyer)

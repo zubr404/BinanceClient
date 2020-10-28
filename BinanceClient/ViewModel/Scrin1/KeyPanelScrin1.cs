@@ -10,35 +10,243 @@ namespace BinanceClient.ViewModel.Scrin1
 {
     public class KeyPanelScrin1 : PropertyChangedBase
     {
-        readonly APIKeyRepository repository;
-        public APIKeyView APIKeyView { get; private set; }
-        public KeyPanelScrin1(APIKeyRepository repository)
+        readonly APIKeyRepository apiKeyRepository;
+        readonly BalanceRepository balanceRepository;
+        public KeyPanelScrin1(APIKeyRepository apiKeyRepository, BalanceRepository balanceRepository)
         {
-            this.repository = repository;
-            APIKeyView = new APIKeyView();
+            this.apiKeyRepository = apiKeyRepository;
+            this.balanceRepository = balanceRepository;
         }
 
-        private double height = 0;
-        public double Height
+        private List<APIKeyView> aPIKeyViews;
+        public List<APIKeyView> APIKeyViews 
         {
-            get { return height; }
+            get { return aPIKeyViews; }
             set
             {
-                height = value;
+                if (value != null)
+                {
+                    aPIKeyViews = value;
+                    base.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        private APIKeyView selectedKey;
+        public APIKeyView SelectedKey
+        {
+            get { return selectedKey; }
+            set
+            {
+                selectedKey = value;
                 base.NotifyPropertyChanged();
             }
         }
 
-        private double width = 0;
-        public double Width
+        public void SetKeys()
         {
-            get { return width; }
+            var keys = apiKeyRepository.Get();
+            var keysView = new List<APIKeyView>();
+            foreach (var item in keys)
+            {
+                var key = new APIKeyView()
+                {
+                    ID = item.ID,
+                    Name = item.Name,
+                    PublicKey = item.PublicKey,
+                    SecretKey = item.SecretKey,
+                    IsActive = item.IsActive
+                };
+                key.SetStatus(item.Status);
+                keysView.Add(key);
+            }
+            APIKeyViews = keysView;
+        }
+
+        #region Command
+        private RelayCommand applyCommand;
+        public RelayCommand ApplyCommand
+        {
+            get
+            {
+                return applyCommand ?? new RelayCommand((object o) =>
+                {
+                    if(APIKeyViews != null)
+                    {
+                        foreach (var keyView in APIKeyViews)
+                        {
+                            apiKeyRepository.UpdateActive(keyView.ID, keyView.IsActive);
+                        }
+                    }
+                });
+            }
+        }
+
+        private RelayCommand addKeyCommand;
+        public RelayCommand AddKeyCommand
+        {
+            get
+            {
+                return addKeyCommand ?? new RelayCommand((object o) =>
+                {
+                    var key = new APIKey()
+                    {
+                        Name = UserName,
+                        PublicKey = PublicKey,
+                        SecretKey = SecretKey,
+                        IsActive = true,
+                        Status = true
+                    };
+                    try
+                    {
+                        apiKeyRepository.Update(key);
+                        SetKeys();
+                        UserName = "";
+                        PublicKey = "";
+                        SecretKey = "";
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                });
+            }
+        }
+        #endregion
+
+        #region Панель отображения ключей
+        private Visibility visibilityShowPanelKey = Visibility.Hidden;
+        public Visibility VisibilityShowPanelKey
+        {
+            get { return visibilityShowPanelKey; }
             set
             {
-                width = value;
+                visibilityShowPanelKey = value;
                 base.NotifyPropertyChanged();
             }
         }
+
+        private RelayCommand showPanelKeyCommand;
+        public RelayCommand ShowPanelKeyCommand
+        {
+            get
+            {
+                return showPanelKeyCommand ?? new RelayCommand((object o) =>
+                {
+                    VisibilityShowPanelKey = Visibility.Visible;
+                    PublicKeyShow = SelectedKey != null ? SelectedKey.PublicKey : "---------------NaN---------------";
+                    SecretKeyShow = SelectedKey != null ? SelectedKey.SecretKey : "---------------NaN---------------";
+                });
+            }
+        }
+
+        private RelayCommand hidePanelKeyCommand;
+        public RelayCommand HidePanelKeyCommand
+        {
+            get
+            {
+                return hidePanelKeyCommand ?? new RelayCommand((object o) =>
+                {
+                    VisibilityShowPanelKey = Visibility.Hidden;
+                    PublicKeyShow = "---------------NaN---------------";
+                    SecretKeyShow = "---------------NaN---------------";
+                });
+            }
+        }
+
+        private string publicKeyShow = "---------------NaN---------------";
+        public string PublicKeyShow
+        {
+            get { return publicKeyShow; }
+            set
+            {
+                publicKeyShow = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
+        private string secretKeyShow = "---------------NaN---------------";
+        public string SecretKeyShow
+        {
+            get { return secretKeyShow; }
+            set
+            {
+                secretKeyShow = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+        #endregion
+
+        #region Панель отображения балансов
+        private List<BalanceView> balanceViews;
+        public List<BalanceView> BalanceViews
+        {
+            get { return balanceViews; }
+            set
+            {
+                if(value!= null)
+                {
+                    balanceViews = value;
+                    base.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        private Visibility visibilityShowPanelBalance = Visibility.Hidden;
+        public Visibility VisibilityShowPanelBalance
+        {
+            get { return visibilityShowPanelBalance; }
+            set
+            {
+                visibilityShowPanelBalance = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
+        private RelayCommand showPanelBalanceCommand;
+        public RelayCommand ShowPanelBalanceCommand
+        {
+            get
+            {
+                return showPanelBalanceCommand ?? new RelayCommand((object o) =>
+                {
+                    VisibilityShowPanelBalance = Visibility.Visible;
+                    if(selectedKey != null)
+                    {
+                        var balances = balanceRepository.Get(selectedKey.PublicKey);
+                        var balancesView = new List<BalanceView>();
+                        foreach (var balance in balances)
+                        {
+                            balancesView.Add(new BalanceView()
+                            {
+                                Asset = balance.Asset,
+                                Free = balance.Free,
+                                Locked = balance.Locked
+                            });
+                        }
+                        BalanceViews = balancesView;
+                    }
+                    else
+                    {
+                        BalanceViews = new List<BalanceView>();
+                    }
+                });
+            }
+        }
+
+        private RelayCommand hidePanelBalanceCommand;
+        public RelayCommand HidePanelBalanceCommand
+        {
+            get
+            {
+                return hidePanelBalanceCommand ?? new RelayCommand((object o) =>
+                {
+                    VisibilityShowPanelBalance = Visibility.Hidden;
+                    BalanceViews = new List<BalanceView>();
+                });
+            }
+        }
+        #endregion
 
         private string userName;
         public string UserName
@@ -71,56 +279,6 @@ namespace BinanceClient.ViewModel.Scrin1
                 secretKey = value;
                 base.NotifyPropertyChanged();
             }
-        }
-
-        private RelayCommand saveCommand;
-        public RelayCommand SaveCommand
-        {
-            get
-            {
-                return saveCommand ?? new RelayCommand((object o) =>
-                {
-                    var key = new APIKey()
-                    {
-                        Name = APIKeyView.Name,
-                        PublicKey = APIKeyView.PublicKey,
-                        SecretKey = APIKeyView.SecretKey
-                    };
-                    try
-                    {
-                        repository.Update(key);
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
-                    ClosePanel();
-                });
-            }
-        }
-
-        private RelayCommand cancelCommand;
-        public RelayCommand CancelCommand
-        {
-            get
-            {
-                return cancelCommand ?? new RelayCommand((object o) =>
-                {
-                    ClosePanel();
-                });
-            }
-        }
-
-        public void ClosePanel()
-        {
-            Height = 0;
-            Width = 0;
-        }
-
-        public void OpenPanel()
-        {
-            Height = 200;
-            Width = 400;
         }
     }
 }

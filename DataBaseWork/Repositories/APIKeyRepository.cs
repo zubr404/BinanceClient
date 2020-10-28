@@ -57,6 +57,11 @@ namespace DataBaseWork.Repositories
             return keys;
         }
 
+        public IEnumerable<APIKey> GetActive()
+        {
+            return db.APIKeys.AsNoTracking().Where(x => x.IsActive);
+        }
+
         public string GetSecretKey(string publicKey)
         {
             return db.APIKeys.AsNoTracking().Where(x=>x.PublicKey == publicKey).Select(x=>x.SecretKey).FirstOrDefault();
@@ -67,12 +72,36 @@ namespace DataBaseWork.Repositories
             return db.APIKeys.FirstOrDefault(u => u.Name == apiKeyName);
         }
 
+        public APIKey UpdateActive(int Id, bool isActive)
+        {
+            var key = db.APIKeys.FirstOrDefault(x => x.ID == Id);
+            if (key != null)
+            {
+                key.IsActive = isActive;
+                Save();
+            }
+            return key;
+        }
+
+        public APIKey UpdateStatus(string publicKey, bool status)
+        {
+            var key = db.APIKeys.FirstOrDefault(x => x.PublicKey == publicKey);
+            if (key != null)
+            {
+                key.Status = status;
+                Save();
+            }
+            return key;
+        }
+
         public APIKey Update(APIKey keyItem)
         {
             if (!string.IsNullOrWhiteSpace(keyItem.Name) && !string.IsNullOrWhiteSpace(keyItem.PublicKey) && !string.IsNullOrWhiteSpace(keyItem.SecretKey))
             {
                 if (ExistsName(keyItem.Name))
                 {
+                    throw new ArgumentException("Параметр содержит уже имеющееся имя пользователя.", "keyItem");
+                    // по публичному ключу привязываются сделки, поэтому что ниже отменил.
                     if (ExistsPublicKey(keyItem.PublicKey))
                     {
                         throw new ArgumentException("Параметр содержит уже имеющийся публичный ключ.", "keyItem");

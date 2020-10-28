@@ -64,14 +64,21 @@ namespace StockExchenge.Charts
             WebSocket.OnError += WebSocket_OnError;
             WebSocket.OnClose += WebSocket_OnClose;
             WebSocket.OnOpen += WebSocket_OnOpen;
-            WebSocket.Connect();
+            try
+            {
+                WebSocket.Connect();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         public string GetHistory()
         {
             try
             {
-                return publicRequester.RequestPublicApi($"{Resources.DOMAIN_V1}klines?symbol={pair.ToUpper()}&interval={interval}&limit=150");
+                return publicRequester.RequestPublicApi($"{Resources.DOMAIN_V1}klines?symbol={pair.ToUpper()}&interval={interval}&limit=100");
             }
             catch (Exception ex)
             {

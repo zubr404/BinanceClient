@@ -92,7 +92,7 @@ namespace Algoritms.Real
                 return;
             }
             
-            apiKeys = repositoriesM.APIKeyRepository.Get().ToList();
+            apiKeys = repositoriesM.APIKeyRepository.GetActive().ToList();
             if(apiKeys == null)
             {
                 EndStartAlgoritm("apiKeys = null");
@@ -182,7 +182,20 @@ namespace Algoritms.Real
                                 logService.Write($"while (end)----------------------");
                                 break;
                             }
-                            orders.Add(CreateStopLimitOrder(key.PublicKey, currentPair.Pair, stopPricePreviosOrder, amountPreviosOrder, false));
+
+                            var avgStopPrice = GetAvgPriceOrders(orders);
+
+                            if(tradeConfiguration.Loss > 0)
+                            {
+                                var stopLoss = RoundAsset(avgStopPrice - (avgStopPrice * tradeConfiguration.Loss / 100));
+                                if (stopPricePreviosOrder < stopLoss)
+                                {
+                                    logService.Write($"Цена стопа {stopPricePreviosOrder} ниже стоп-лосса {stopLoss}\nwhile (end)----------------------");
+                                    break;
+                                }
+                            }
+
+                            orders.Add(CreateStopLimitOrder(key.PublicKey, currentPair.Pair, stopPricePreviosOrder, amountPreviosOrder, true));
 
                             if (counter > 999888)
                             {
@@ -238,6 +251,19 @@ namespace Algoritms.Real
                                 logService.Write($"while (end)----------------------");
                                 break;
                             }
+
+                            var avgStopPrice = GetAvgPriceOrders(orders);
+
+                            if(tradeConfiguration.Loss > 0)
+                            {
+                                var stopLoss = RoundAsset(avgStopPrice - (avgStopPrice * tradeConfiguration.Loss / 100));
+                                if (stopPricePreviosOrder > stopLoss)
+                                {
+                                    logService.Write($"Цена стопа {stopPricePreviosOrder} выше стоп-лосса {stopLoss}\nwhile (end)----------------------");
+                                    break;
+                                }
+                            }
+
                             orders.Add(CreateStopLimitOrder(key.PublicKey, currentPair.Pair, stopPricePreviosOrder, amountPreviosOrder, false));
 
                             if (counter > 999888)
@@ -255,8 +281,22 @@ namespace Algoritms.Real
 
                 foreach (var order in orders)
                 {
-                    logService.Write($"Pair: {order.Pair} StopPrice: {order.StopPrice} Price: {order.Price} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
+                    logService.Write($"Key: {order.FK_PublicKey.Substring(order.FK_PublicKey.Length - 6)} Pair: {order.Pair} StopPrice: {order.StopPrice} Price: {order.Price} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
                 }
+
+                // Обновляем статус ключей
+                foreach (var key in apiKeys)
+                {
+                    repositoriesM.APIKeyRepository.UpdateStatus(key.PublicKey, true);
+                }
+                var publicKeys = apiKeys.Select(x => x.PublicKey);
+                var publicKeysOrders = orders.Select(x => x.FK_PublicKey).Distinct();
+                var exceptKeys = publicKeys.Except(publicKeysOrders);
+                foreach (var key in exceptKeys)
+                {
+                    repositoriesM.APIKeyRepository.UpdateStatus(key, false);
+                }
+                //-------------------------
 
                 repositoriesM.StopLimitOrderRepository.Create(orders);
                 OnMessageDebugEvent("Сетка ордеров создана.");
@@ -427,19 +467,22 @@ namespace Algoritms.Real
                                                     logService.Write($"Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
 
                                                     // выставляем лосс
-                                                    var lossStop = new StopLimitOrder()
+                                                    if(tradeConfiguration.Loss > 0)
                                                     {
-                                                        FK_PublicKey = publicKey,
-                                                        Pair = stopOrder.Pair,
-                                                        StopPrice = RoundAsset(getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100)),
-                                                        Price = 0,
-                                                        Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
-                                                        IsBuyOperation = false,
-                                                        Active = true
-                                                    };
-                                                    repositoriesM.StopLimitOrderRepository.Create(lossStop);
-                                                    logService.Write("выставляем лосс");
-                                                    logService.Write($"Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
+                                                        var lossStop = new StopLimitOrder()
+                                                        {
+                                                            FK_PublicKey = publicKey,
+                                                            Pair = stopOrder.Pair,
+                                                            StopPrice = RoundAsset(getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100)),
+                                                            Price = 0,
+                                                            Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
+                                                            IsBuyOperation = false,
+                                                            Active = true
+                                                        };
+                                                        repositoriesM.StopLimitOrderRepository.Create(lossStop);
+                                                        logService.Write("выставляем лосс");
+                                                        logService.Write($"Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -500,85 +543,98 @@ namespace Algoritms.Real
                                     }
                                 }
 
-                                // отслеживание тейк-профитов
-                                logService.Write($"---- отслеживание тейк-профитов");
-                                var takeProfits = repositoriesM.TakeProfitOrderRepository.GetActive(currentPair.Pair).OrderBy(x => x.StopPrice);
-
-                                logService.Write($"foreach (var order in takeProfits) I -----------------");
-                                foreach (var order in takeProfits)
+                                try
                                 {
-                                    //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
-                                    logService.Write($"lastPrice: {lastPrice} stopOrder.StopPrice: {order.StopPrice} order.ExtremumPrice: {order.ExtremumPrice}");
-                                    if (lastPrice >= order.StopPrice && order.ExtremumPrice <= 0)
+                                    // отслеживание тейк-профитов
+                                    logService.Write($"---- отслеживание тейк-профитов");
+                                    var takeProfits = repositoriesM.TakeProfitOrderRepository.GetActive(currentPair.Pair).OrderBy(x => x.StopPrice);
+
+                                    logService.Write($"foreach (var order in takeProfits) I -----------------");
+                                    foreach (var order in takeProfits)
                                     {
-                                        // update ExtremumPrice
-                                        OnMessageDebugEvent($"Initialize ExtremumPrice: {lastPrice}");
-                                        logService.Write($"Initialize ExtremumPrice: {lastPrice}");
-                                        repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
-                                    }
-                                }
-                                logService.Write($"end I -----------------");
-
-                                takeProfits = takeProfits.Where(x => x.ExtremumPrice > 0).OrderByDescending(x => x.ExtremumPrice);
-
-                                logService.Write($"foreach (var order in takeProfits) II -----------------");
-                                foreach (var order in takeProfits)
-                                {
-                                    // get secret key
-                                    var publicKey = order.FK_PublicKey;
-                                    var secretKey = repositoriesM.APIKeyRepository.GetSecretKey(publicKey);
-
-                                    var indentExtremum = ((order.ExtremumPrice - lastPrice) * 100) / order.ExtremumPrice;
-                                    //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
-                                    logService.Write($"indentExtremum: {indentExtremum} order.IndentExtremum: {order.IndentExtremum}");
-
-                                    if (indentExtremum >= order.IndentExtremum)
-                                    {
-                                        logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
-
-                                        // выставляеим на Бинансе
-                                        var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
-
-                                        var messageError = "";
-                                        if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
+                                        //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
+                                        logService.Write($"lastPrice: {lastPrice} stopOrder.StopPrice: {order.StopPrice} order.ExtremumPrice: {order.ExtremumPrice}");
+                                        if (lastPrice >= order.StopPrice && order.ExtremumPrice <= 0)
                                         {
-                                            OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
-                                            logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
-                                            // все снимаем
-                                            repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
-                                            repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-                                            // начинаем заново
-                                            StartAlgoritm();
-                                            EndTask();
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
-                                            logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
-
-                                            // все снимаем
-                                            repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
-                                            repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-
-                                            IsActiveAlgoritm = false;
-                                            EndTask();
-                                            return;
+                                            // update ExtremumPrice
+                                            OnMessageDebugEvent($"Initialize ExtremumPrice: {lastPrice}");
+                                            logService.Write($"Initialize ExtremumPrice: {lastPrice}");
+                                            repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
                                         }
                                     }
+                                    logService.Write($"end I -----------------");
 
-                                    //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
-                                    logService.Write($"Update ExtremumPrice");
-                                    logService.Write($"lastPrice: {lastPrice} order.ExtremumPrice: {order.ExtremumPrice}");
-                                    if (lastPrice > order.ExtremumPrice && order.ExtremumPrice > 0)
+                                    takeProfits = takeProfits.Where(x => x.ExtremumPrice > 0).OrderByDescending(x => x.ExtremumPrice);
+
+                                    logService.Write($"foreach (var order in takeProfits) II -----------------");
+                                    foreach (var order in takeProfits)
                                     {
-                                        // update ExtremumPrice
-                                        OnMessageDebugEvent($"Update ExtremumPrice: {lastPrice}");
-                                        repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
+                                        // get secret key
+                                        var publicKey = order.FK_PublicKey;
+                                        var secretKey = repositoriesM.APIKeyRepository.GetSecretKey(publicKey);
+
+                                        var indentExtremum = ((order.ExtremumPrice - lastPrice) * 100) / order.ExtremumPrice;
+                                        //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
+                                        logService.Write($"indentExtremum: {indentExtremum} order.IndentExtremum: {order.IndentExtremum}");
+
+                                        if (indentExtremum >= order.IndentExtremum)
+                                        {
+                                            logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
+
+                                            // выставляеим на Бинансе
+                                            var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
+
+                                            var messageError = "";
+                                            if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
+                                            {
+                                                OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
+                                                logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
+                                                // все снимаем
+                                                repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все стоп-лимиты. {publicKey}");
+                                                repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все тейк-профиты. {publicKey}");
+                                                // начинаем заново
+                                                StartAlgoritm();
+                                                EndTask();
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
+                                                logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
+
+                                                // все снимаем
+                                                repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все стоп-лимиты. {publicKey}");
+                                                repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все тейк-профиты. {publicKey}");
+
+                                                IsActiveAlgoritm = false;
+                                                EndTask();
+                                                return;
+                                            }
+                                        }
+
+                                        //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
+                                        logService.Write($"Update ExtremumPrice");
+                                        logService.Write($"lastPrice: {lastPrice} order.ExtremumPrice: {order.ExtremumPrice}");
+                                        if (lastPrice > order.ExtremumPrice && order.ExtremumPrice > 0)
+                                        {
+                                            // update ExtremumPrice
+                                            OnMessageDebugEvent($"Update ExtremumPrice: {lastPrice}");
+                                            repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
+                                        }
                                     }
+                                    logService.Write($"end II -----------------");
+                                    //----
                                 }
-                                logService.Write($"end II -----------------");
-                                //----
+                                catch (Exception ex)
+                                {
+                                    // TODO: loging
+                                    OnMessageDebugEvent($"System error: {ex.Message}");
+                                    logService.Write($"System error: {ex.Message}");
+                                }
                             }
                             else if (tradeConfiguration.Strategy == SHORT_STRATEGY)
                             {
@@ -670,11 +726,14 @@ namespace Algoritms.Real
                                                     logService.Write($"Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
 
                                                     // выставляем лосс
-                                                    double stopPrice = GetStopLossPrice(getAvgResult.AvgPrice, tradeConfiguration.Loss, !stopOrder.IsBuyOperation);
-                                                    var lossStop = CreateStopLimitOrder(publicKey, stopOrder.Pair, stopPrice, RoundLotSize(Math.Abs(getAvgResult.SumAmount)), true);
-                                                    repositoriesM.StopLimitOrderRepository.Create(lossStop);
-                                                    logService.Write("выставляем лосс");
-                                                    logService.Write($"Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
+                                                    if(tradeConfiguration.Loss > 0)
+                                                    {
+                                                        double stopPrice = GetStopLossPrice(getAvgResult.AvgPrice, tradeConfiguration.Loss, !stopOrder.IsBuyOperation);
+                                                        var lossStop = CreateStopLimitOrder(publicKey, stopOrder.Pair, stopPrice, RoundLotSize(Math.Abs(getAvgResult.SumAmount)), true);
+                                                        repositoriesM.StopLimitOrderRepository.Create(lossStop);
+                                                        logService.Write("выставляем лосс");
+                                                        logService.Write($"Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -735,85 +794,98 @@ namespace Algoritms.Real
                                     }
                                 }
 
-                                // отслеживание тейк-профитов
-                                logService.Write($"---- отслеживание тейк-профитов");
-                                var takeProfits = repositoriesM.TakeProfitOrderRepository.GetActive(currentPair.Pair).OrderByDescending(x => x.StopPrice);
-
-                                logService.Write($"foreach (var order in takeProfits) I -----------------");
-                                foreach (var order in takeProfits)
+                                try
                                 {
-                                    //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
-                                    logService.Write($"lastPrice: {lastPrice} stopOrder.StopPrice: {order.StopPrice} order.ExtremumPrice: {order.ExtremumPrice}");
-                                    if (lastPrice <= order.StopPrice && order.ExtremumPrice <= 0)
+                                    // отслеживание тейк-профитов
+                                    logService.Write($"---- отслеживание тейк-профитов");
+                                    var takeProfits = repositoriesM.TakeProfitOrderRepository.GetActive(currentPair.Pair).OrderByDescending(x => x.StopPrice);
+
+                                    logService.Write($"foreach (var order in takeProfits) I -----------------");
+                                    foreach (var order in takeProfits)
                                     {
-                                        // update ExtremumPrice
-                                        OnMessageDebugEvent($"Initialize ExtremumPrice: {lastPrice}");
-                                        logService.Write($"Initialize ExtremumPrice: {lastPrice}");
-                                        repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
-                                    }
-                                }
-                                logService.Write($"end I -----------------");
-
-                                takeProfits = takeProfits.Where(x => x.ExtremumPrice > 0).OrderBy(x => x.ExtremumPrice);
-
-                                logService.Write($"foreach (var order in takeProfits) II -----------------");
-                                foreach (var order in takeProfits)
-                                {
-                                    // get secret key
-                                    var publicKey = order.FK_PublicKey;
-                                    var secretKey = repositoriesM.APIKeyRepository.GetSecretKey(publicKey);
-
-                                    var indentExtremum = ((lastPrice - order.ExtremumPrice) * 100) / order.ExtremumPrice;
-                                    //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
-                                    logService.Write($"indentExtremum: {indentExtremum} order.IndentExtremum: {order.IndentExtremum}");
-
-                                    if (indentExtremum >= order.IndentExtremum)
-                                    {
-                                        logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
-
-                                        // выставляеим на Бинансе
-                                        var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
-
-                                        var messageError = "";
-                                        if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
+                                        //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
+                                        logService.Write($"lastPrice: {lastPrice} stopOrder.StopPrice: {order.StopPrice} order.ExtremumPrice: {order.ExtremumPrice}");
+                                        if (lastPrice <= order.StopPrice && order.ExtremumPrice <= 0)
                                         {
-                                            OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
-                                            logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
-                                            // все снимаем
-                                            repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
-                                            repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-                                            // начинаем заново
-                                            StartAlgoritm();
-                                            EndTask();
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
-                                            logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
-
-                                            // все снимаем
-                                            repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
-                                            repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
-
-                                            IsActiveAlgoritm = false;
-                                            EndTask();
-                                            return;
+                                            // update ExtremumPrice
+                                            OnMessageDebugEvent($"Initialize ExtremumPrice: {lastPrice}");
+                                            logService.Write($"Initialize ExtremumPrice: {lastPrice}");
+                                            repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
                                         }
                                     }
+                                    logService.Write($"end I -----------------");
 
-                                    //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
-                                    logService.Write($"Update ExtremumPrice");
-                                    logService.Write($"lastPrice: {lastPrice} order.ExtremumPrice: {order.ExtremumPrice}");
-                                    if (lastPrice < order.ExtremumPrice && order.ExtremumPrice > 0)
+                                    takeProfits = takeProfits.Where(x => x.ExtremumPrice > 0).OrderBy(x => x.ExtremumPrice);
+
+                                    logService.Write($"foreach (var order in takeProfits) II -----------------");
+                                    foreach (var order in takeProfits)
                                     {
-                                        // update ExtremumPrice
-                                        OnMessageDebugEvent($"Update ExtremumPrice: {lastPrice}");
-                                        repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
+                                        // get secret key
+                                        var publicKey = order.FK_PublicKey;
+                                        var secretKey = repositoriesM.APIKeyRepository.GetSecretKey(publicKey);
+
+                                        var indentExtremum = ((lastPrice - order.ExtremumPrice) * 100) / order.ExtremumPrice;
+                                        //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
+                                        logService.Write($"indentExtremum: {indentExtremum} order.IndentExtremum: {order.IndentExtremum}");
+
+                                        if (indentExtremum >= order.IndentExtremum)
+                                        {
+                                            logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
+
+                                            // выставляеим на Бинансе
+                                            var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
+
+                                            var messageError = "";
+                                            if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
+                                            {
+                                                OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
+                                                logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
+                                                // все снимаем
+                                                repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все стоп-лимиты. {publicKey}");
+                                                repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все тейк-профиты. {publicKey}");
+                                                // начинаем заново
+                                                StartAlgoritm();
+                                                EndTask();
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
+                                                logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
+
+                                                // все снимаем
+                                                repositoriesM.StopLimitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все стоп-лимиты. {publicKey}");
+                                                repositoriesM.TakeProfitOrderRepository.DeactivationAllOrders(publicKey);
+                                                logService.Write($"Сняты все тейк-профиты. {publicKey}");
+
+                                                IsActiveAlgoritm = false;
+                                                EndTask();
+                                                return;
+                                            }
+                                        }
+
+                                        //OnMessageDebugEvent($"LP:{lastPrice} * SP:{order.StopPrice}");
+                                        logService.Write($"Update ExtremumPrice");
+                                        logService.Write($"lastPrice: {lastPrice} order.ExtremumPrice: {order.ExtremumPrice}");
+                                        if (lastPrice < order.ExtremumPrice && order.ExtremumPrice > 0)
+                                        {
+                                            // update ExtremumPrice
+                                            OnMessageDebugEvent($"Update ExtremumPrice: {lastPrice}");
+                                            repositoriesM.TakeProfitOrderRepository.UpdateExtremumPrice(order.ID, lastPrice);
+                                        }
                                     }
+                                    logService.Write($"end II -----------------");
+                                    //----
                                 }
-                                logService.Write($"end II -----------------");
-                                //----
+                                catch (Exception ex)
+                                {
+                                    // TODO: loging
+                                    OnMessageDebugEvent($"System error: {ex.Message}");
+                                    logService.Write($"System error: {ex.Message}");
+                                }
                             }
                             EndTask();
                         });
@@ -826,6 +898,19 @@ namespace Algoritms.Real
         {
             logService.Write($"***  end TASK ***", true);
         }
+
+        private double GetAvgPriceOrders(List<StopLimitOrder> orders)
+        {
+            double result = 0;
+            if (orders != null)
+            {
+                var sumMoney = orders.Sum(x => x.StopPrice * x.Amount);
+                var sumAmount = orders.Sum(x => x.Amount);
+                result = (double)((decimal)sumMoney / (decimal)sumAmount);
+            }
+            return result;
+        }
+
 
         #region test takeprofit
         public void TakeProfitTraking(double _lastPrice)

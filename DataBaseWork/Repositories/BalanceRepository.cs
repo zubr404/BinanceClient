@@ -20,6 +20,11 @@ namespace DataBaseWork.Repositories
             return db.Balances.AsNoTracking();
         }
 
+        public IEnumerable<Balance> Get(string publicKey)
+        {
+            return db.Balances.AsNoTracking().Where(x => x.FK_PublicKey == publicKey);
+        }
+
         public Balance Get(string publicKey, string asset)
         {
             return db.Balances.AsNoTracking().FirstOrDefault(x => x.FK_PublicKey == publicKey && x.Asset == asset);

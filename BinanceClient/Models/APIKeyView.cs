@@ -7,6 +7,17 @@ namespace BinanceClient.Models
 {
     public class APIKeyView : PropertyChangedBase
     {
+        private int id;
+        public int ID
+        {
+            get { return id; }
+            set
+            {
+                id = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
         private string name;
         public string Name
         {
@@ -46,6 +57,40 @@ namespace BinanceClient.Models
                     secretKey = value;
                     base.NotifyPropertyChanged();
                 }
+            }
+        }
+
+        private string status;
+        public string Status
+        {
+            get { return status; }
+            set
+            {
+                status = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
+        private bool isActive;
+        public bool IsActive
+        {
+            get { return isActive; }
+            set
+            {
+                isActive = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
+        public void SetStatus(bool status)
+        {
+            if (status)
+            {
+                Status = "OK";
+            }
+            else
+            {
+                Status = "ERROR";
             }
         }
     }

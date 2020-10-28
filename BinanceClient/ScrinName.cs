@@ -11,6 +11,7 @@ namespace BinanceClient
         ScrinCalculator,
         ScrinGeneralStatistic,
         ScrinBacktesting,
-        ScrinPairConnected
+        ScrinPairConnected,
+        ScrinKeyManager
     }
 }

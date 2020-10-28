@@ -54,15 +54,17 @@ namespace BinanceClient
 
         // test
         readonly DataBaseContext dataBaseForTradeHistory; // EF не может обеспечить обращение к БД из разных потоков
+        readonly DataBaseContext dataBaseForTrade;
 
         public ModelView()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
             dataBase = InitializeDataBase();
             dataBaseForTradeHistory = InitializeDataBase();
+            dataBaseForTrade = InitializeDataBase();
             balanceRepository = new BalanceRepository(dataBase);
             aPIKeyRepository = new APIKeyRepository(dataBase);
-            tradeRepository = new TradeRepository(dataBase);
+            tradeRepository = new TradeRepository(dataBaseForTrade);
             tradeHistoryRepository = new TradeHistoryRepository(dataBaseForTradeHistory);
             tradeConfigRepository = new TradeConfigRepository(dataBase);
             connectedPairRepository = new ConnectedPairRepository(dataBase);
@@ -101,13 +103,16 @@ namespace BinanceClient
 
             ScrinManager = new ScrinManager();
             ConsoleScrin1 = new ConsoleScrin1();
-            KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository);
+            KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository, balanceRepository);
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, martingaleReal, KeyPanelScrin1);
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, martingaleReal, KeyPanelScrin1, RightPanelScrin1);
             PairPanelScrin1 = new PairPanelScrin1(connectedPairRepository);
             ChartService = new ChartService(dispatcher);
             CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, tradeHistoryRepository);
+
+            ChartService.LoadChart(CentralPanelScrin1.TradeConfigurationView.MainCoin + CentralPanelScrin1.TradeConfigurationView.AltCoin);
+            CentralPanelScrin1.loadChart = ChartService.LoadChart;
         }
 
         private DataBaseContext InitializeDataBase()
@@ -146,6 +151,19 @@ namespace BinanceClient
                 {
                     ScrinManager.ManagingScrin(ScrinName.ScrinPairConnected);
                     PairPanelScrin1.GetPairs();
+                });
+            }
+        }
+
+        private RelayCommand apiKeyCommand;
+        public RelayCommand ApiKeyCommand
+        {
+            get
+            {
+                return apiKeyCommand ?? new RelayCommand((object o) =>
+                {
+                    ScrinManager.ManagingScrin(ScrinName.ScrinKeyManager);
+                    KeyPanelScrin1.SetKeys();
                 });
             }
         }
@@ -214,41 +232,6 @@ namespace BinanceClient
         }
         #endregion
 
-        #region Кнопки правой панели
-        private RelayCommand btcusd_longCommand;
-        public RelayCommand BTCUSD_LONGCommand
-        {
-            get
-            {
-                return btcusd_longCommand ?? new RelayCommand((object o) =>
-                {
-                    RightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_LONG);
-                });
-            }
-        }
-        private RelayCommand btcusd_shortCommand;
-        public RelayCommand BTCUSD_SHORTCommand
-        {
-            get
-            {
-                return btcusd_shortCommand ?? new RelayCommand((object o) =>
-                {
-                    RightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_SHORT);
-                });
-            }
-        }
-        private RelayCommand ethusd_shortCommand;
-        public RelayCommand ETHUSD_SHORTCommand
-        {
-            get
-            {
-                return ethusd_shortCommand ?? new RelayCommand((object o) =>
-                {
-                    RightPanelScrin1.ManagingBackground(ButtonName.ETHUSD_SHORT);
-                });
-            }
-        }
-        #endregion
         #endregion
     }
 }

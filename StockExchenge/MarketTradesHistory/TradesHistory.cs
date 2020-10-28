@@ -42,9 +42,11 @@ namespace StockExchenge.MarketTradesHistory
 				var requester = new PublicKeyRequiredRequester();
 
 				IsActiveLoad = true;
+				var countRequest = 0;
                 while (IsActiveLoad)
                 {
-                    try
+					countRequest++;
+					try
                     {
 						var response = requester.Request(GetUrl(), Resources.PUBLIC_KEY);
 						using (Stream stream = response.GetResponseStream())
@@ -82,7 +84,7 @@ namespace StockExchenge.MarketTradesHistory
 									if (headers.GetKey(i).ToLower() == "retry-after")
 									{
 										int.TryParse(headers[i], out secondSleep);
-										OnLoadStateEvent($"TradesHistory retry-after header: secondSleep = {secondSleep})");
+										OnLoadStateEvent($"TradesHistory retry-after header: secondSleep = {secondSleep}");
 									}
 								}
 								if (secondSleep == 0) { secondSleep = 60; }
@@ -92,9 +94,13 @@ namespace StockExchenge.MarketTradesHistory
 							{
 								if (trades.Count == 0)
                                 {
-									OnLoadStateEvent($"TradesHistory statusCode: {statusCode}. trades.Count == 0)");
+									OnLoadStateEvent($"TradesHistory statusCode: {statusCode}. trades.Count == 0");
 									break;
                                 }
+								if(countRequest % 100 == 0)
+                                {
+									OnLoadStateEvent($"TradesHistory time load: {trades.Last().Time.UnixToDateTime()}");
+								}
 							}
                             else
                             {
@@ -106,10 +112,11 @@ namespace StockExchenge.MarketTradesHistory
                     catch (Exception ex)
                     {
 						// запись лога в БД
-						OnLoadStateEvent($"TradesHistory error: {ex.Message})");
+						OnLoadStateEvent($"TradesHistory error: возможно указана неверная пара.");
 						return -1;
                     }
 				}
+				OnLoadStateEvent("TradesHistory: STOP");
 				return 1;
 			});
         }

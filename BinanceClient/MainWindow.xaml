@@ -28,25 +28,6 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <!--Панель добавления АПИ ключей-->
-            <Grid Grid.Column="1" Grid.RowSpan="2" Height="{Binding KeyPanelScrin1.Height}" Width="{Binding KeyPanelScrin1.Width}" VerticalAlignment="Top" HorizontalAlignment="Right"  Background="{StaticResource DarkBrown}" Panel.ZIndex="99">
-                <StackPanel Margin="10">
-                    <Label Foreground="{StaticResource SolidWhite}" Content="User name"/>
-                    <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.APIKeyView.Name, Mode=TwoWay}"/>
-                    <Label Foreground="{StaticResource SolidWhite}" Content="Public key"/>
-                    <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.APIKeyView.PublicKey, Mode=TwoWay}"/>
-                    <Label Foreground="{StaticResource SolidWhite}" Content="Secret key"/>
-                    <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.APIKeyView.SecretKey}"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Button Height="30" Width="60" BorderThickness="1" BorderBrush="{StaticResource SolidGray}"
-                                Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}"
-                                Command="{Binding KeyPanelScrin1.SaveCommand}" Content="OK"/>
-                        <Button Height="30" Width="60" Margin="10,0,0,0" BorderThickness="1" BorderBrush="{StaticResource SolidGray}"
-                                Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}"
-                                Command="{Binding KeyPanelScrin1.CancelCommand}" Content="Cancel"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
             <!--Upper panel-->
             <Grid Grid.Column="1" Height="{StaticResource HeightUpperPanel}" Background="{StaticResource DarkBrown}">
                 <Grid.ColumnDefinitions>
@@ -58,8 +39,8 @@
                 </Grid.ColumnDefinitions>
 
                 <!--Start-->
-                <Button Margin="20,10,0,0" Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding CentralPanelScrin1.StartButton.IsEnabled}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.StartCommand}">
-                    <StackPanel>
+                <StackPanel Margin="20,10,0,0">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding CentralPanelScrin1.StartButton.IsEnabled}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrin1.StartCommand}">
                         <Grid>
                             <Ellipse Height="34" Width="34" Stroke="{StaticResource SolidGreen}" StrokeThickness="1.2">
                                 <Ellipse.Fill>
@@ -70,9 +51,9 @@
                                 <Polygon Fill="{StaticResource SolidGreen}" Points="2,0 2,10 10,5"/>
                             </Grid>
                         </Grid>
-                        <Label Foreground="{StaticResource SolidGreen}" Content="Start"/>
-                    </StackPanel>
-                </Button>
+                    </Button>
+                    <Label Foreground="{StaticResource SolidGreen}" Content="Start"/>
+                </StackPanel>
 
                 <!--Stop-->
                 <StackPanel Grid.Column="1" Margin="42,10,0,0">
@@ -113,7 +94,7 @@
 
                 <StackPanel Grid.Column="4" Margin="0,0,25,0" Orientation="Horizontal" Visibility="Visible" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <!--API key-->
-                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Width="60" Style="{StaticResource RectangleButtonMy}" Command="{Binding CentralPanelScrin1.ApiKeyCommand}">
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Width="60" Style="{StaticResource RectangleButtonMy}" Command="{Binding ApiKeyCommand}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
@@ -217,7 +198,7 @@
                     </Grid>
 
                     <!--Текущая статистика-->
-                    <Grid Grid.Row="2" Margin="0,0,0,0">
+                    <!--<Grid Grid.Row="2" Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="3"/>
@@ -242,7 +223,7 @@
                             <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"/>
                             <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.CurrentStatisticButton.BrushBackground}"/>
                         </Grid>
-                    </Grid>
+                    </Grid>-->
 
                     <!--Калькулятор-->
                     <Grid Grid.Row="3" Margin="0,0,0,0">
@@ -291,7 +272,7 @@
                     </Grid>
 
                     <!--Общая статистика-->
-                    <Grid Grid.Row="4" Margin="0,0,0,0">
+                    <!--<Grid Grid.Row="4" Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="3"/>
@@ -320,10 +301,10 @@
                             <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}"/>
                             <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.GeneralStatisticsButton.BrushBackground}"/>
                         </Grid>
-                    </Grid>
+                    </Grid>-->
 
                     <!--Бэктестинг-->
-                    <Grid Grid.Row="5" Margin="0,0,0,0">
+                    <!--<Grid Grid.Row="5" Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="3"/>
@@ -343,7 +324,7 @@
                             <Rectangle RadiusY="2" RadiusX="3" Fill="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}"/>
                             <Rectangle Width="1" HorizontalAlignment="Right" Fill="{Binding LeftPanelScrin1.BackTestingButton.BrushBackground}"/>
                         </Grid>
-                    </Grid>
+                    </Grid>-->
                 </Grid>
             </Border>
 
@@ -377,7 +358,7 @@
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
-                                Background="#161515" Command="{Binding BTCUSD_LONGCommand}">
+                                Background="#161515" Command="{Binding CentralPanelScrin1.BTCUSD_LONGCommand}">
                             <TextBlock Margin="15,0,0,0"><Run Text="BTCUSD_LONG"/></TextBlock>
                         </Button>
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.BTCUSD_LONG.BrushBackground}"/>
@@ -390,7 +371,7 @@
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
-                                Background="#161515" Command="{Binding BTCUSD_SHORTCommand}">
+                                Background="#161515" Command="{Binding CentralPanelScrin1.BTCUSD_SHORTCommand}">
                             <TextBlock Margin="15,0,0,0"><Run Text="BTCUSD_SHORT"/></TextBlock>
                         </Button>
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.BTCUSD_SHORT.BrushBackground}"/>
@@ -403,7 +384,7 @@
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.5"
-                                Background="#161515" Command="{Binding ETHUSD_SHORTCommand}">
+                                Background="#161515" Command="{Binding CentralPanelScrin1.ETHUSD_SHORTCommand}">
                             <TextBlock Margin="15,0,0,0"><Run Text="ETHUSD_SHORT"/></TextBlock>
                         </Button>
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.ETHUSD_SHORT.BrushBackground}"/>
@@ -531,10 +512,10 @@
 
                     <StackPanel Orientation="Horizontal" Background="#161515">
                         <ComboBox Width="45" Foreground="#99FFFFFF" Style="{StaticResource ComboBoxChart}" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"/>
-                        <ComboBox Width="90" Margin="5,0,0,0" Foreground="#99FFFFFF" Style="{StaticResource ComboBoxChart}" ItemsSource="{Binding ChartService.PairSelecteds}" SelectedItem="{Binding ChartService.SelectedPair}"/>
+                        <Button Width="75" Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}" Command="{Binding ChartService.RefrashChart}">Refrash</Button>
                     </StackPanel>
                     <Grid Grid.Row="1" Background="{StaticResource DarkBrown}">
-                        <lvc:CartesianChart x:Name="ChartMy" Margin="5,0,5,0" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}">
+                        <lvc:CartesianChart x:Name="ChartMy" Margin="5,0,5,0" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}" DisableAnimations="False">
                             <!--<lvc:CartesianChart.Series>
                             <lvc:CandleSeries Values="{Binding ChartService.OhclValues}" StrokeThickness="1" Stroke="#6BBA45"/>
                             -->
@@ -608,8 +589,12 @@
                     <Label Grid.Row="1" Grid.Column="5" Style="{StaticResource Header2}" Content="Loss"/>
 
                     <!--row 2-->
-                    <TextBox Grid.Row="2" Grid.Column="0" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin}"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfigurationView.MainCoin}"/>
+                    <!--<TextBox Grid.Row="2" Grid.Column="0" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" CharacterCasing="Upper" Text="{Binding CentralPanelScrin1.TradeConfigurationView.MainCoin}"/>-->
+                    <ComboBox Grid.Row="2" Grid.Column="0" Style="{StaticResource ComboBoxOther}" Height="37" Width="107" Foreground="#c3c3c5" FontSize="21"
+                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                    <ComboBox Grid.Row="2" Grid.Column="1" Style="{StaticResource ComboBoxOther}" Height="37" Width="107" Foreground="#c3c3c5" FontSize="21"
+                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.MainCoin, Mode=TwoWay}"></ComboBox>
                     <ComboBox Grid.Row="2" Grid.Column="2" Height="37" Width="107" Foreground="#c3c3c5" FontSize="21"
                               Style="{StaticResource ComboBoxOther}" ItemsSource="{StaticResource strategies}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.Strategy}"/>
                     <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.IntervalHttp}"/>
@@ -870,7 +855,7 @@
             </Grid>
 
             <!--Central Panel Scrin calculator  {Binding ScrinManager.ScrinCalculator.Visibility}-->
-            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}" Panel.ZIndex="99">
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}">
                 <Grid Margin="30,0,30,0">
                     <Grid.Resources>
                         <Style x:Key="WaterMarkTextBox" TargetType="Grid">
@@ -922,7 +907,7 @@
 
                         <StackPanel Orientation="Horizontal">
                             <Label VerticalAlignment="Center" FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}" Padding="0" Content="Калькулятор сетки"/>
-                            <Button Margin="10,5,0,0" Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding CentralPanelScrin1.StartButton.IsEnabled}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrinCalculator.CalcGridStart}">
+                            <Button Margin="10,5,0,0" Background="{x:Null}" BorderBrush="{x:Null}" Style="{StaticResource CyrcleButtonMy}" Command="{Binding CentralPanelScrinCalculator.CalcGridStart}">
                                 <StackPanel>
                                     <Grid>
                                         <Rectangle Height="20" Width="50" RadiusX="10" RadiusY="10" Stroke="{StaticResource SolidGreen}" StrokeThickness="0.5">
@@ -942,12 +927,12 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                             <Grid Grid.Column="6" Style="{StaticResource WaterMarkTextBox}">
-                                <TextBox></TextBox>
+                                <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Main Coin Volume" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry3, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry3" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.DepositAssetForCurrentGrid, Mode=TwoWay}"/>
                             </Grid>
                             <Grid Grid.Column="7" Style="{StaticResource WaterMarkTextBox}"  Margin="7,0,0,0">
-                                <TextBox></TextBox>
+                                <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Alt Coin Volume" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry2, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry2" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.DepositQuoteForCurrentGrid, Mode=TwoWay}"/>
                             </Grid>
@@ -1050,12 +1035,12 @@
                             <TextBox Grid.Column="3" Height="25" Width="95" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.StartTime, ConverterCulture=ru, Mode=TwoWay, StringFormat=dd.MM.yyyy}"/>
                             <TextBox Grid.Column="4" Height="25" Width="95" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.StopTime, ConverterCulture=ru, Mode=TwoWay, StringFormat=dd.MM.yyyy}" Margin="2,0,0,0"/>
                             <Grid Grid.Column="6" Style="{StaticResource WaterMarkTextBox}">
-                                <TextBox></TextBox>
+                                <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Main Coin Volume" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.DepositAsset, Mode=TwoWay}"/>
                             </Grid>
                             <Grid Grid.Column="7" Style="{StaticResource WaterMarkTextBox}"  Margin="7,0,0,0">
-                                <TextBox></TextBox>
+                                <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Alt Coin Volume" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry1, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry1" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.DepositQuote, Mode=TwoWay}"/>
                             </Grid>
@@ -1135,12 +1120,12 @@
                                 <ToggleButton Style="{StaticResource SwitchTypeToggleButton}" IsChecked="{Binding CentralPanelScrinCalculator.IsCheckedDownloadHistory, Mode=TwoWay}" Command="{Binding CentralPanelScrinCalculator.TradeHistoryLoad}"></ToggleButton>
                             </Grid>
                             <Grid Grid.Column="2" Width="70" Height="22" Style="{StaticResource WaterMarkTextBox}">
-                                <TextBox></TextBox>
+                                <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Main Coin" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry4, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry4" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.BaseAsset, Mode=TwoWay}"/>
                             </Grid>
                             <Grid Grid.Column="3" Width="70" Height="22" Style="{StaticResource WaterMarkTextBox}">
-                                <TextBox></TextBox>
+                                <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Alt Coin" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry5, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry5" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.QuoteAsset, Mode=TwoWay}"/>
                             </Grid>
@@ -1223,7 +1208,7 @@
             </Grid>
 
             <!--Central Panel Scrin backtest {Binding ScrinManager.ScrinBacktesting.Visibility}-->
-            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinBacktesting.Visibility}">
+            <!--<Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinBacktesting.Visibility}">
 
                 <Grid>
                     <StackPanel Grid.Column="3" Margin="42,10,0,0" Visibility="Visible" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -1246,6 +1231,136 @@
                     </StackPanel>
                 </Grid>
 
+            </Grid>-->
+            
+            <!--Central Panel Менеджер ключей-->
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinKeyManager.Visibility}">
+
+                <!--Отображение ключей-->
+                <Grid Height="Auto" Width="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DarkBrown}" Opacity="0.85" Visibility="{Binding KeyPanelScrin1.VisibilityShowPanelKey}" Panel.ZIndex="2">
+                    <StackPanel Margin="15">
+                        <Label Foreground="{StaticResource SolidWhite}" Content="{Binding KeyPanelScrin1.PublicKeyShow}"></Label>
+                        <Label Foreground="{StaticResource SolidWhite}" Content="{Binding KeyPanelScrin1.SecretKeyShow}"></Label>
+                        <Button Margin="5" Height="25" Width="150" Foreground="{StaticResource SolidWhite}" Style="{StaticResource RectangleButtonMy}" Command="{Binding KeyPanelScrin1.HidePanelKeyCommand}">OK</Button>
+                    </StackPanel>
+                </Grid>
+
+                <!--Отображение балансов-->
+                <Grid Height="Auto" Width="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DarkBrown}" Opacity="0.95" Visibility="{Binding KeyPanelScrin1.VisibilityShowPanelBalance}" Panel.ZIndex="2">
+                    <StackPanel Margin="15">
+                        <DataGrid Grid.Row="1" Width="450" Height="200" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" RowHeaderWidth="0"
+                              Background="{StaticResource DarkBrown}" ItemsSource="{Binding KeyPanelScrin1.BalanceViews}" Margin="0,10,0,0"
+                              GridLinesVisibility="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" 
+                              VerticalGridLinesBrush="Transparent" RenderOptions.EdgeMode="Unspecified" FontSize="10" Foreground="{StaticResource SolidGray}" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <DataGrid.RowStyle>
+                                <Style TargetType="{x:Type DataGridRow}">
+                                    <Setter Property="Background" Value="{StaticResource DarkBrown}" />
+                                    <Setter Property="Height" Value="20"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}">
+                                    <Setter Property="BorderThickness" Value="0,0,0.25,0"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource SolidGray}"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ASSET" Width="*" Binding="{Binding Asset}"/>
+                                <DataGridTextColumn Header="FREE" Width="*" Binding="{Binding Free}"/>
+                                <DataGridTextColumn Header="LOCKED" Width="*" Binding="{Binding Locked}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Button Margin="5" Height="25" Width="150" Foreground="{StaticResource SolidWhite}" Style="{StaticResource RectangleButtonMy}" Command="{Binding KeyPanelScrin1.HidePanelBalanceCommand}">OK</Button>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2">
+                        <Label FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}">Менеджер API ключей</Label>
+                        <Button Height="20" Width="85" BorderThickness="1" BorderBrush="{StaticResource SolidGreen}" Background="{StaticResource SolidGreenOpacity}" Style="{StaticResource ElipseButtonMy}" Foreground="{StaticResource SolidGreen}" Command="{Binding KeyPanelScrin1.ApplyCommand}">Применить</Button>
+                        <Button Margin="10,0,0,0" Height="20" Width="85" BorderThickness="1" BorderBrush="{StaticResource SolidWhite}" Background="{StaticResource SolidGrayOpacity}" Style="{StaticResource ElipseButtonMy}" Foreground="{StaticResource SolidWhite}" Command="{Binding KeyPanelScrin1.ShowPanelBalanceCommand}">Все балансы</Button>
+                        <Button Margin="10,0,0,0" Height="20" Width="85" BorderThickness="1" BorderBrush="{StaticResource SolidWhite}" Background="{StaticResource SolidGrayOpacity}" Style="{StaticResource ElipseButtonMy}" Foreground="{StaticResource SolidWhite}" Command="{Binding KeyPanelScrin1.ShowPanelKeyCommand}">API ключи</Button>
+
+                        <Label Margin="30,0,0,0" FontSize="{StaticResource FontSizeLabelConsole}" Foreground="{StaticResource SolidGray}">Привязка ключей</Label>
+                        <Button Height="20" Width="111" BorderThickness="1" BorderBrush="{StaticResource SolidGreen}" Background="{StaticResource SolidGreenOpacity}" Style="{StaticResource ElipseButtonMy}" Foreground="{StaticResource SolidGreen}" Command="{Binding KeyPanelScrin1.AddKeyCommand}">Привязать ключ</Button>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" Width="450" Height="313" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" RowHeaderWidth="0"
+                              Background="{StaticResource DarkBrown}" SelectedItem="{Binding KeyPanelScrin1.SelectedKey}" ItemsSource="{Binding KeyPanelScrin1.APIKeyViews}" Margin="0,10,0,0"
+                              GridLinesVisibility="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" 
+                              VerticalGridLinesBrush="Transparent" RenderOptions.EdgeMode="Unspecified" FontSize="10" Foreground="{StaticResource SolidGray}" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="{x:Type DataGridRow}">
+                                <Setter Property="Background" Value="{StaticResource DarkBrown}" />
+                                <Setter Property="Height" Value="20"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="BorderThickness" Value="0,0,0.25,0"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource SolidGray}"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource DarkBrownCurrentStatisticGrid}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="User name" Width="*" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Status" Width="*" Binding="{Binding Status}"/>
+                            <DataGridCheckBoxColumn Header="Key activity" Width="*" Binding="{Binding IsActive}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!--Панель добавления АПИ ключей  Panel.ZIndex="99"-->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Height="170" Margin="65,10,0,0" VerticalAlignment="Top" Background="{StaticResource DarkBrown}">
+                        <StackPanel Margin="15,15,25,15">
+                            <Label Foreground="{StaticResource SolidGray}" Content="User name"/>
+                            <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.UserName, Mode=TwoWay}"/>
+                            <Label Foreground="{StaticResource SolidGray}" Content="Public key"/>
+                            <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.PublicKey, Mode=TwoWay}"/>
+                            <Label Foreground="{StaticResource SolidGray}" Content="Secret key"/>
+                            <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.SecretKey, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
             </Grid>
 
         </Grid>

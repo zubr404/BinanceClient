@@ -40,7 +40,10 @@ namespace StockExchenge.StreamWs
             foreach (var key in keys)
             {
                 var listenKey = ListenKeyParse(GetListenKeyUserStream(key.PublicKey));
-                webSockets.Add(new WebSocketUser(repositories, listenKey, key));
+                if (!string.IsNullOrWhiteSpace(listenKey))
+                {
+                    webSockets.Add(new WebSocketUser(repositories, listenKey, key));
+                }
             }
         }
 
@@ -80,7 +83,8 @@ namespace StockExchenge.StreamWs
             }
             catch (Exception ex)
             {
-                throw ex;
+                return "";
+                //throw ex;
             }
         }
 

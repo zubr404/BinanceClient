@@ -7,6 +7,26 @@ namespace BinanceClient.Models
 {
     public class TradeConfigurationView : PropertyChangedBase
     {
+        public TradeConfigurationView()
+        {
+            Coins = new List<string>();
+        }
+
+        public List<string> Coins { get; set; }
+
+        private string pair;
+        public string Pair
+        {
+            get { return pair; }
+            set 
+            { 
+                pair = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
+
+
         private string mainCoin;
         public string MainCoin 
         {
@@ -170,7 +190,7 @@ namespace BinanceClient.Models
             get { return loss; }
             set
             {
-                if (value > 0)
+                if (value >= 0)
                 {
                     loss = value;
                     base.NotifyPropertyChanged();
@@ -196,7 +216,7 @@ namespace BinanceClient.Models
             get { return indentExtremum; }
             set
             {
-                if (value > 0)
+                if (value >= 0)
                 {
                     indentExtremum = value;
                     base.NotifyPropertyChanged();

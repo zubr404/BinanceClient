@@ -124,11 +124,17 @@ namespace BinanceClient.ViewModel.ScrinCalculator
         private async Task<int> StartLoadHistory()
         {
             tradesHistory = new TradesHistory($"{GeneralSettingsView.BaseAsset}{GeneralSettingsView.QuoteAsset}", tradeHistoryRepository);
-            //tradesHistory.LoadStateEvent += TradesHistory_LoadStateEvent;
+            tradesHistory.LoadStateEvent += TradesHistory_LoadStateEvent;
             var result = await tradesHistory.Load();
             IsCheckedDownloadHistory = false;
             return result;
         }
+
+        private void TradesHistory_LoadStateEvent(object sender, string e)
+        {
+            ModelView.ConsoleScrin1.Message = e;
+        }
+
         private void StopLoadHistory()
         {
             if (tradesHistory != null)

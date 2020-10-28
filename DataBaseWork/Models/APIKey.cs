@@ -10,6 +10,8 @@ namespace DataBaseWork.Models
         public string Name { get; set; }
         public string PublicKey { get; set; }
         public string SecretKey { get; set; }
+        public bool IsActive { get; set; }
+        public bool Status { get; set; }
         public List<Trade> Trades { get; set; }
         public List<Balance> Balances { get; set; }
         public List<StopLimitOrder> StopLimitOrders { get; set; }

@@ -19,13 +19,19 @@ namespace DataBaseWork.Repositories
 
         public TradeConfiguration GetLast()
         {
-            var config = db.TradeConfigurations.OrderByDescending(x => x.ID).FirstOrDefault();
+            var config = db.TradeConfigurations.Where(x => x.Active).OrderByDescending(x => x.ID).FirstOrDefault();
             return config;
         }
 
         public IEnumerable<TradeConfiguration> GetActive()
         {
             var config = db.TradeConfigurations.Where(x => x.Active);
+            return config;
+        }
+
+        public TradeConfiguration Get(string baseAsset, string quoteAsset, string strategy)
+        {
+            var config = db.TradeConfigurations.OrderByDescending(x=>x.ActivationTime).FirstOrDefault(x => x.MainCoin.ToUpper() == baseAsset.ToUpper() && x.AltCoin.ToUpper() == quoteAsset.ToUpper() && x.Strategy.ToUpper() == strategy.ToUpper());
             return config;
         }
 

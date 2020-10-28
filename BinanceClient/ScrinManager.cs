@@ -14,6 +14,7 @@ namespace BinanceClient
         public Scrin ScrinGeneralStatistic { get; set; }
         public Scrin ScrinBacktesting { get; set; }
         public Scrin ScrinPairConnected { get; set; }
+        public Scrin ScrinKeyManager { get; set; }
 
         private List<Scrin> scrins;
 
@@ -26,12 +27,14 @@ namespace BinanceClient
             ScrinGeneralStatistic = new Scrin() { Name = ScrinName.ScrinGeneralStatistic };
             ScrinBacktesting = new Scrin() { Name = ScrinName.ScrinBacktesting };
             ScrinPairConnected = new Scrin() { Name = ScrinName.ScrinPairConnected };
+            ScrinKeyManager = new Scrin() { Name = ScrinName.ScrinKeyManager };
             scrins.Add(Scrin1);
             scrins.Add(ScrinCurrentStatistic);
             scrins.Add(ScrinCalculator);
             scrins.Add(ScrinGeneralStatistic);
             scrins.Add(ScrinBacktesting);
             scrins.Add(ScrinPairConnected);
+            scrins.Add(ScrinKeyManager);
             InitializeScrin();
         }
 
