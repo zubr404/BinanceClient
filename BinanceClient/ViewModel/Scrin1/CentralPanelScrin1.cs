@@ -112,11 +112,19 @@ namespace BinanceClient.ViewModel.Scrin1
                 {
                     task = Task.Run(() =>
                     {
-                        accountInfo.RequestedBalances();
-                        tradeAccountInfo.RequestedTrades();
-                        currentTrades.SocketOpen();
-                        userStreamData.StreamStart();
-                        martingale.StartAlgoritm();
+                        try
+                        {
+                            accountInfo.RequestedBalances();
+                            tradeAccountInfo.RequestedTrades();
+                            currentTrades.SocketOpen();
+                            userStreamData.StreamStart();
+                            martingale.StartAlgoritm();
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelView.ConsoleScrin1.Message = $"Exception: {ex.Message}\nInnerException: {ex.InnerException?.Message}\nTrace: {ex.StackTrace}";
+                        }
+                        
 
                         #region test takeprofit
                         //var lastPrice = 900.0;
@@ -189,7 +197,7 @@ namespace BinanceClient.ViewModel.Scrin1
                         try
                         {
                             configRepository.Update(config);
-                            ModelView.ConsoleScrin1.Message = $"Конфигурация для {config.MainCoin}/{config.AltCoin} успешно применена.";
+                            ModelView.ConsoleScrin1.Message = $"Конфигурация для {config.MainCoin}/{config.AltCoin} {config.Strategy} успешно применена.";
                             martingale.CancelAllStopOrders();
                             martingale.CancelAllTakeProfitOrder();
 

@@ -24,7 +24,7 @@ namespace Services
         {
             if (!isTest)
             {
-                var timeStr = $"{DateTime.Now.Hour:00}_{DateTime.Now.Minute:00}_{DateTime.Now.Second:00}";
+                var timeStr = $"{DateTime.Now.Hour:00}_{DateTime.Now.Minute:00}_{DateTime.Now.Second:00}.{DateTime.Now.Millisecond}";
                 logPatch = $"{logDirectory}\\{timeStr}_{postfix}.log";
 
                 if (!File.Exists(logPatch))

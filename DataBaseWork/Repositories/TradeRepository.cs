@@ -35,6 +35,17 @@ namespace DataBaseWork.Repositories
             return db.Trades.Where(x => x.FK_PublicKey == publicKey && x.IsBuyer == isBuyer && x.Time >= unixTime).OrderByDescending(x => x.Time).Select(x => x.Time).FirstOrDefault();
         }
 
+        public long GetMaxId(string publicKey, string simbol)
+        {
+            long result = -1;
+            try
+            {
+                result = db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Symbol == simbol).Select(x => x.TradeID).Max();
+            }
+            catch { }
+            return result;
+        }
+
         public Trade Create(Trade item)
         {
             try
@@ -46,6 +57,19 @@ namespace DataBaseWork.Repositories
                     return trade.Entity;
                 }
                 return null;
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void Create(IEnumerable<Trade> trades)
+        {
+            try
+            {
+                db.Trades.AddRange(trades);
+                Save();
             }
             catch (InvalidOperationException ex)
             {

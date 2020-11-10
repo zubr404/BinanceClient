@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using Services;
 using System.Collections.Generic;
 using System.Linq;
+using StockExchenge.TradeAccount;
 
 namespace TestApp
 {
@@ -115,8 +116,15 @@ namespace TestApp
             //    Console.WriteLine(i);
             //}
 
-            List<int> list = new List<int>();
-            Console.WriteLine(list.Sum());
+            var dataBase = new DataBaseContext();
+            var dataBaseForTrade = new DataBaseContext();
+            var aPIKeyRepository = new APIKeyRepository(dataBase);
+            var tradeConfigRepository = new TradeConfigRepository(dataBase);
+            var tradeRepository = new TradeRepository(dataBaseForTrade);
+            var tradeAccountInfo = new TradeAccountInfo(aPIKeyRepository, tradeConfigRepository, tradeRepository);
+
+            tradeAccountInfo.RequestedTrades("ztAZCxiv8UEJYU146zdTokXvqB3ygUHFAKbZxBxadZpqw7EZS8pUG9Yos0BezsNO",
+                "ZzzmG2XkUiBk4hpoF98u3jnP3R5NN39nU6CS5MW65d3WsyzbtGxGT7bboz2fXVDT", "ETHUSDT");
 
             Console.WriteLine("FINISH");
             Console.ReadKey();

@@ -22,15 +22,14 @@ namespace BinanceClient
     class ModelView
     {
         private readonly Dispatcher dispatcher;
-        private readonly DataBaseContext dataBase;
-        private readonly APIKeyRepository aPIKeyRepository;
-        private readonly BalanceRepository balanceRepository;
-        private readonly TradeRepository tradeRepository;
-        private readonly TradeHistoryRepository tradeHistoryRepository;
-        private readonly TradeConfigRepository tradeConfigRepository;
-        private readonly ConnectedPairRepository connectedPairRepository;
-        private readonly StopLimitOrderRepository stopLimitOrderRepository;
-        private readonly TakeProfitOrderRepository takeProfitOrderRepository;
+        //private readonly APIKeyRepository aPIKeyRepository;
+        //private readonly BalanceRepository balanceRepository;
+        //private readonly TradeRepository tradeRepository;
+        //private readonly TradeHistoryRepository tradeHistoryRepository;
+        //private readonly TradeConfigRepository tradeConfigRepository;
+        //private readonly ConnectedPairRepository connectedPairRepository;
+        //private readonly StopLimitOrderRepository stopLimitOrderRepository;
+        //private readonly TakeProfitOrderRepository takeProfitOrderRepository;
         public ChartService ChartService { get; private set; }
         private readonly Algoritms.Real.Martingale martingaleReal;
         private readonly Algoritms.BackTest.Martingale martingaleBackTest;
@@ -52,64 +51,57 @@ namespace BinanceClient
 
         public CentralPanelScrinCalculator CentralPanelScrinCalculator { get; set; }
 
-        // test
-        readonly DataBaseContext dataBaseForTradeHistory; // EF не может обеспечить обращение к БД из разных потоков
-        readonly DataBaseContext dataBaseForTrade;
-
         public ModelView()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
-            dataBase = InitializeDataBase();
-            dataBaseForTradeHistory = InitializeDataBase();
-            dataBaseForTrade = InitializeDataBase();
-            balanceRepository = new BalanceRepository(dataBase);
-            aPIKeyRepository = new APIKeyRepository(dataBase);
-            tradeRepository = new TradeRepository(dataBaseForTrade);
-            tradeHistoryRepository = new TradeHistoryRepository(dataBaseForTradeHistory);
-            tradeConfigRepository = new TradeConfigRepository(dataBase);
-            connectedPairRepository = new ConnectedPairRepository(dataBase);
-            stopLimitOrderRepository = new StopLimitOrderRepository(dataBase);
-            takeProfitOrderRepository = new TakeProfitOrderRepository(dataBase);
+            //balanceRepository = new BalanceRepository(InitializeDataBase());
+            //aPIKeyRepository = new APIKeyRepository(InitializeDataBase());
+            //tradeRepository = new TradeRepository(InitializeDataBase());
+            //tradeHistoryRepository = new TradeHistoryRepository(InitializeDataBase());
+            //tradeConfigRepository = new TradeConfigRepository(InitializeDataBase());
+            //connectedPairRepository = new ConnectedPairRepository(InitializeDataBase());
+            //stopLimitOrderRepository = new StopLimitOrderRepository(InitializeDataBase());
+            //takeProfitOrderRepository = new TakeProfitOrderRepository(InitializeDataBase());
 
-            var connectedPairService = new ConnectedPairService(connectedPairRepository);
+            var connectedPairService = new ConnectedPairService(new ConnectedPairRepository(InitializeDataBase()));
             connectedPairService.InitializeConnectedPair(MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs);
 
-            accountInfo = new AccountInfo(aPIKeyRepository, balanceRepository);
-            tradeAccountInfo = new TradeAccountInfo(aPIKeyRepository, tradeConfigRepository, tradeRepository);
-            currentTrades = new CurrentTrades(connectedPairRepository);
+            accountInfo = new AccountInfo(new APIKeyRepository(InitializeDataBase()), new BalanceRepository(InitializeDataBase()));
+            tradeAccountInfo = new TradeAccountInfo(new APIKeyRepository(InitializeDataBase()), new TradeConfigRepository(InitializeDataBase()), new TradeRepository(InitializeDataBase()));
+            currentTrades = new CurrentTrades(new ConnectedPairRepository(InitializeDataBase()));
             userStreamData = new UserStreamData(new StockExchenge.RepositoriesModel()
             {
-                APIKeyRepository = aPIKeyRepository,
-                BalanceRepository = balanceRepository
+                APIKeyRepository = new APIKeyRepository(InitializeDataBase()),
+                BalanceRepository = new BalanceRepository(InitializeDataBase())
             });
 
             martingaleReal = new Algoritms.Real.Martingale(new Algoritms.Real.RepositoriesM()
             {
-                APIKeyRepository = aPIKeyRepository,
-                BalanceRepository = balanceRepository,
+                APIKeyRepository = new APIKeyRepository(InitializeDataBase()),
+                BalanceRepository = new BalanceRepository(InitializeDataBase()),
                 CurrentTrades = currentTrades,
                 ExchangeInfo = MainWindow.ExchangeInfo,
-                TradeConfigRepository = tradeConfigRepository,
-                StopLimitOrderRepository = stopLimitOrderRepository,
-                TakeProfitOrderRepository = takeProfitOrderRepository,
-                TradeRepository = tradeRepository,
+                TradeConfigRepository = new TradeConfigRepository(InitializeDataBase()),
+                StopLimitOrderRepository = new StopLimitOrderRepository(InitializeDataBase()),
+                TakeProfitOrderRepository = new TakeProfitOrderRepository(InitializeDataBase()),
+                TradeRepository = new TradeRepository(InitializeDataBase()),
                 TradeAccountInfo = tradeAccountInfo
-            }); ;
+            });
             martingaleReal.MessageErrorEvent += MartingaleReal_MessageErrorEvent;
             martingaleReal.MessageDebugEvent += MartingaleReal_MessageDebugEvent;
 
-            martingaleBackTest = new Algoritms.BackTest.Martingale(tradeHistoryRepository, tradeConfigRepository, MainWindow.ExchangeInfo);
-            currentGridStatistics = new Algoritms.BackTest.CurrentGridStatistics(tradeConfigRepository);
+            martingaleBackTest = new Algoritms.BackTest.Martingale(new TradeHistoryRepository(InitializeDataBase()), new TradeConfigRepository(InitializeDataBase()), MainWindow.ExchangeInfo);
+            currentGridStatistics = new Algoritms.BackTest.CurrentGridStatistics(new TradeConfigRepository(InitializeDataBase()));
 
             ScrinManager = new ScrinManager();
             ConsoleScrin1 = new ConsoleScrin1();
-            KeyPanelScrin1 = new KeyPanelScrin1(aPIKeyRepository, balanceRepository);
+            KeyPanelScrin1 = new KeyPanelScrin1(new APIKeyRepository(InitializeDataBase()), new BalanceRepository(InitializeDataBase()));
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, tradeConfigRepository, martingaleReal, KeyPanelScrin1, RightPanelScrin1);
-            PairPanelScrin1 = new PairPanelScrin1(connectedPairRepository);
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, new TradeConfigRepository(InitializeDataBase()), martingaleReal, KeyPanelScrin1, RightPanelScrin1);
+            PairPanelScrin1 = new PairPanelScrin1(new ConnectedPairRepository(InitializeDataBase()));
             ChartService = new ChartService(dispatcher);
-            CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, tradeHistoryRepository);
+            CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, new TradeHistoryRepository(InitializeDataBase()));
 
             ChartService.LoadChart(CentralPanelScrin1.TradeConfigurationView.MainCoin + CentralPanelScrin1.TradeConfigurationView.AltCoin);
             CentralPanelScrin1.loadChart = ChartService.LoadChart;

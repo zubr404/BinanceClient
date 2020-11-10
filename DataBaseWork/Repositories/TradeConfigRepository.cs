@@ -19,7 +19,8 @@ namespace DataBaseWork.Repositories
 
         public TradeConfiguration GetLast()
         {
-            var config = db.TradeConfigurations.Where(x => x.Active).OrderByDescending(x => x.ID).FirstOrDefault();
+            TradeConfiguration config = null;// db.TradeConfigurations.Where(x => x.Active).OrderByDescending(x => x.ID).FirstOrDefault();
+            db.Entry(config).Reload();
             return config;
         }
 

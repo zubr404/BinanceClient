@@ -79,12 +79,23 @@ namespace StockExchenge.MarketTrades
             GetPairs();
             Disconnect();
             string pairParams = "";
-            foreach (var pair in pairs)
-            {
-                pairParams += $"{pair.ToLower()}@aggTrade/";
-            }
-            pairParams = pairParams.Remove(pairParams.Length - 1);
 
+            if(pairs != null)
+            {
+                if(pairs.Count() > 0)
+                {
+                    foreach (var pair in pairs)
+                    {
+                        pairParams += $"{pair.ToLower()}@aggTrade/";
+                    }
+                    pairParams = pairParams.Remove(pairParams.Length - 1);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(pairParams))
+            {
+                throw new Exception("Пользователем не подключено ни одной валютной пары!");
+            }
             WebSocket = new WebSocket($"{Resources.SOCKET}{pairParams}");
             WebSocket.OnMessage += WebSocket_OnMessage;
             WebSocket.OnError += WebSocket_OnError;
