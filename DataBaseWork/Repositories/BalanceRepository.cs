@@ -9,47 +9,49 @@ namespace DataBaseWork.Repositories
 {
     public class BalanceRepository
     {
-        readonly DataBaseContext db;
-        public BalanceRepository(DataBaseContext db)
-        {
-            this.db = db;
-        }
-
         public IEnumerable<Balance> Get()
         {
-            return db.Balances.AsNoTracking();
+            using (var db = new DataBaseContext())
+            {
+                return db.Balances.AsNoTracking();
+            }
         }
 
         public IEnumerable<Balance> Get(string publicKey)
         {
-            return db.Balances.AsNoTracking().Where(x => x.FK_PublicKey == publicKey);
+            using (var db = new DataBaseContext())
+            {
+                return db.Balances.AsNoTracking().Where(x => x.FK_PublicKey == publicKey).ToArray();
+            }
         }
 
         public Balance Get(string publicKey, string asset)
         {
-            return db.Balances.AsNoTracking().FirstOrDefault(x => x.FK_PublicKey == publicKey && x.Asset == asset);
+            using (var db = new DataBaseContext())
+            {
+                return db.Balances.AsNoTracking().FirstOrDefault(x => x.FK_PublicKey == publicKey && x.Asset == asset);
+            }
         }
 
         public Balance Update(Balance item) 
         {
-            var balance = db.Balances.FirstOrDefault(x => x.FK_PublicKey == item.FK_PublicKey && x.Asset == item.Asset);
-            if(balance == null)
+            using (var db = new DataBaseContext())
             {
-                balance = db.Balances.Add(item).Entity;
-                Save();
+                var balance = db.Balances.FirstOrDefault(x => x.FK_PublicKey == item.FK_PublicKey && x.Asset == item.Asset);
+                if (balance == null)
+                {
+                    balance = db.Balances.Add(item).Entity;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    balance.Free = item.Free;
+                    balance.Locked = item.Locked;
+                    db.SaveChanges();
+                }
+                return balance;
             }
-            else
-            {
-                balance.Free = item.Free;
-                balance.Locked = item.Locked;
-                Save();
-            }
-            return balance;
-        }
-
-        private void Save()
-        {
-            db.SaveChanges();
+            
         }
     }
 }

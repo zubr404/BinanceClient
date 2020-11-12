@@ -1,4 +1,5 @@
-﻿using BinanceClient.Services;
+﻿using BinanceClient.Models;
+using BinanceClient.Services;
 using BinanceClient.ViewModel.Scrin1;
 using BinanceClient.ViewModel.ScrinCalculator;
 using DataBaseWork;
@@ -54,70 +55,49 @@ namespace BinanceClient
         public ModelView()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
-            //balanceRepository = new BalanceRepository(InitializeDataBase());
-            //aPIKeyRepository = new APIKeyRepository(InitializeDataBase());
-            //tradeRepository = new TradeRepository(InitializeDataBase());
-            //tradeHistoryRepository = new TradeHistoryRepository(InitializeDataBase());
-            //tradeConfigRepository = new TradeConfigRepository(InitializeDataBase());
-            //connectedPairRepository = new ConnectedPairRepository(InitializeDataBase());
-            //stopLimitOrderRepository = new StopLimitOrderRepository(InitializeDataBase());
-            //takeProfitOrderRepository = new TakeProfitOrderRepository(InitializeDataBase());
 
-            var connectedPairService = new ConnectedPairService(new ConnectedPairRepository(InitializeDataBase()));
+            var connectedPairService = new ConnectedPairService(new ConnectedPairRepository());
             connectedPairService.InitializeConnectedPair(MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs);
 
-            accountInfo = new AccountInfo(new APIKeyRepository(InitializeDataBase()), new BalanceRepository(InitializeDataBase()));
-            tradeAccountInfo = new TradeAccountInfo(new APIKeyRepository(InitializeDataBase()), new TradeConfigRepository(InitializeDataBase()), new TradeRepository(InitializeDataBase()));
-            currentTrades = new CurrentTrades(new ConnectedPairRepository(InitializeDataBase()));
+            accountInfo = new AccountInfo(new APIKeyRepository(), new BalanceRepository());
+            tradeAccountInfo = new TradeAccountInfo(new APIKeyRepository(), new TradeConfigRepository(), new TradeRepository());
+            currentTrades = new CurrentTrades(new ConnectedPairRepository());
             userStreamData = new UserStreamData(new StockExchenge.RepositoriesModel()
             {
-                APIKeyRepository = new APIKeyRepository(InitializeDataBase()),
-                BalanceRepository = new BalanceRepository(InitializeDataBase())
+                APIKeyRepository = new APIKeyRepository(),
+                BalanceRepository = new BalanceRepository()
             });
 
             martingaleReal = new Algoritms.Real.Martingale(new Algoritms.Real.RepositoriesM()
             {
-                APIKeyRepository = new APIKeyRepository(InitializeDataBase()),
-                BalanceRepository = new BalanceRepository(InitializeDataBase()),
+                APIKeyRepository = new APIKeyRepository(),
+                BalanceRepository = new BalanceRepository(),
                 CurrentTrades = currentTrades,
                 ExchangeInfo = MainWindow.ExchangeInfo,
-                TradeConfigRepository = new TradeConfigRepository(InitializeDataBase()),
-                StopLimitOrderRepository = new StopLimitOrderRepository(InitializeDataBase()),
-                TakeProfitOrderRepository = new TakeProfitOrderRepository(InitializeDataBase()),
-                TradeRepository = new TradeRepository(InitializeDataBase()),
+                TradeConfigRepository = new TradeConfigRepository(),
+                StopLimitOrderRepository = new StopLimitOrderRepository(),
+                TakeProfitOrderRepository = new TakeProfitOrderRepository(),
+                TradeRepository = new TradeRepository(),
                 TradeAccountInfo = tradeAccountInfo
             });
             martingaleReal.MessageErrorEvent += MartingaleReal_MessageErrorEvent;
             martingaleReal.MessageDebugEvent += MartingaleReal_MessageDebugEvent;
 
-            martingaleBackTest = new Algoritms.BackTest.Martingale(new TradeHistoryRepository(InitializeDataBase()), new TradeConfigRepository(InitializeDataBase()), MainWindow.ExchangeInfo);
-            currentGridStatistics = new Algoritms.BackTest.CurrentGridStatistics(new TradeConfigRepository(InitializeDataBase()));
+            martingaleBackTest = new Algoritms.BackTest.Martingale(new TradeHistoryRepository(), new TradeConfigRepository(), MainWindow.ExchangeInfo);
+            currentGridStatistics = new Algoritms.BackTest.CurrentGridStatistics(new TradeConfigRepository());
 
             ScrinManager = new ScrinManager();
             ConsoleScrin1 = new ConsoleScrin1();
-            KeyPanelScrin1 = new KeyPanelScrin1(new APIKeyRepository(InitializeDataBase()), new BalanceRepository(InitializeDataBase()));
+            KeyPanelScrin1 = new KeyPanelScrin1(new APIKeyRepository(), new BalanceRepository());
             LeftPanelScrin1 = new LeftPanelScrin1();
             RightPanelScrin1 = new RightPanelScrin1();
-            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, new TradeConfigRepository(InitializeDataBase()), martingaleReal, KeyPanelScrin1, RightPanelScrin1);
-            PairPanelScrin1 = new PairPanelScrin1(new ConnectedPairRepository(InitializeDataBase()));
+            CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, new TradeConfigRepository(), martingaleReal, KeyPanelScrin1, RightPanelScrin1);
+            PairPanelScrin1 = new PairPanelScrin1(new ConnectedPairRepository());
             ChartService = new ChartService(dispatcher);
-            CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, new TradeHistoryRepository(InitializeDataBase()));
+            CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, new TradeHistoryRepository());
 
             ChartService.LoadChart(CentralPanelScrin1.TradeConfigurationView.MainCoin + CentralPanelScrin1.TradeConfigurationView.AltCoin);
             CentralPanelScrin1.loadChart = ChartService.LoadChart;
-        }
-
-        private DataBaseContext InitializeDataBase()
-        {
-            try
-            {
-                return new DataBaseContext();
-            }
-            catch (System.Exception ex)
-            {
-                MessageBox.Show($"{ex.Message}\n{ex.InnerException?.Message}", "ERROR DATABASE", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
         }
 
         private void MartingaleReal_MessageDebugEvent(object sender, string e)
@@ -129,6 +109,16 @@ namespace BinanceClient
         private void MartingaleReal_MessageErrorEvent(object sender, string e)
         {
             ConsoleScrin1.Message = e;
+        }
+
+        private List<string> statusKeys = new List<string>() { StatusKey.ERROR.ToString(), StatusKey.OK.ToString() };
+        public List<string> StatusKeys
+        {
+            get { return statusKeys; }
+            set
+            {
+                statusKeys = value;
+            }
         }
 
         #region Commands

@@ -69,6 +69,10 @@ namespace Algoritms.Real
             var orders = new List<StopLimitOrder>();
             tradeConfiguration = repositoriesM.TradeConfigRepository.GetLast();
 
+            // test
+            //OnMessageDebugEvent(tradeConfiguration.Strategy);
+            //return;
+
             if(tradeConfiguration != null)
             {
                 logService.Write("++ получено tradeConfiguration");
@@ -93,8 +97,9 @@ namespace Algoritms.Real
                 return;
             }
             
-            apiKeys = repositoriesM.APIKeyRepository.GetActive().ToList();
-            if(apiKeys == null)
+            //apiKeys = repositoriesM.APIKeyRepository.GetActive().ToList();
+            apiKeys = repositoriesM.APIKeyRepository.GetActiveStatusOk().ToList();
+            if (apiKeys == null)
             {
                 EndStartAlgoritm("apiKeys = null");
                 return;
@@ -141,7 +146,7 @@ namespace Algoritms.Real
                 foreach (var key in apiKeys)
                 {
                     var countSimbolKey = key.PublicKey.Length - 6;
-                    logService.Write($"Сетка для ключа: {key.PublicKey.Substring(countSimbolKey > 0 ? countSimbolKey : key.PublicKey.Length)} Стратегия: {tradeConfiguration.Strategy}");
+                    logService.Write($"Сетка для ключа: {key.PublicKey.Substring(countSimbolKey > 0 ? countSimbolKey : key.PublicKey.Length)}; name: {key.Name}; status: {key.Status} Стратегия: {tradeConfiguration.Strategy}");
 
                     if (tradeConfiguration.Strategy == LONG_STRATEGY)
                     {
@@ -298,10 +303,10 @@ namespace Algoritms.Real
                 }
 
                 // Обновляем статус ключей
-                foreach (var key in apiKeys)
-                {
-                    repositoriesM.APIKeyRepository.UpdateStatus(key.PublicKey, true);
-                }
+                //foreach (var key in apiKeys)
+                //{
+                //    repositoriesM.APIKeyRepository.UpdateStatus(key.PublicKey, true);
+                //}
                 var publicKeys = apiKeys.Select(x => x.PublicKey);
                 var publicKeysOrders = orders.Select(x => x.FK_PublicKey).Distinct();
                 var exceptKeys = publicKeys.Except(publicKeysOrders);
@@ -382,6 +387,8 @@ namespace Algoritms.Real
                     {
                         task = Task.Run(() =>
                         {
+                            bool isExecutionAnyOrder = false; // если есть исполнение хотя бы одного тейка или лосса
+
                             //OnMessageDebugEvent(task.Id.ToString());
                             logService.Write($"*** START TASK {task.Id} ***", true);
 
@@ -391,14 +398,14 @@ namespace Algoritms.Real
                             logService.Write($"currentPair.Pair: {currentPair.Pair} lastPrice: {lastPrice} IsActiveAlgoritm: {IsActiveAlgoritm} Strategy: {tradeConfiguration.Strategy}");
 
                             var db = new DataBaseContext();
-                            var ariKeypository = new APIKeyRepository(db);
-                            var balanceRepository = new BalanceRepository(db);
-                            var tradeConfigRepository = new TradeConfigRepository(db);
-                            var stopLimitRepository = new StopLimitOrderRepository(db);
-                            var takeProfitRepository = new TakeProfitOrderRepository(db);
-                            var tradeRepository = new TradeRepository(db);
+                            var apiKeypository = new APIKeyRepository();
+                            var balanceRepository = new BalanceRepository();
+                            var tradeConfigRepository = new TradeConfigRepository();
+                            var stopLimitRepository = new StopLimitOrderRepository();
+                            var takeProfitRepository = new TakeProfitOrderRepository();
+                            var tradeRepository = new TradeRepository();
 
-                            //OnMessageDebugEvent("ActiveAlgoritm");
+                            //**************************************** LONG_STRATEGY ****************************************
                             if (tradeConfiguration.Strategy == LONG_STRATEGY)
                             {
                                 //OnMessageDebugEvent("LONG_STRATEGY");
@@ -449,7 +456,8 @@ namespace Algoritms.Real
                                         {
                                             // get secret key
                                             var publicKey = stopOrder.FK_PublicKey;
-                                            var secretKey = ariKeypository.GetSecretKey(publicKey);
+                                            var secretKey = apiKeypository.GetSecretKey(publicKey);
+                                            var nameKey = apiKeypository.GetNameKey(publicKey);
 
                                             if (stopOrder.IsBuyOperation)
                                             {
@@ -464,8 +472,8 @@ namespace Algoritms.Real
                                                 var messageError = "";
                                                 if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                                 {
-                                                    OnMessageDebugEvent("Открытие позы на Бинансе: УСПЕШНО");
-                                                    logService.Write("Открытие позы на Бинансе: УСПЕШНО");
+                                                    OnMessageDebugEvent($"Открытие позиции: УСПЕШНО. Ключ: {nameKey}");
+                                                    logService.Write($"Открытие позиции: УСПЕШНО. Ключ: {nameKey}");
                                                     // запрашиваем сделки с биржи
                                                     if (!RequestedTrades(publicKey, secretKey, long.Parse(orderResponse.OrderId.Trim()), (decimal)stopOrder.Amount))
                                                     {
@@ -496,7 +504,7 @@ namespace Algoritms.Real
                                                     };
                                                     takeProfitRepository.Create(profitStop);
                                                     logService.Write("выставляем профит");
-                                                    logService.Write($"Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
+                                                    logService.Write($"Key: {nameKey} Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
 
                                                     // выставляем лосс
                                                     if(tradeConfiguration.Loss > 0)
@@ -513,20 +521,22 @@ namespace Algoritms.Real
                                                         };
                                                         stopLimitRepository.Create(lossStop);
                                                         logService.Write("выставляем лосс");
-                                                        logService.Write($"Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
+                                                        logService.Write($"Key: {nameKey} Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    OnMessageDebugEvent("Открытие позы на Бинансе: ОШИБКА");
-                                                    logService.Write($"Открытие позы на Бинансе: ОШИБКА - {messageError}");
+                                                    OnMessageDebugEvent($"Открытие позиции: ОШИБКА. Ключ: {nameKey}");
+                                                    logService.Write($"Открытие позиции: Ключ: {nameKey} ОШИБКА - {messageError}");
                                                     // все снимаем
                                                     stopLimitRepository.DeactivationAllOrders(publicKey);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
 
-                                                    IsActiveAlgoritm = false;
-                                                    EndTask();
-                                                    return;
+                                                    //IsActiveAlgoritm = false;
+                                                    //EndTask();
+                                                    //return;
+
+                                                    apiKeypository.UpdateStatus(publicKey, false); // ставим по ключу статус ERROR
                                                 }
                                             }
                                             else // сработал стоп-лосс
@@ -544,21 +554,24 @@ namespace Algoritms.Real
                                                     stopLimitRepository.DeactivationAllOrders(publicKey);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
                                                     // начинаем заново
-                                                    StartAlgoritm();
-                                                    EndTask();
-                                                    return;
+                                                    //StartAlgoritm();
+                                                    //EndTask();
+                                                    //return;
+                                                    isExecutionAnyOrder = true;
                                                 }
                                                 else
                                                 {
-                                                    OnMessageErrorEvent("ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета.");
-                                                    logService.Write($"ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета. - {messageError}");
+                                                    OnMessageErrorEvent($"ВНИМАНИЕ! Стоп-лосс ошибка! Ключ: {nameKey}");
+                                                    logService.Write($"ВНИМАНИЕ! Стоп-лосс ошибка Ключ: {nameKey} Error: {messageError}");
                                                     // все снимаем
                                                     stopLimitRepository.DeactivationAllOrders(publicKey);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
 
-                                                    IsActiveAlgoritm = false;
-                                                    EndTask();
-                                                    return;
+                                                    //IsActiveAlgoritm = false;
+                                                    //EndTask();
+                                                    //return;
+
+                                                    apiKeypository.UpdateStatus(publicKey, false); // ставим по ключу статус ERROR
                                                 }
                                             }
                                         }
@@ -602,17 +615,18 @@ namespace Algoritms.Real
                                     logService.Write($"foreach (var order in takeProfits) II -----------------");
                                     foreach (var order in takeProfits)
                                     {
-                                        // get secret key
-                                        var publicKey = order.FK_PublicKey;
-                                        var secretKey = ariKeypository.GetSecretKey(publicKey);
-
                                         var indentExtremum = ((order.ExtremumPrice - lastPrice) * 100) / order.ExtremumPrice;
                                         //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
                                         logService.Write($"indentExtremum: {indentExtremum} order.IndentExtremum: {order.IndentExtremum}");
 
                                         if (indentExtremum >= order.IndentExtremum)
                                         {
-                                            logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
+                                            // get secret key
+                                            var publicKey = order.FK_PublicKey;
+                                            var secretKey = apiKeypository.GetSecretKey(publicKey);
+                                            var nameKey = apiKeypository.GetNameKey(publicKey);
+
+                                            logService.Write($"Сработал тейк-профит: Key: {nameKey} Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
 
                                             // выставляеим на Бинансе
                                             var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
@@ -620,22 +634,24 @@ namespace Algoritms.Real
                                             var messageError = "";
                                             if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                             {
-                                                OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
-                                                logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
+                                                OnMessageDebugEvent($"Тейк-профит: УСПЕШНО Ключ: {nameKey}");
+                                                logService.Write($"Тейк-профит: УСПЕШНО Ключ: {nameKey}");
                                                 // все снимаем
                                                 stopLimitRepository.DeactivationAllOrders(publicKey);
                                                 logService.Write($"Сняты все стоп-лимиты. {publicKey}");
                                                 takeProfitRepository.DeactivationAllOrders(publicKey);
                                                 logService.Write($"Сняты все тейк-профиты. {publicKey}");
                                                 // начинаем заново
-                                                StartAlgoritm();
-                                                EndTask();
-                                                return;
+                                                //StartAlgoritm();
+                                                //EndTask();
+                                                //return;
+
+                                                isExecutionAnyOrder = true;
                                             }
                                             else
                                             {
-                                                OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
-                                                logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
+                                                OnMessageErrorEvent($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Ключ: {nameKey}");
+                                                logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Ключ: {nameKey} Error: {messageError}");
 
                                                 // все снимаем
                                                 stopLimitRepository.DeactivationAllOrders(publicKey);
@@ -643,9 +659,11 @@ namespace Algoritms.Real
                                                 takeProfitRepository.DeactivationAllOrders(publicKey);
                                                 logService.Write($"Сняты все тейк-профиты. {publicKey}");
 
-                                                IsActiveAlgoritm = false;
-                                                EndTask();
-                                                return;
+                                                //IsActiveAlgoritm = false;
+                                                //EndTask();
+                                                //return;
+
+                                                apiKeypository.UpdateStatus(publicKey, false); // ставим по ключу статус ERROR
                                             }
                                         }
 
@@ -670,6 +688,7 @@ namespace Algoritms.Real
                                     throw ex;
                                 }
                             }
+                            //**************************************** SHORT_STRATEGY ****************************************
                             else if (tradeConfiguration.Strategy == SHORT_STRATEGY)
                             {
                                 //OnMessageDebugEvent("LONG_STRATEGY");
@@ -720,7 +739,8 @@ namespace Algoritms.Real
                                         {
                                             // get secret key
                                             var publicKey = stopOrder.FK_PublicKey;
-                                            var secretKey = ariKeypository.GetSecretKey(publicKey);
+                                            var secretKey = apiKeypository.GetSecretKey(publicKey);
+                                            var nameKey = apiKeypository.GetNameKey(publicKey);
 
                                             if (!stopOrder.IsBuyOperation)
                                             {
@@ -735,8 +755,8 @@ namespace Algoritms.Real
                                                 var messageError = "";
                                                 if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                                 {
-                                                    OnMessageDebugEvent("Открытие позы на Бинансе: УСПЕШНО");
-                                                    logService.Write("Открытие позы на Бинансе: УСПЕШНО");
+                                                    OnMessageDebugEvent($"Открытие позиции: УСПЕШНО. Ключ: {nameKey}");
+                                                    logService.Write($"Открытие позиции: УСПЕШНО. Ключ: {nameKey}");
                                                     // запрашиваем сделки с биржи
                                                     if (!RequestedTrades(publicKey, secretKey, long.Parse(orderResponse.OrderId.Trim()), (decimal)stopOrder.Amount))
                                                     {
@@ -757,7 +777,7 @@ namespace Algoritms.Real
                                                     var profitStop = CreateTakeProfitOrder(publicKey, stopOrder.Pair, getAvgResult.AvgPrice, getAvgResult.SumAmount, true);
                                                     takeProfitRepository.Create(profitStop);
                                                     logService.Write("выставляем профит");
-                                                    logService.Write($"Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
+                                                    logService.Write($"Key: {nameKey} Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
 
                                                     // выставляем лосс
                                                     if(tradeConfiguration.Loss > 0)
@@ -766,20 +786,22 @@ namespace Algoritms.Real
                                                         var lossStop = CreateStopLimitOrder(publicKey, stopOrder.Pair, stopPrice, RoundLotSize(Math.Abs(getAvgResult.SumAmount)), true);
                                                         stopLimitRepository.Create(lossStop);
                                                         logService.Write("выставляем лосс");
-                                                        logService.Write($"Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
+                                                        logService.Write($"Key: {nameKey} Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    OnMessageDebugEvent("Открытие позы на Бинансе: ОШИБКА");
-                                                    logService.Write($"Открытие позы на Бинансе: ОШИБКА - {messageError}");
+                                                    OnMessageDebugEvent("Открытие позиции: ОШИБКА");
+                                                    logService.Write($"Открытие позиции: Ключ: {nameKey} ОШИБКА - {messageError}");
                                                     // все снимаем
                                                     stopLimitRepository.DeactivationAllOrders(publicKey);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
 
-                                                    IsActiveAlgoritm = false;
-                                                    EndTask();
-                                                    return;
+                                                    //IsActiveAlgoritm = false;
+                                                    //EndTask();
+                                                    //return;
+
+                                                    apiKeypository.UpdateStatus(publicKey, false); // ставим по ключу статус ERROR
                                                 }
                                             }
                                             else // сработал стоп-лосс
@@ -797,21 +819,25 @@ namespace Algoritms.Real
                                                     stopLimitRepository.DeactivationAllOrders(publicKey);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
                                                     // начинаем заново
-                                                    StartAlgoritm();
-                                                    EndTask();
-                                                    return;
+                                                    //StartAlgoritm();
+                                                    //EndTask();
+                                                    //return;
+
+                                                    isExecutionAnyOrder = true;
                                                 }
                                                 else
                                                 {
-                                                    OnMessageErrorEvent("ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета.");
-                                                    logService.Write($"ВНИМАНИЕ! Стоп-лосс испонился с ошибкой! Проверьте баланс счета. - {messageError}");
+                                                    OnMessageErrorEvent($"ВНИМАНИЕ! Стоп-лосс ошибка! Ключ: {nameKey}");
+                                                    logService.Write($"ВНИМАНИЕ! Стоп-лосс ошибка Ключ: {nameKey} Error: {messageError}");
                                                     // все снимаем
                                                     stopLimitRepository.DeactivationAllOrders(publicKey);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
 
-                                                    IsActiveAlgoritm = false;
-                                                    EndTask();
-                                                    return;
+                                                    //IsActiveAlgoritm = false;
+                                                    //EndTask();
+                                                    //return;
+
+                                                    apiKeypository.UpdateStatus(publicKey, false); // ставим по ключу статус ERROR
                                                 }
                                             }
                                         }
@@ -855,17 +881,18 @@ namespace Algoritms.Real
                                     logService.Write($"foreach (var order in takeProfits) II -----------------");
                                     foreach (var order in takeProfits)
                                     {
-                                        // get secret key
-                                        var publicKey = order.FK_PublicKey;
-                                        var secretKey = ariKeypository.GetSecretKey(publicKey);
-
                                         var indentExtremum = ((lastPrice - order.ExtremumPrice) * 100) / order.ExtremumPrice;
                                         //OnMessageDebugEvent($"IE:{indentExtremum} * OIE:{order.IndentExtremum}");
                                         logService.Write($"indentExtremum: {indentExtremum} order.IndentExtremum: {order.IndentExtremum}");
 
                                         if (indentExtremum >= order.IndentExtremum)
                                         {
-                                            logService.Write($"Сработал тейк-профит: Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
+                                            // get secret key
+                                            var publicKey = order.FK_PublicKey;
+                                            var secretKey = apiKeypository.GetSecretKey(publicKey);
+                                            var nameKey = apiKeypository.GetNameKey(publicKey);
+
+                                            logService.Write($"Сработал тейк-профит: Key: {nameKey} Pair: {order.Pair} StopPrice: {order.StopPrice} IndentExtremum: {order.IndentExtremum} ProtectiveSpread: {order.ProtectiveSpread} Amount: {order.Amount} IsBuyOperation: {order.IsBuyOperation} Active: {order.Active}");
 
                                             // выставляеим на Бинансе
                                             var orderResponse = SendOrder(order.Pair, order.IsBuyOperation, order.Amount, publicKey, secretKey);
@@ -873,22 +900,24 @@ namespace Algoritms.Real
                                             var messageError = "";
                                             if (ProcessingErrorOrder(orderResponse, publicKey, out messageError))
                                             {
-                                                OnMessageDebugEvent("Тейк-профит на Бинансе: УСПЕШНО");
-                                                logService.Write($"Тейк-профит на Бинансе: УСПЕШНО");
+                                                OnMessageDebugEvent($"Тейк-профит: УСПЕШНО Ключ: {nameKey}");
+                                                logService.Write($"Тейк-профит: УСПЕШНО Ключ: {nameKey}");
                                                 // все снимаем
                                                 stopLimitRepository.DeactivationAllOrders(publicKey);
                                                 logService.Write($"Сняты все стоп-лимиты. {publicKey}");
                                                 takeProfitRepository.DeactivationAllOrders(publicKey);
                                                 logService.Write($"Сняты все тейк-профиты. {publicKey}");
                                                 // начинаем заново
-                                                StartAlgoritm();
-                                                EndTask();
-                                                return;
+                                                //StartAlgoritm();
+                                                //EndTask();
+                                                //return;
+
+                                                isExecutionAnyOrder = true;
                                             }
                                             else
                                             {
-                                                OnMessageErrorEvent("ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета.");
-                                                logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Проверьте баланс счета. - {messageError}");
+                                                OnMessageErrorEvent($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Ключ: {nameKey}");
+                                                logService.Write($"ВНИМАНИЕ! Тейк-профит испонился с ошибкой! Ключ: {nameKey} Error: {messageError}");
 
                                                 // все снимаем
                                                 stopLimitRepository.DeactivationAllOrders(publicKey);
@@ -896,9 +925,11 @@ namespace Algoritms.Real
                                                 takeProfitRepository.DeactivationAllOrders(publicKey);
                                                 logService.Write($"Сняты все тейк-профиты. {publicKey}");
 
-                                                IsActiveAlgoritm = false;
-                                                EndTask();
-                                                return;
+                                                //IsActiveAlgoritm = false;
+                                                //EndTask();
+                                                //return;
+
+                                                apiKeypository.UpdateStatus(publicKey, false); // ставим по ключу статус ERROR
                                             }
                                         }
 
@@ -922,6 +953,10 @@ namespace Algoritms.Real
                                     logService.Write($"System error 4: {ex.Message}");
                                     throw ex;
                                 }
+                            }
+                            if (isExecutionAnyOrder)
+                            {
+                                StartAlgoritm(); // начинаем заново
                             }
                             EndTask();
                         });

@@ -1344,7 +1344,7 @@
                         </DataGrid.CellStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="User name" Width="*" Binding="{Binding Name}"/>
-                            <DataGridTextColumn Header="Status" Width="*" Binding="{Binding Status}"/>
+                            <DataGridCheckBoxColumn Header="Status" Width="*" Binding="{Binding Status}"/>
                             <DataGridCheckBoxColumn Header="Key activity" Width="*" Binding="{Binding IsActive}"/>
                         </DataGrid.Columns>
                     </DataGrid>

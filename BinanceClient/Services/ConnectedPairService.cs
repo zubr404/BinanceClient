@@ -33,7 +33,6 @@ namespace BinanceClient.Services
                 Active = false
             });
 
-            //var exeptPairs = exchangePairs.Except(dbPairs);
             var exeptPairs = exchangePairs.Except(dbPairs, new ConnectedPairComparer());
             connectedPairRepository.Create(exeptPairs);
         }

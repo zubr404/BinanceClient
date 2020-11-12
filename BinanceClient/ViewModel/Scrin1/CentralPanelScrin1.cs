@@ -144,7 +144,7 @@ namespace BinanceClient.ViewModel.Scrin1
                         #endregion
                     });
                     StartButton.IsEnabled = false;
-                    ModelView.ConsoleScrin1.Message = "Алгоритм запущен.";
+                    ModelView.ConsoleScrin1.Message = "Алгоритм запущен. Не збудь коменты.";
                 });
             }
         }

@@ -118,9 +118,9 @@ namespace TestApp
 
             var dataBase = new DataBaseContext();
             var dataBaseForTrade = new DataBaseContext();
-            var aPIKeyRepository = new APIKeyRepository(dataBase);
-            var tradeConfigRepository = new TradeConfigRepository(dataBase);
-            var tradeRepository = new TradeRepository(dataBaseForTrade);
+            var aPIKeyRepository = new APIKeyRepository();
+            var tradeConfigRepository = new TradeConfigRepository();
+            var tradeRepository = new TradeRepository();
             var tradeAccountInfo = new TradeAccountInfo(aPIKeyRepository, tradeConfigRepository, tradeRepository);
 
             tradeAccountInfo.RequestedTrades("ztAZCxiv8UEJYU146zdTokXvqB3ygUHFAKbZxBxadZpqw7EZS8pUG9Yos0BezsNO",

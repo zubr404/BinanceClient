@@ -75,7 +75,15 @@ namespace BinanceClient.ViewModel.Scrin1
                     {
                         foreach (var keyView in APIKeyViews)
                         {
-                            apiKeyRepository.UpdateActive(keyView.ID, keyView.IsActive);
+                            apiKeyRepository.Update(new APIKey()
+                            {
+                                Name = keyView.Name,
+                                PublicKey = keyView.PublicKey,
+                                SecretKey = keyView.SecretKey,
+                                IsActive = keyView.IsActive,
+                                //Status = keyView.Status == StatusKey.OK.ToString()
+                                Status = keyView.Status
+                            });
                         }
                     }
                 });
@@ -99,7 +107,7 @@ namespace BinanceClient.ViewModel.Scrin1
                     };
                     try
                     {
-                        apiKeyRepository.Update(key);
+                        apiKeyRepository.Create(key);
                         SetKeys();
                         UserName = "";
                         PublicKey = "";

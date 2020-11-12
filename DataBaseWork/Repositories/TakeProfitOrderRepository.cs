@@ -9,74 +9,84 @@ namespace DataBaseWork.Repositories
 {
     public class TakeProfitOrderRepository
     {
-        readonly DataBaseContext db;
-        public TakeProfitOrderRepository(DataBaseContext db)
-        {
-            this.db = db;
-        }
-
         public bool ExistsActive() // по всем счетам
         {
-            return db.TakeProfitOrders.Any(x => x.Active);
+            using (var db = new DataBaseContext())
+            {
+                return db.TakeProfitOrders.Any(x => x.Active);
+            }
         }
         public IEnumerable<TakeProfitOrder> GetActive(string pair) // по всем счетам
         {
-            return db.TakeProfitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower()).AsNoTracking();
+            using (var db = new DataBaseContext())
+            {
+                return db.TakeProfitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower()).AsNoTracking().ToArray();
+            }
         }
 
         public IEnumerable<TakeProfitOrder> GetActive(string publicKey, string pair)
         {
-            return db.TakeProfitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && x.Pair.ToLower() == pair.ToLower()).AsNoTracking();
+            using (var db = new DataBaseContext())
+            {
+                return db.TakeProfitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && x.Pair.ToLower() == pair.ToLower()).AsNoTracking().ToArray();
+            }
         }
 
         public void DeactivationAllOrders() // снятие по всем счетам
         {
-            var orders = db.TakeProfitOrders.Where(x => x.Active).AsEnumerable().Select(o =>
+            using (var db = new DataBaseContext())
             {
-                o.Active = false;
-                return o;
-            });
-            foreach (var order in orders)
-            {
-                db.Entry(order).State = EntityState.Modified;
+                var orders = db.TakeProfitOrders.Where(x => x.Active).AsEnumerable().Select(o =>
+                {
+                    o.Active = false;
+                    return o;
+                });
+                foreach (var order in orders)
+                {
+                    db.Entry(order).State = EntityState.Modified;
+                }
+                db.SaveChanges();
             }
-            Save();
         }
 
         public void DeactivationAllOrders(string publicKey) // снятие по счетy
         {
-            var orders = db.TakeProfitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey).AsEnumerable().Select(o =>
+            using (var db = new DataBaseContext())
             {
-                o.Active = false;
-                return o;
-            });
-            foreach (var order in orders)
-            {
-                db.Entry(order).State = EntityState.Modified;
+                var orders = db.TakeProfitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey).AsEnumerable().Select(o =>
+                {
+                    o.Active = false;
+                    return o;
+                });
+                foreach (var order in orders)
+                {
+                    db.Entry(order).State = EntityState.Modified;
+                }
+                db.SaveChanges();
             }
-            Save();
         }
 
         public TakeProfitOrder Create(TakeProfitOrder item)
         {
-            var order = db.TakeProfitOrders.Add(item).Entity;
-            Save();
-            return order;
+            using (var db = new DataBaseContext())
+            {
+                var order = db.TakeProfitOrders.Add(item).Entity;
+                db.SaveChanges();
+                return order;
+            }
         }
 
         public void UpdateExtremumPrice(int id, double price)
         {
-            var order = db.TakeProfitOrders.FirstOrDefault(x => x.ID == id);
-            if (order != null)
+            using (var db = new DataBaseContext())
             {
-                order.ExtremumPrice = price;
-                Save();
+                var order = db.TakeProfitOrders.FirstOrDefault(x => x.ID == id);
+                if (order != null)
+                {
+                    order.ExtremumPrice = price;
+                    db.SaveChanges();
+                }
             }
-        }
-
-        private void Save()
-        {
-            db.SaveChanges();
         }
     }
 }

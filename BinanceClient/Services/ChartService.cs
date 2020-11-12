@@ -144,7 +144,7 @@ namespace BinanceClient.Services
             var result = new List<TradeLine>();
             await Task.Run(() =>
             {
-                var tradeRepository = new TradeRepository(new DataBaseWork.DataBaseContext());
+                var tradeRepository = new TradeRepository();
                 var trades = tradeRepository.Get(simbol, minPrice, maxPrice).ToList();
                 var resGroup = trades.GroupBy(x => new {x.Price, x.IsBuyer }).ToList();
                 foreach (var item in resGroup)

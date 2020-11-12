@@ -9,17 +9,14 @@ namespace DataBaseWork.Repositories
 {
     public class APIKeyRepository
     {
-        readonly DataBaseContext db;
-        public APIKeyRepository(DataBaseContext db)
-        {
-            this.db = db;
-        }
-
         public bool ExistsName(string apiKeyName)
         {
             if (!string.IsNullOrWhiteSpace(apiKeyName))
             {
-                return db.APIKeys.AsNoTracking().Any(x => x.Name == apiKeyName);
+                using (var db = new DataBaseContext())
+                {
+                    return db.APIKeys.AsNoTracking().Any(x => x.Name == apiKeyName);
+                }
             }
             else
             {
@@ -31,7 +28,10 @@ namespace DataBaseWork.Repositories
         {
             if (!string.IsNullOrWhiteSpace(publicKey))
             {
-                return db.APIKeys.AsNoTracking().Any(x => x.PublicKey == publicKey);
+                using (var db = new DataBaseContext())
+                {
+                    return db.APIKeys.AsNoTracking().Any(x => x.PublicKey == publicKey);
+                }
             }
             else
             {
@@ -43,7 +43,10 @@ namespace DataBaseWork.Repositories
         {
             if (!string.IsNullOrWhiteSpace(secretKey))
             {
-                return db.APIKeys.AsNoTracking().Any(x => x.SecretKey == secretKey);
+                using (var db = new DataBaseContext())
+                {
+                    return db.APIKeys.AsNoTracking().Any(x => x.SecretKey == secretKey);
+                }
             }
             else
             {
@@ -53,48 +56,100 @@ namespace DataBaseWork.Repositories
 
         public IEnumerable<APIKey> Get()
         {
-            var keys = db.APIKeys.AsNoTracking();
-            return keys;
+            using (var db = new DataBaseContext())
+            {
+                var keys = db.APIKeys.AsNoTracking().ToArray();
+                return keys;
+            }
         }
 
         public IEnumerable<APIKey> GetActive()
         {
-            return db.APIKeys.AsNoTracking().Where(x => x.IsActive);
+            using (var db = new DataBaseContext())
+            {
+                return db.APIKeys.AsNoTracking().Where(x => x.IsActive).ToArray();
+            }
+        }
+
+        public IEnumerable<APIKey> GetActiveStatusOk()
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.APIKeys.AsNoTracking().Where(x => x.IsActive && x.Status).ToArray();
+            }
         }
 
         public string GetSecretKey(string publicKey)
         {
-            return db.APIKeys.AsNoTracking().Where(x=>x.PublicKey == publicKey).Select(x=>x.SecretKey).FirstOrDefault();
+            using (var db = new DataBaseContext())
+            {
+                return db.APIKeys.AsNoTracking().Where(x => x.PublicKey == publicKey).Select(x => x.SecretKey).FirstOrDefault();
+            }
+        }
+
+        public string GetNameKey(string publicKey)
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.APIKeys.AsNoTracking().Where(x => x.PublicKey == publicKey).Select(x => x.Name).FirstOrDefault();
+            }
         }
 
         public APIKey Get(string apiKeyName)
         {
-            return db.APIKeys.FirstOrDefault(u => u.Name == apiKeyName);
+            using (var db = new DataBaseContext())
+            {
+                return db.APIKeys.FirstOrDefault(u => u.Name == apiKeyName);
+            }
         }
 
         public APIKey UpdateActive(int Id, bool isActive)
         {
-            var key = db.APIKeys.FirstOrDefault(x => x.ID == Id);
-            if (key != null)
+            using (var db = new DataBaseContext())
             {
-                key.IsActive = isActive;
-                Save();
+                var key = db.APIKeys.FirstOrDefault(x => x.ID == Id);
+                if (key != null)
+                {
+                    key.IsActive = isActive;
+                    db.SaveChanges();
+                }
+                return key;
             }
-            return key;
         }
 
         public APIKey UpdateStatus(string publicKey, bool status)
         {
-            var key = db.APIKeys.FirstOrDefault(x => x.PublicKey == publicKey);
-            if (key != null)
+            using (var db = new DataBaseContext())
             {
-                key.Status = status;
-                Save();
+                var key = db.APIKeys.FirstOrDefault(x => x.PublicKey == publicKey);
+                if (key != null)
+                {
+                    key.Status = status;
+                    db.SaveChanges();
+                }
+                return key;
             }
-            return key;
         }
 
         public APIKey Update(APIKey keyItem)
+        {
+            using (var db = new DataBaseContext())
+            {
+                var apikey = db.APIKeys.FirstOrDefault(x => x.Name == keyItem.Name);
+                if (apikey != null)
+                {
+                    apikey.PublicKey = keyItem.PublicKey;
+                    apikey.SecretKey = keyItem.SecretKey;
+                    apikey.IsActive = keyItem.IsActive;
+                    apikey.Status = keyItem.Status;
+                    db.SaveChanges();
+                    return apikey;
+                }
+                return null;
+            }
+        }
+
+        public APIKey Create(APIKey keyItem)
         {
             if (!string.IsNullOrWhiteSpace(keyItem.Name) && !string.IsNullOrWhiteSpace(keyItem.PublicKey) && !string.IsNullOrWhiteSpace(keyItem.SecretKey))
             {
@@ -110,15 +165,18 @@ namespace DataBaseWork.Repositories
                     {
                         throw new ArgumentException("Параметр содержит уже имеющийся секретный ключ.", "keyItem");
                     }
-                    var apikey = db.APIKeys.FirstOrDefault(x => x.Name == keyItem.Name);
-                    if (apikey != null)
+                    using (var db = new DataBaseContext())
                     {
-                        apikey.PublicKey = keyItem.PublicKey;
-                        apikey.SecretKey = keyItem.SecretKey;
-                        Save();
-                        return apikey;
+                        var apikey = db.APIKeys.FirstOrDefault(x => x.Name == keyItem.Name);
+                        if (apikey != null)
+                        {
+                            apikey.PublicKey = keyItem.PublicKey;
+                            apikey.SecretKey = keyItem.SecretKey;
+                            db.SaveChanges();
+                            return apikey;
+                        }
+                        return null;
                     }
-                    return null;
                 }
                 else
                 {
@@ -132,9 +190,12 @@ namespace DataBaseWork.Repositories
                         {
                             throw new ArgumentException("Параметр содержит уже имеющийся секретный ключ.", "keyItem");
                         }
-                        var apikey = db.APIKeys.Add(keyItem);
-                        Save();
-                        return apikey.Entity;
+                        using (var db = new DataBaseContext())
+                        {
+                            var apikey = db.APIKeys.Add(keyItem);
+                            db.SaveChanges();
+                            return apikey.Entity;
+                        }
                     }
                     catch (InvalidOperationException ex)
                     {
@@ -146,11 +207,6 @@ namespace DataBaseWork.Repositories
             {
                 throw new ArgumentException("Параметр содержит не допустимые значения.", "keyItem");
             }
-        }
-
-        private void Save()
-        {
-            db.SaveChanges();
         }
     }
 }

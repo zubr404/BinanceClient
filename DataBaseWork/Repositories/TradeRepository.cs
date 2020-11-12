@@ -9,30 +9,36 @@ namespace DataBaseWork.Repositories
 {
     public class TradeRepository
     {
-        readonly DataBaseContext db;
-        public TradeRepository(DataBaseContext db)
-        {
-            this.db = db;
-        }
-
         public bool Exists(Trade item)
         {
-            return db.Trades.Any(x => x.FK_PublicKey == item.FK_PublicKey && x.TradeID == item.TradeID);
+            using (var db = new DataBaseContext())
+            {
+                return db.Trades.Any(x => x.FK_PublicKey == item.FK_PublicKey && x.TradeID == item.TradeID);
+            }
         }
 
         public IEnumerable<Trade> Get(string publicKey, long unixTime, bool isBuyer)
         {
-            return db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Time > unixTime && x.IsBuyer == isBuyer);
+            using (var db = new DataBaseContext())
+            {
+                return db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Time > unixTime && x.IsBuyer == isBuyer).ToArray();
+            }
         }
 
         public List<Trade> Get(string simbol, double minPrice, double maxPrice)
         {
-            return db.Trades.AsNoTracking().Where(x => x.Symbol == simbol && x.Price >= minPrice && x.Price <= maxPrice).ToList();
+            using (var db = new DataBaseContext())
+            {
+                return db.Trades.AsNoTracking().Where(x => x.Symbol == simbol && x.Price >= minPrice && x.Price <= maxPrice).ToList();
+            }
         }
 
         public long GetTimeLastTrade(string publicKey, bool isBuyer, long unixTime)
         {
-            return db.Trades.Where(x => x.FK_PublicKey == publicKey && x.IsBuyer == isBuyer && x.Time >= unixTime).OrderByDescending(x => x.Time).Select(x => x.Time).FirstOrDefault();
+            using (var db = new DataBaseContext())
+            {
+                return db.Trades.Where(x => x.FK_PublicKey == publicKey && x.IsBuyer == isBuyer && x.Time >= unixTime).OrderByDescending(x => x.Time).Select(x => x.Time).FirstOrDefault();
+            }
         }
 
         public long GetMaxId(string publicKey, string simbol)
@@ -40,7 +46,10 @@ namespace DataBaseWork.Repositories
             long result = -1;
             try
             {
-                result = db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Symbol == simbol).Select(x => x.TradeID).Max();
+                using (var db = new DataBaseContext())
+                {
+                    result = db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Symbol == simbol).Select(x => x.TradeID).Max();
+                }
             }
             catch { }
             return result;
@@ -52,9 +61,12 @@ namespace DataBaseWork.Repositories
             {
                 if (!Exists(item))
                 {
-                    var trade = db.Trades.Add(item);
-                    Save();
-                    return trade.Entity;
+                    using (var db = new DataBaseContext())
+                    {
+                        var trade = db.Trades.Add(item);
+                        db.SaveChanges();
+                        return trade.Entity;
+                    }
                 }
                 return null;
             }
@@ -68,18 +80,16 @@ namespace DataBaseWork.Repositories
         {
             try
             {
-                db.Trades.AddRange(trades);
-                Save();
+                using (var db = new DataBaseContext())
+                {
+                    db.Trades.AddRange(trades);
+                    db.SaveChanges();
+                }
             }
             catch (InvalidOperationException ex)
             {
                 throw ex;
             }
-        }
-
-        private void Save()
-        {
-            db.SaveChanges();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows.Media.Animation;
 
@@ -60,8 +61,8 @@ namespace BinanceClient.Models
             }
         }
 
-        private string status;
-        public string Status
+        private bool status;
+        public bool Status
         {
             get { return status; }
             set
@@ -84,14 +85,21 @@ namespace BinanceClient.Models
 
         public void SetStatus(bool status)
         {
-            if (status)
-            {
-                Status = "OK";
-            }
-            else
-            {
-                Status = "ERROR";
-            }
+            //if (status)
+            //{
+            //    Status = StatusKey.OK.ToString();
+            //}
+            //else
+            //{
+            //    Status = StatusKey.ERROR.ToString();
+            //}
+            Status = status;
         }
+    }
+
+    public enum StatusKey
+    {
+        OK,
+        ERROR
     }
 }
