@@ -444,10 +444,22 @@ namespace Algoritms.Real
 
                                 // отслеживание исполнения стопов
                                 logService.Write("---- отслеживание исполнения стопов");
-                                var stopOrders = stopLimitRepository.GetActive(currentPair.Pair).OrderByDescending(x => x.StopPrice);
+                                var stopOrders = stopLimitRepository.GetStopOrdersFilledBuy(currentPair.Pair, lastPrice).OrderByDescending(x => x.StopPrice);
+
+                                double stopPriceForTakeProfit = 0; // что бы по всем счетам поставить ТП с одинаковой ценой
+                                double stopPriceForStopLoss = 0; // что бы по всем счетам поставить СЛ с одинаковой ценой
+                                double stopPriceLast = 0; // запоминаем предыдущую стоп-цену
 
                                 foreach (var stopOrder in stopOrders)
                                 {
+                                    if(stopPriceLast != stopOrder.StopPrice && stopPriceLast != 0) // это на случай если цена пробила сразу несколько заявок в глубину
+                                    {
+                                        logService.Write("---- цена пробила сразу несколько заявок в глубину");
+                                        stopPriceForTakeProfit = 0;
+                                        stopPriceForStopLoss = 0;
+                                    }
+                                    stopPriceLast = stopOrder.StopPrice;
+
                                     //OnMessageDebugEvent("отслеживание исполнения стопов");
                                     try
                                     {
@@ -490,12 +502,18 @@ namespace Algoritms.Real
                                                     stopLimitRepository.DeactivationAllOrders(publicKey, false);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
 
+                                                    if(stopPriceForTakeProfit <= 0)
+                                                    {
+                                                        stopPriceForTakeProfit = RoundAsset(getAvgResult.AvgPrice + (getAvgResult.AvgPrice * tradeConfiguration.Profit / 100));
+                                                    }
+                                                    logService.Write($"stopPriceForTakeProfit: {stopPriceForTakeProfit}");
+
                                                     // выставляем профит
                                                     var profitStop = new TakeProfitOrder()
                                                     {
                                                         FK_PublicKey = publicKey,
                                                         Pair = stopOrder.Pair,
-                                                        StopPrice = RoundAsset(getAvgResult.AvgPrice + (getAvgResult.AvgPrice * tradeConfiguration.Profit / 100)),
+                                                        StopPrice = stopPriceForTakeProfit,
                                                         IndentExtremum = tradeConfiguration.IndentExtremum,
                                                         ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
                                                         Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
@@ -509,11 +527,17 @@ namespace Algoritms.Real
                                                     // выставляем лосс
                                                     if(tradeConfiguration.Loss > 0)
                                                     {
+                                                        if(stopPriceForStopLoss <= 0)
+                                                        {
+                                                            stopPriceForStopLoss = RoundAsset(getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100));
+                                                        }
+                                                        logService.Write($"stopPriceForStopLoss: {stopPriceForStopLoss}");
+
                                                         var lossStop = new StopLimitOrder()
                                                         {
                                                             FK_PublicKey = publicKey,
                                                             Pair = stopOrder.Pair,
-                                                            StopPrice = RoundAsset(getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100)),
+                                                            StopPrice = stopPriceForStopLoss,
                                                             Price = 0,
                                                             Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
                                                             IsBuyOperation = false,
@@ -727,10 +751,22 @@ namespace Algoritms.Real
 
                                 // отслеживание исполнения стопов
                                 logService.Write("---- отслеживание исполнения стопов");
-                                var stopOrders = stopLimitRepository.GetActive(currentPair.Pair).OrderBy(x => x.StopPrice);
+                                var stopOrders = stopLimitRepository.GetStopOrdersFilledSell(currentPair.Pair, lastPrice).OrderBy(x => x.StopPrice);
+
+                                double stopPriceForTakeProfit = 0; // что бы по всем счетам поставить ТП с одинаковой ценой
+                                double stopPriceForStopLoss = 0; // что бы по всем счетам поставить СЛ с одинаковой ценой
+                                double stopPriceLast = 0; // запоминаем предыдущую стоп-цену
 
                                 foreach (var stopOrder in stopOrders)
                                 {
+                                    if (stopPriceLast != stopOrder.StopPrice && stopPriceLast != 0) // это на случай если цена пробила сразу несколько заявок в глубину
+                                    {
+                                        logService.Write("---- цена пробила сразу несколько заявок в глубину");
+                                        stopPriceForTakeProfit = 0;
+                                        stopPriceForStopLoss = 0;
+                                    }
+                                    stopPriceLast = stopOrder.StopPrice;
+
                                     //OnMessageDebugEvent("отслеживание исполнения стопов");
                                     try
                                     {
@@ -773,8 +809,25 @@ namespace Algoritms.Real
                                                     stopLimitRepository.DeactivationAllOrders(publicKey, !stopOrder.IsBuyOperation);
                                                     takeProfitRepository.DeactivationAllOrders(publicKey);
 
+                                                    if (stopPriceForTakeProfit <= 0)
+                                                    {
+                                                        stopPriceForTakeProfit = RoundAsset(getAvgResult.AvgPrice - (getAvgResult.AvgPrice * tradeConfiguration.Profit / 100));
+                                                    }
+                                                    logService.Write($"stopPriceForTakeProfit: {stopPriceForTakeProfit}");
+
                                                     // выставляем профит
-                                                    var profitStop = CreateTakeProfitOrder(publicKey, stopOrder.Pair, getAvgResult.AvgPrice, getAvgResult.SumAmount, true);
+                                                    var profitStop = new TakeProfitOrder()
+                                                    {
+                                                        FK_PublicKey = publicKey,
+                                                        Pair = stopOrder.Pair,
+                                                        StopPrice = stopPriceForTakeProfit,
+                                                        IndentExtremum = tradeConfiguration.IndentExtremum,
+                                                        ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
+                                                        Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
+                                                        IsBuyOperation = false,
+                                                        Active = true
+                                                    };
+                                                    //var profitStop = CreateTakeProfitOrder(publicKey, stopOrder.Pair, getAvgResult.AvgPrice, getAvgResult.SumAmount, true);
                                                     takeProfitRepository.Create(profitStop);
                                                     logService.Write("выставляем профит");
                                                     logService.Write($"Key: {nameKey} Pair: {profitStop.Pair} StopPrice: {profitStop.StopPrice} IndentExtremum: {profitStop.IndentExtremum} ProtectiveSpread: {profitStop.ProtectiveSpread} Amount: {profitStop.Amount} IsBuyOperation: {profitStop.IsBuyOperation} Active: {profitStop.Active}");
@@ -782,8 +835,24 @@ namespace Algoritms.Real
                                                     // выставляем лосс
                                                     if(tradeConfiguration.Loss > 0)
                                                     {
-                                                        double stopPrice = GetStopLossPrice(getAvgResult.AvgPrice, tradeConfiguration.Loss, !stopOrder.IsBuyOperation);
-                                                        var lossStop = CreateStopLimitOrder(publicKey, stopOrder.Pair, stopPrice, RoundLotSize(Math.Abs(getAvgResult.SumAmount)), true);
+                                                        if (stopPriceForStopLoss <= 0)
+                                                        {
+                                                            stopPriceForStopLoss = RoundAsset(getAvgResult.AvgPrice + (getAvgResult.AvgPrice * tradeConfiguration.Loss / 100));
+                                                        }
+                                                        logService.Write($"stopPriceForStopLoss: {stopPriceForStopLoss}");
+
+                                                        var lossStop = new StopLimitOrder()
+                                                        {
+                                                            FK_PublicKey = publicKey,
+                                                            Pair = stopOrder.Pair,
+                                                            StopPrice = stopPriceForStopLoss,
+                                                            Price = 0,
+                                                            Amount = RoundLotSize(Math.Abs(getAvgResult.SumAmount)),
+                                                            IsBuyOperation = false,
+                                                            Active = true
+                                                        };
+                                                        //double stopPrice = GetStopLossPrice(getAvgResult.AvgPrice, tradeConfiguration.Loss, !stopOrder.IsBuyOperation);
+                                                        //var lossStop = CreateStopLimitOrder(publicKey, stopOrder.Pair, stopPrice, RoundLotSize(Math.Abs(getAvgResult.SumAmount)), true);
                                                         stopLimitRepository.Create(lossStop);
                                                         logService.Write("выставляем лосс");
                                                         logService.Write($"Key: {nameKey} Pair: {lossStop.Pair} StopPrice: {lossStop.StopPrice} Price: {lossStop.Price} Amount: {lossStop.Amount} IsBuyOperation: {lossStop.IsBuyOperation} Active: {lossStop.Active}");
@@ -1126,17 +1195,17 @@ namespace Algoritms.Real
             }
         }
 
-        private double GetStopLossPrice(double price, double lossParam, bool isBuyer)
-        {
-            if (!isBuyer)
-            {
-                return price - (price * lossParam / 100);
-            }
-            else
-            {
-                return price + (price * lossParam / 100);
-            }
-        }
+        //private double GetStopLossPrice(double price, double lossParam, bool isBuyer)
+        //{
+        //    if (!isBuyer)
+        //    {
+        //        return price - (price * lossParam / 100);
+        //    }
+        //    else
+        //    {
+        //        return price + (price * lossParam / 100);
+        //    }
+        //}
 
         private double GetAmountFirstOrder()
         {
@@ -1162,37 +1231,37 @@ namespace Algoritms.Real
             };
         }
 
-        private TakeProfitOrder CreateTakeProfitOrder(string key, string pair, double price, double amount, bool isBuyer)
-        {
-            if (!isBuyer)
-            {
-                return new TakeProfitOrder()
-                {
-                    FK_PublicKey = key,
-                    Pair = pair,
-                    StopPrice = RoundAsset(price + (price * tradeConfiguration.Profit / 100)),
-                    IndentExtremum = tradeConfiguration.IndentExtremum,
-                    ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
-                    Amount = RoundLotSize(Math.Abs(amount)),
-                    IsBuyOperation = isBuyer,
-                    Active = true
-                };
-            }
-            else
-            {
-                return new TakeProfitOrder()
-                {
-                    FK_PublicKey = key,
-                    Pair = pair,
-                    StopPrice = RoundAsset(price - (price * tradeConfiguration.Profit / 100)),
-                    IndentExtremum = tradeConfiguration.IndentExtremum,
-                    ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
-                    Amount = RoundLotSize(Math.Abs(amount)),
-                    IsBuyOperation = isBuyer,
-                    Active = true
-                };
-            }
-        }
+        //private TakeProfitOrder CreateTakeProfitOrder(string key, string pair, double price, double amount, bool isBuyer)
+        //{
+        //    if (!isBuyer)
+        //    {
+        //        return new TakeProfitOrder()
+        //        {
+        //            FK_PublicKey = key,
+        //            Pair = pair,
+        //            StopPrice = RoundAsset(price + (price * tradeConfiguration.Profit / 100)),
+        //            IndentExtremum = tradeConfiguration.IndentExtremum,
+        //            ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
+        //            Amount = RoundLotSize(Math.Abs(amount)),
+        //            IsBuyOperation = isBuyer,
+        //            Active = true
+        //        };
+        //    }
+        //    else
+        //    {
+        //        return new TakeProfitOrder()
+        //        {
+        //            FK_PublicKey = key,
+        //            Pair = pair,
+        //            StopPrice = RoundAsset(price - (price * tradeConfiguration.Profit / 100)),
+        //            IndentExtremum = tradeConfiguration.IndentExtremum,
+        //            ProtectiveSpread = tradeConfiguration.ProtectiveSpread,
+        //            Amount = RoundLotSize(Math.Abs(amount)),
+        //            IsBuyOperation = isBuyer,
+        //            Active = true
+        //        };
+        //    }
+        //}
 
         private double GetOrderLimit(double balance)
         {

@@ -58,6 +58,22 @@ namespace DataBaseWork.Repositories
             }
         }
 
+        public IEnumerable<StopLimitOrder> GetStopOrdersFilledBuy(string pair, double price)
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.StopLimitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower() && price <= x.StopPrice).AsNoTracking().ToArray();
+            }
+        }
+
+        public IEnumerable<StopLimitOrder> GetStopOrdersFilledSell(string pair, double price)
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.StopLimitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower() && price >= x.StopPrice).AsNoTracking().ToArray();
+            }
+        }
+
         public IEnumerable<StopLimitOrder> GetActive(string publicKey, string pair)
         {
             using (var db = new DataBaseContext())
