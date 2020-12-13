@@ -34,7 +34,7 @@ namespace DataBaseWork
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=BinanceDB;Username=postgres;Password=1234567");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=BinanceDB;Username=postgres;Password=123456");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

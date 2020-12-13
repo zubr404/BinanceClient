@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Algoritms
+namespace Algoritms.Models
 {
     public class ExchangeSettingsPair
     {

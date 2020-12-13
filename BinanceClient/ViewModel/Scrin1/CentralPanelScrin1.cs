@@ -115,7 +115,7 @@ namespace BinanceClient.ViewModel.Scrin1
                         try
                         {
                             accountInfo.RequestedBalances();
-                            tradeAccountInfo.RequestedTrades();
+                            tradeAccountInfo.RequestedTrades(); // это возможно убрать (мы должны иметь сделки только выполненные роботом, иначе мы не узнаем к какому конфигу ее отнести)
                             currentTrades.SocketOpen();
                             userStreamData.StreamStart();
                             martingale.StartAlgoritm();

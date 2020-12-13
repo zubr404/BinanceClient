@@ -24,8 +24,8 @@ namespace DataBaseWork.Repositories
         {
             using (var db = new DataBaseContext())
             {
-                var config = db.TradeConfigurations.Where(x => x.Active).ToArray();
-                return config;
+                var configs = db.TradeConfigurations.Where(x => x.Active).ToArray();
+                return configs;
             }
         }
 
