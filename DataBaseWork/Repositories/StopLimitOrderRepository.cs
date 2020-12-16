@@ -116,11 +116,63 @@ namespace DataBaseWork.Repositories
             }
         }
 
+
+        public void DeactivationAllOrders(string publicKey, string pair, bool isBuyer) // снятие по счетy and pair and operation
+        {
+            using (var db = new DataBaseContext())
+            {
+                var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && string.CompareOrdinal(x.Pair, pair) == 0 && x.IsBuyOperation == isBuyer).AsEnumerable().Select(o =>
+                {
+                    o.Active = false;
+                    return o;
+                });
+                foreach (var order in orders)
+                {
+                    db.Entry(order).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+            }
+        }
+
         public void DeactivationAllOrders(string publicKey) // снятие по счетy
         {
             using (var db = new DataBaseContext())
             {
                 var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey).AsEnumerable().Select(o =>
+                {
+                    o.Active = false;
+                    return o;
+                });
+                foreach (var order in orders)
+                {
+                    db.Entry(order).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+            }
+        }
+
+        public void DeactivationAllOrders(string publicKey, string pair) // снятие по счетy и паре
+        {
+            using (var db = new DataBaseContext())
+            {
+                var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && string.CompareOrdinal(x.Pair, pair) == 0).AsEnumerable().Select(o =>
+                {
+                    o.Active = false;
+                    return o;
+                });
+                foreach (var order in orders)
+                {
+                    db.Entry(order).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+            }
+        }
+
+        public void DeactivationForPair(string pair) // снятие по паре
+        {
+            using (var db = new DataBaseContext())
+            {
+                var orders = db.StopLimitOrders.Where(x => x.Active && string.CompareOrdinal(x.Pair, pair) == 0).AsEnumerable().Select(o =>
                 {
                     o.Active = false;
                     return o;
