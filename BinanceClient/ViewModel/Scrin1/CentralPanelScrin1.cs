@@ -156,9 +156,12 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 return stopCommand ?? new RelayCommand((object o) => 
                 {
-                    martingale.StopAlgoritm();
-                    StartButton.IsEnabled = true;
-                    ModelView.ConsoleScrin1.Message = "Алгоритм остановлен.";
+                    if (MessageBox.Show("Будут сняты все активные Заявки. Продолжить?", "Сообщение", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    {
+                        martingale.StopAlgoritm();
+                        StartButton.IsEnabled = true;
+                        ModelView.ConsoleScrin1.Message = "Алгоритм остановлен.";
+                    }
                 });
             }
         }

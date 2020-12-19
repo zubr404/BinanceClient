@@ -16,6 +16,15 @@ namespace DataBaseWork.Repositories
                 return db.TakeProfitOrders.Any(x => x.Active);
             }
         }
+
+        public bool ExistsActive(string pair) // по всем счетам
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.TakeProfitOrders.Any(x => x.Active && x.Pair.ToLower() == pair.ToLower());
+            }
+        }
+
         public IEnumerable<TakeProfitOrder> GetActive(string pair) // по всем счетам
         {
             using (var db = new DataBaseContext())
@@ -70,7 +79,7 @@ namespace DataBaseWork.Repositories
         {
             using (var db = new DataBaseContext())
             {
-                var orders = db.TakeProfitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && string.CompareOrdinal(x.Pair, pair) == 0).AsEnumerable().Select(o =>
+                var orders = db.TakeProfitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && x.Pair.ToLower() == pair.ToLower()).AsEnumerable().Select(o =>
                 {
                     o.Active = false;
                     return o;
@@ -87,7 +96,7 @@ namespace DataBaseWork.Repositories
         {
             using (var db = new DataBaseContext())
             {
-                var orders = db.TakeProfitOrders.Where(x => x.Active && string.CompareOrdinal(x.Pair, pair) == 0).AsEnumerable().Select(o =>
+                var orders = db.TakeProfitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower()).AsEnumerable().Select(o =>
                 {
                     o.Active = false;
                     return o;

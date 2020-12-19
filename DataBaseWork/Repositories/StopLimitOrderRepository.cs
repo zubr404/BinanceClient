@@ -18,6 +18,14 @@ namespace DataBaseWork.Repositories
             }
         }
 
+        public bool ExistsActive(string pair) // по всем счетам
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.StopLimitOrders.Any(x => x.Active && x.Pair.ToLower() == pair.ToLower());
+            }
+        }
+
         public double GetMaxStopPriceBuy(string pair) // по всем счетам
         {
             using (var db = new DataBaseContext())
@@ -121,7 +129,7 @@ namespace DataBaseWork.Repositories
         {
             using (var db = new DataBaseContext())
             {
-                var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && string.CompareOrdinal(x.Pair, pair) == 0 && x.IsBuyOperation == isBuyer).AsEnumerable().Select(o =>
+                var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && x.Pair.ToLower() == pair.ToLower() && x.IsBuyOperation == isBuyer).AsEnumerable().Select(o =>
                 {
                     o.Active = false;
                     return o;
@@ -155,7 +163,7 @@ namespace DataBaseWork.Repositories
         {
             using (var db = new DataBaseContext())
             {
-                var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && string.CompareOrdinal(x.Pair, pair) == 0).AsEnumerable().Select(o =>
+                var orders = db.StopLimitOrders.Where(x => x.Active && x.FK_PublicKey == publicKey && x.Pair.ToLower() == pair.ToLower()).AsEnumerable().Select(o =>
                 {
                     o.Active = false;
                     return o;
@@ -172,7 +180,7 @@ namespace DataBaseWork.Repositories
         {
             using (var db = new DataBaseContext())
             {
-                var orders = db.StopLimitOrders.Where(x => x.Active && string.CompareOrdinal(x.Pair, pair) == 0).AsEnumerable().Select(o =>
+                var orders = db.StopLimitOrders.Where(x => x.Active && x.Pair.ToLower() == pair.ToLower()).AsEnumerable().Select(o =>
                 {
                     o.Active = false;
                     return o;

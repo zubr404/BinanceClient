@@ -25,6 +25,14 @@ namespace DataBaseWork.Repositories
             }
         }
 
+        public IEnumerable<Trade> Get(string publicKey, string pair, long unixTime, bool isBuyer)
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.Trades.AsNoTracking().Where(x => x.FK_PublicKey == publicKey && x.Symbol.ToLower() == pair.ToLower() && x.Time > unixTime && x.IsBuyer == isBuyer).ToArray();
+            }
+        }
+
         public List<Trade> Get(string simbol, double minPrice, double maxPrice)
         {
             using (var db = new DataBaseContext())
@@ -38,6 +46,14 @@ namespace DataBaseWork.Repositories
             using (var db = new DataBaseContext())
             {
                 return db.Trades.Where(x => x.FK_PublicKey == publicKey && x.IsBuyer == isBuyer && x.Time >= unixTime).OrderByDescending(x => x.Time).Select(x => x.Time).FirstOrDefault();
+            }
+        }
+
+        public long GetTimeLastTrade(string publicKey, string pair, bool isBuyer, long unixTime)
+        {
+            using (var db = new DataBaseContext())
+            {
+                return db.Trades.Where(x => x.FK_PublicKey == publicKey && x.Symbol.ToLower() == pair.ToLower() && x.IsBuyer == isBuyer && x.Time >= unixTime).OrderByDescending(x => x.Time).Select(x => x.Time).FirstOrDefault();
             }
         }
 

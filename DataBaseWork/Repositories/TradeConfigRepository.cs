@@ -38,7 +38,7 @@ namespace DataBaseWork.Repositories
             }
         }
 
-        public TradeConfiguration Update(TradeConfiguration configuration)
+        public TradeConfiguration Update(TradeConfiguration configuration, string savedStrategies)
         {
             if (string.IsNullOrWhiteSpace(configuration.AltCoin) || string.IsNullOrWhiteSpace(configuration.MainCoin))
             {
@@ -46,6 +46,7 @@ namespace DataBaseWork.Repositories
             }
             else
             {
+                var strategyString = GetStrategyString(configuration);
                 using (var db = new DataBaseContext())
                 {
                     var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin);
@@ -55,7 +56,11 @@ namespace DataBaseWork.Repositories
                         configuration.DeactivationTime = 0;
                         config = db.TradeConfigurations.Add(configuration).Entity;
                         db.SaveChanges();
-                        DeactivationConfig(config.ID);
+
+                        if (!savedStrategies.Contains(strategyString))
+                        {
+                            DeactivationConfig(config.ID);
+                        }
                     }
                     else
                     {
@@ -80,11 +85,20 @@ namespace DataBaseWork.Repositories
                         config.ActivationTime = DateTime.UtcNow.ToUnixTime();
                         config.DeactivationTime = 0;
                         db.SaveChanges();
-                        DeactivationConfig(config.ID);
+
+                        if (!savedStrategies.Contains(strategyString))
+                        {
+                            DeactivationConfig(config.ID);
+                        }
                     }
                     return config;
                 }
             }
+        }
+
+        private string GetStrategyString(TradeConfiguration tradeConfiguration)
+        {
+            return $"{tradeConfiguration.MainCoin.ToUpper()}{tradeConfiguration.AltCoin.ToUpper()}{tradeConfiguration.Strategy.ToUpper()}";
         }
 
         private void DeactivationConfig(int id)

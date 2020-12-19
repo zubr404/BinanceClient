@@ -162,8 +162,8 @@ namespace Algoritms.Real
             //---------------------------------------
 
 
-            var existsStopLimit = repositoriesM.StopLimitOrderRepository.ExistsActive();
-            var existsTakeProfit = repositoriesM.TakeProfitOrderRepository.ExistsActive();
+            var existsStopLimit = repositoriesM.StopLimitOrderRepository.ExistsActive(pair);
+            var existsTakeProfit = repositoriesM.TakeProfitOrderRepository.ExistsActive(pair);
 
             logService.Write($"existsStopLimit: {existsStopLimit} existsTakeProfit: {existsTakeProfit}");
 
@@ -347,14 +347,14 @@ namespace Algoritms.Real
                 //-------------------------
 
                 repositoriesM.StopLimitOrderRepository.Create(orders);
-                OnMessageDebugEvent("Сетка ордеров создана.");
-                logService.Write("Сетка ордеров создана.");
+                OnMessageDebugEvent($"Сетка ордеров создана. Pair: {pair}");
+                logService.Write($"Сетка ордеров создана. Pair: {pair}");
             }
             else
             {
                 isReload = false;
-                OnMessageDebugEvent("Сетка ордеров уже имеется.");
-                logService.Write("Сетка ордеров уже имеется.");
+                OnMessageDebugEvent($"Сетка ордеров уже имеется. Pair: {pair}");
+                logService.Write($"Сетка ордеров уже имеется. Pair: {pair}");
             }
         }
 
@@ -537,7 +537,7 @@ namespace Algoritms.Real
                                                     return;
                                                 }
                                                 // считаем среднюю цену позы
-                                                var getAvgResult = GetAvgPricePosition(tradeRepository, tradeConfiguration.ActivationTime, publicKey, false);
+                                                var getAvgResult = GetAvgPricePosition(tradeRepository, tradeConfiguration.ActivationTime, publicKey, pair, !stopOrder.IsBuyOperation);
                                                 logService.Write($"getAvgResult.AvgPrice: {getAvgResult.AvgPrice} getAvgResult.SumAmount: {getAvgResult.SumAmount}");
 
                                                 // снимаем все стопы-loss и профиты
@@ -844,7 +844,7 @@ namespace Algoritms.Real
                                                     return;
                                                 }
                                                 // считаем среднюю цену позы
-                                                var getAvgResult = GetAvgPricePosition(tradeRepository, tradeConfiguration.ActivationTime, publicKey, !stopOrder.IsBuyOperation);
+                                                var getAvgResult = GetAvgPricePosition(tradeRepository, tradeConfiguration.ActivationTime, publicKey, pair, !stopOrder.IsBuyOperation);
                                                 logService.Write($"getAvgResult.AvgPrice: {getAvgResult.AvgPrice} getAvgResult.SumAmount: {getAvgResult.SumAmount}");
 
                                                 // снимаем все стопы-loss и профиты
@@ -1148,7 +1148,7 @@ namespace Algoritms.Real
         private bool RequestedTrades(string publicKey, string secretKey, string pair, long lastOrderId, decimal lastOrderQty) // работает только при наличии сделок. Запускать только после исполнения хотя бы одной заявки.
         {
             logService.Write($"++ RequestedTrades: START", true);
-            logService.Write($"Input values: publicKey={publicKey} lastOrderId={lastOrderId} lastOrderQty={lastOrderQty}");
+            logService.Write($"Input values: publicKey={publicKey} secretKey=*** pair={pair} lastOrderId={lastOrderId} lastOrderQty={lastOrderQty}");
             const int countRequest = 1000;
             const int sleepMillisecond = 2000;
             for (int i = 1; i <= countRequest; i++)
@@ -1368,15 +1368,15 @@ namespace Algoritms.Real
          * состоявшейся после применения конфига
          * - для стоп-ордеров на открытие шортов - наоборот
         */
-        private AvgPricePositionResult GetAvgPricePosition(TradeRepository tradeRepository, long configActivationTime, string publicKey, bool isBuyer)
+        private AvgPricePositionResult GetAvgPricePosition(TradeRepository tradeRepository, long configActivationTime, string publicKey, string pair, bool isBuyer)
         {
             var result = new AvgPricePositionResult();
-            var timeLastSell = tradeRepository.GetTimeLastTrade(publicKey, isBuyer, configActivationTime);
+            var timeLastSell = tradeRepository.GetTimeLastTrade(publicKey, pair, isBuyer, configActivationTime);
 
             OnMessageDebugEvent($"timeLastSell: {timeLastSell}");
             logService.Write($"timeLastSell: {timeLastSell}");
 
-            var trades = tradeRepository.Get(publicKey, timeLastSell > 0 ? timeLastSell : configActivationTime, !isBuyer).ToList();
+            var trades = tradeRepository.Get(publicKey, pair, timeLastSell > 0 ? timeLastSell : configActivationTime, !isBuyer).ToList();
             if(trades != null)
             {
                 var sumMoney = trades.Sum(x => (decimal)x.QuoteQty);

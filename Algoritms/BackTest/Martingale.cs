@@ -8,6 +8,7 @@ using Services;
 using StockExchenge.MarketSettings;
 using System.Globalization;
 using StockExchenge.MarketTrades;
+using Algoritms.Models;
 
 namespace Algoritms.BackTest
 {
