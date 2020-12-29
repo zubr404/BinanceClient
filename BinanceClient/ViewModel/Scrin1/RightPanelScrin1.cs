@@ -1,5 +1,8 @@
-﻿using System;
+﻿using DataBaseWork.Models;
+using DataBaseWork.Repositories;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
@@ -11,10 +14,13 @@ namespace BinanceClient.ViewModel.Scrin1
         public IColorButton BTCUSD_LONG { get; set; }
         public IColorButton BTCUSD_SHORT { get; set; }
         public IColorButton ETHUSD_SHORT { get; set; }
+
         private List<IColorButton> colorButtons;
+        readonly TradeConfigRepository configRepository;
 
         public RightPanelScrin1()
         {
+            configRepository = new TradeConfigRepository();
             BTCUSD_LONG = new BackgroundButton() { Name = ButtonName.BTCUSD_LONG };
             BTCUSD_SHORT = new BackgroundButton() { Name = ButtonName.BTCUSD_SHORT };
             ETHUSD_SHORT = new BackgroundButton() { Name = ButtonName.ETHUSD_SHORT };
@@ -25,18 +31,69 @@ namespace BinanceClient.ViewModel.Scrin1
             InicializeColor();
         }
 
+        /* Прописано жестко для каждой кнопки
+         * пока не понятно, как это будет выглядеть в будуюзем
+         */
+
         public void ManagingBackground(ButtonName buttonName)
         {
-            foreach (var item in colorButtons)
+            TradeConfiguration config;
+            switch (buttonName)
             {
-                if (item.Name == buttonName)
-                {
-                    item.BrushBackground = (Brush)Application.Current.Resources["SolidGreen"];
-                }
-                else
-                {
-                    item.BrushBackground = (Brush)Application.Current.Resources["SolidWhite"];
-                }
+                case ButtonName.BTCUSD_LONG:
+                    config = configRepository.Get("BTC", "USDT", "LONG");
+                    if(config != null)
+                    {
+                        config.Active = !config.Active;
+                        var configNew = configRepository.Update(config, Resources.SAVED_STRATEGIES);
+                        UpdateBrushBackground(buttonName, configNew.Active);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    break;
+                case ButtonName.BTCUSD_SHORT:
+                    config = configRepository.Get("BTC", "USDT", "SHORT");
+                    if (config != null)
+                    {
+                        config.Active = !config.Active;
+                        var configNew = configRepository.Update(config, Resources.SAVED_STRATEGIES);
+                        UpdateBrushBackground(buttonName, configNew.Active);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    break;
+                case ButtonName.ETHUSD_SHORT:
+                    config = configRepository.Get("ETH", "USDT", "SHORT");
+                    if (config != null)
+                    {
+                        config.Active = !config.Active;
+                        var configNew = configRepository.Update(config, Resources.SAVED_STRATEGIES);
+                        UpdateBrushBackground(buttonName, configNew.Active);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void UpdateBrushBackground(ButtonName buttonName, bool isActive)
+        {
+            var button = colorButtons.First(x => x.Name == buttonName);
+            if (isActive)
+            {
+                button.BrushBackground = (Brush)Application.Current.Resources["SolidGreen"];
+            }
+            else
+            {
+                button.BrushBackground = (Brush)Application.Current.Resources["SolidWhite"];
             }
         }
 
@@ -44,7 +101,45 @@ namespace BinanceClient.ViewModel.Scrin1
         {
             foreach (var item in colorButtons)
             {
-                item.BrushBackground = (Brush)Application.Current.Resources["SolidWhite"];
+                TradeConfiguration config;
+                switch (item.Name)
+                {
+                    case ButtonName.BTCUSD_LONG:
+                        config = configRepository.Get("BTC", "USDT", "LONG");
+                        if (config != null)
+                        {
+                            UpdateBrushBackground(item.Name, config.Active);
+                        }
+                        else
+                        {
+                            UpdateBrushBackground(item.Name, false);
+                        }
+                        break;
+                    case ButtonName.BTCUSD_SHORT:
+                        config = configRepository.Get("BTC", "USDT", "SHORT");
+                        if (config != null)
+                        {
+                            UpdateBrushBackground(item.Name, config.Active);
+                        }
+                        else
+                        {
+                            UpdateBrushBackground(item.Name, false);
+                        }
+                        break;
+                    case ButtonName.ETHUSD_SHORT:
+                        config = configRepository.Get("ETH", "USDT", "SHORT");
+                        if (config != null)
+                        {
+                            UpdateBrushBackground(item.Name, config.Active);
+                        }
+                        else
+                        {
+                            UpdateBrushBackground(item.Name, false);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

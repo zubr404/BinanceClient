@@ -79,7 +79,7 @@ namespace BinanceClient.ViewModel.Scrin1
 
         private void SetConfigView()
         {
-            var config = configRepository.GetLast();
+            var config = configRepository.GetActive(Resources.SAVED_STRATEGIES);
             if(config != null)
             {
                 TradeConfigurationView.AltCoin = config.AltCoin;
@@ -199,7 +199,7 @@ namespace BinanceClient.ViewModel.Scrin1
                     {
                         try
                         {
-                            configRepository.Update(config);
+                            configRepository.Update(config, Resources.SAVED_STRATEGIES);
                             ModelView.ConsoleScrin1.Message = $"Конфигурация для {config.MainCoin}/{config.AltCoin} {config.Strategy} успешно применена.";
                             martingale.CancelAllStopOrders();
                             martingale.CancelAllTakeProfitOrder();
@@ -220,6 +220,7 @@ namespace BinanceClient.ViewModel.Scrin1
         }
 
         #region Кнопки правой панели
+        // -------------------Включить настройки-----------------------------
         private RelayCommand btcusd_longCommand;
         public RelayCommand BTCUSD_LONGCommand
         {
@@ -228,6 +229,40 @@ namespace BinanceClient.ViewModel.Scrin1
                 return btcusd_longCommand ?? new RelayCommand((object o) =>
                 {
                     rightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_LONG);
+                });
+            }
+        }
+        private RelayCommand btcusd_shortCommand;
+        public RelayCommand BTCUSD_SHORTCommand
+        {
+            get
+            {
+                return btcusd_shortCommand ?? new RelayCommand((object o) =>
+                {
+                    rightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_SHORT);
+                });
+            }
+        }
+        private RelayCommand ethusd_shortCommand;
+        public RelayCommand ETHUSD_SHORTCommand
+        {
+            get
+            {
+                return ethusd_shortCommand ?? new RelayCommand((object o) =>
+                {
+                    rightPanelScrin1.ManagingBackground(ButtonName.ETHUSD_SHORT);
+                });
+            }
+        }
+
+        // -------------------Показать настройки-----------------------------
+        private RelayCommand btcusd_longShowCommand;
+        public RelayCommand BTCUSD_LONGShowCommand
+        {
+            get
+            {
+                return btcusd_longShowCommand ?? new RelayCommand((object o) =>
+                {
                     var config = configRepository.Get("BTC", "USDT", "long");
                     if (config != null)
                     {
@@ -240,14 +275,13 @@ namespace BinanceClient.ViewModel.Scrin1
                 });
             }
         }
-        private RelayCommand btcusd_shortCommand;
-        public RelayCommand BTCUSD_SHORTCommand
+        private RelayCommand btcusd_shortShowCommand;
+        public RelayCommand BTCUSD_SHORTShowCommand
         {
             get
             {
-                return btcusd_shortCommand ?? new RelayCommand((object o) =>
+                return btcusd_shortShowCommand ?? new RelayCommand((object o) =>
                 {
-                    rightPanelScrin1.ManagingBackground(ButtonName.BTCUSD_SHORT);
                     var config = configRepository.Get("BTC", "USDT", "short");
                     if (config != null)
                     {
@@ -260,14 +294,13 @@ namespace BinanceClient.ViewModel.Scrin1
                 });
             }
         }
-        private RelayCommand ethusd_shortCommand;
-        public RelayCommand ETHUSD_SHORTCommand
+        private RelayCommand ethusd_shortShowCommand;
+        public RelayCommand ETHUSD_SHORTShowCommand
         {
             get
             {
-                return ethusd_shortCommand ?? new RelayCommand((object o) =>
+                return ethusd_shortShowCommand ?? new RelayCommand((object o) =>
                 {
-                    rightPanelScrin1.ManagingBackground(ButtonName.ETHUSD_SHORT);
                     var config = configRepository.Get("ETH", "USDT", "short");
                     if (config != null)
                     {
@@ -277,6 +310,17 @@ namespace BinanceClient.ViewModel.Scrin1
                     {
                         MessageBox.Show("Для данной стратегии не найдена сохраненная конфигурация.", "Конфигурация", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
+                });
+            }
+        }
+        private RelayCommand mainConfigShowCommand;
+        public RelayCommand MainConfigShowCommand
+        {
+            get
+            {
+                return mainConfigShowCommand ?? new RelayCommand((object o) =>
+                {
+                    SetConfigView();
                 });
             }
         }

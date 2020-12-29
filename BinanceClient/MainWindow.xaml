@@ -354,12 +354,34 @@
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="0.15*"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
                                 Background="#161515" Command="{Binding CentralPanelScrin1.BTCUSD_LONGCommand}">
                             <TextBlock Margin="15,0,0,0"><Run Text="BTCUSD_LONG"/></TextBlock>
+                        </Button>
+                        <Button Grid.Column="2" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
+                                Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
+                                Background="#161515" Command="{Binding CentralPanelScrin1.BTCUSD_LONGShowCommand}">
+                            <TextBlock Margin="6,0,0,0" FontSize="12" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.LayoutTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform Angle="-90"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </TextBlock.LayoutTransform>
+                                <TextBlock.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform X="0"/>
+                                    </TransformGroup>
+                                </TextBlock.RenderTransform><Run Text="Показать"/></TextBlock>
                         </Button>
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.BTCUSD_LONG.BrushBackground}"/>
                     </Grid>
@@ -367,12 +389,34 @@
                     <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="0.15*"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
                                 Background="#161515" Command="{Binding CentralPanelScrin1.BTCUSD_SHORTCommand}">
                             <TextBlock Margin="15,0,0,0"><Run Text="BTCUSD_SHORT"/></TextBlock>
+                        </Button>
+                        <Button Grid.Column="2" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
+                                Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
+                                Background="#161515" Command="{Binding CentralPanelScrin1.BTCUSD_SHORTShowCommand}">
+                            <TextBlock Margin="6,0,0,0" FontSize="12" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.LayoutTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform Angle="-90"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </TextBlock.LayoutTransform>
+                                <TextBlock.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform X="0"/>
+                                    </TransformGroup>
+                                </TextBlock.RenderTransform><Run Text="Показать"/></TextBlock>
                         </Button>
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.BTCUSD_SHORT.BrushBackground}"/>
                     </Grid>
@@ -380,12 +424,34 @@
                     <Grid Grid.Row="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="0.15*"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
                                 Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.5"
                                 Background="#161515" Command="{Binding CentralPanelScrin1.ETHUSD_SHORTCommand}">
                             <TextBlock Margin="15,0,0,0"><Run Text="ETHUSD_SHORT"/></TextBlock>
+                        </Button>
+                        <Button Grid.Column="2" Style="{StaticResource RectangleButtonMy}" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeButtonRight}"
+                                Height="{StaticResource HeightButton}" HorizontalContentAlignment="Left" BorderBrush="{StaticResource SolidGray}" BorderThickness="0,0.5,0,0.25"
+                                Background="#161515" Command="{Binding CentralPanelScrin1.ETHUSD_SHORTShowCommand}">
+                            <TextBlock Margin="6,0,0,0" FontSize="12" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.LayoutTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform Angle="-90"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </TextBlock.LayoutTransform>
+                                <TextBlock.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform/>
+                                        <TranslateTransform X="0"/>
+                                    </TransformGroup>
+                                </TextBlock.RenderTransform><Run Text="Показать"/></TextBlock>
                         </Button>
                         <Rectangle Width="2" Fill="{Binding RightPanelScrin1.ETHUSD_SHORT.BrushBackground}"/>
                     </Grid>
@@ -577,7 +643,8 @@
                     </Grid.RowDefinitions>
 
                     <!--row 0-->
-                    <Label Grid.ColumnSpan="5" Style="{StaticResource Header1}" Content="Main settings"/>
+                    <Label Grid.ColumnSpan="2" Style="{StaticResource Header1}" Content="Main settings"/>
+                    <Button Grid.Column="2" Height="20" Width="85" BorderThickness="1" BorderBrush="{StaticResource SolidGreen}" Background="{StaticResource SolidGreenOpacity}" Style="{StaticResource ElipseButtonMy}" Foreground="{StaticResource SolidGreen}" Command="{Binding CentralPanelScrin1.MainConfigShowCommand}">ПОКАЗАТЬ</Button>
                     <Label Grid.Column="5" Style="{StaticResource Header1}" Content="Stop"/>
 
                     <!--row 1-->
@@ -1026,7 +1093,7 @@
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            
+
                             <Label VerticalAlignment="Center" FontSize="{StaticResource FontSizeHeaderScrin}" Foreground="{StaticResource SolidWhite}" Padding="0" Content="Бэктест по истории"/>
                             <Grid Grid.Column="1" Height="22" Width="50" Margin="10,5,0,0">
                                 <ToggleButton Style="{StaticResource SwitchTypeToggleButton}" IsChecked="{Binding CentralPanelScrinCalculator.IsCheckedBackTest, Mode=TwoWay}" Command="{Binding CentralPanelScrinCalculator.TestStartCommand}"></ToggleButton>
@@ -1232,7 +1299,7 @@
                 </Grid>
 
             </Grid>-->
-            
+
             <!--Central Panel Менеджер ключей-->
             <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinKeyManager.Visibility}">
 

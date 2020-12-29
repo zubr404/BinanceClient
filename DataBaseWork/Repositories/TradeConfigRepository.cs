@@ -29,6 +29,23 @@ namespace DataBaseWork.Repositories
             }
         }
 
+        public TradeConfiguration GetActive(string savedStrategies)
+        {
+            using (var db = new DataBaseContext())
+            {
+                var configs = db.TradeConfigurations.Where(x => x.Active).ToArray();
+                foreach (var config in configs)
+                {
+                    var strategyString = GetStrategyString(config);
+                    if (!savedStrategies.Contains(strategyString))
+                    {
+                        return config;
+                    }
+                }
+                return null;
+            }
+        }
+
         public TradeConfiguration Get(string baseAsset, string quoteAsset, string strategy)
         {
             using (var db = new DataBaseContext())
@@ -38,6 +55,12 @@ namespace DataBaseWork.Repositories
             }
         }
 
+        /// <summary>
+        /// Обновляет конфиг
+        /// </summary>
+        /// <param name="configuration">конфигурация</param>
+        /// <param name="savedStrategies">зранимая стратегия из правой панели</param>
+        /// <returns></returns>
         public TradeConfiguration Update(TradeConfiguration configuration, string savedStrategies)
         {
             if (string.IsNullOrWhiteSpace(configuration.AltCoin) || string.IsNullOrWhiteSpace(configuration.MainCoin))
@@ -49,7 +72,7 @@ namespace DataBaseWork.Repositories
                 var strategyString = GetStrategyString(configuration);
                 using (var db = new DataBaseContext())
                 {
-                    var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin);
+                    var config = db.TradeConfigurations.FirstOrDefault(x => x.AltCoin == configuration.AltCoin && x.MainCoin == configuration.MainCoin && x.Strategy == configuration.Strategy);
                     if (config == null)
                     {
                         configuration.ActivationTime = DateTime.UtcNow.ToUnixTime();
@@ -58,9 +81,7 @@ namespace DataBaseWork.Repositories
                         db.SaveChanges();
 
                         if (!savedStrategies.Contains(strategyString))
-                        {
-                            DeactivationConfig(config.ID);
-                        }
+                            DeactivationConfig(savedStrategies, config.ID);
                     }
                     else
                     {
@@ -87,9 +108,7 @@ namespace DataBaseWork.Repositories
                         db.SaveChanges();
 
                         if (!savedStrategies.Contains(strategyString))
-                        {
-                            DeactivationConfig(config.ID);
-                        }
+                            DeactivationConfig(savedStrategies, config.ID);
                     }
                     return config;
                 }
@@ -99,6 +118,14 @@ namespace DataBaseWork.Repositories
         private string GetStrategyString(TradeConfiguration tradeConfiguration)
         {
             return $"{tradeConfiguration.MainCoin.ToUpper()}{tradeConfiguration.AltCoin.ToUpper()}{tradeConfiguration.Strategy.ToUpper()}";
+        }
+
+        private void DeactivationConfig(string savedStrategies, int id)
+        {
+            using (var db = new DataBaseContext())
+            {
+                db.Database.ExecuteSqlRaw($"update public.\"TradeConfigurations\" set \"Active\" = false where position(upper(\"MainCoin\"||\"AltCoin\"||\"Strategy\") in '{savedStrategies}') = 0 and \"ID\" != {id}");
+            }
         }
 
         private void DeactivationConfig(int id)
@@ -119,6 +146,14 @@ namespace DataBaseWork.Repositories
                     db.Entry(config).State = EntityState.Modified;
                 }
                 db.SaveChanges();
+            }
+        }
+
+        private void ActivationSavedConfig(string savedStrategy, bool isActive)
+        {
+            using (var db = new DataBaseContext())
+            {
+                db.Database.ExecuteSqlRaw($"update public.\"TradeConfigurations\" set \"Active\" = {isActive} where position(upper(\"MainCoin\"||\"AltCoin\"||\"Strategy\") in '{savedStrategy}') > 0");
             }
         }
     }
