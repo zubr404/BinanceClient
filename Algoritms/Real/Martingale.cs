@@ -32,8 +32,6 @@ namespace Algoritms.Real
         public event EventHandler<string> MessageErrorEvent;
         public event EventHandler<string> MessageDebugEvent;
 
-        private bool isReload;
-
         private Services.LogService logService;
 
         public Martingale(RepositoriesM repositoriesM)
@@ -68,8 +66,6 @@ namespace Algoritms.Real
             }
 
             logService.Write("----------------------Вызов StartAlgoritm----------------------", true);
-
-            isReload = true;
 
             // ------------ получаем сохраненные конфиги ----------
             var configsDb = repositoriesM.TradeConfigRepository.GetActive();
@@ -352,7 +348,6 @@ namespace Algoritms.Real
             }
             else
             {
-                isReload = false;
                 OnMessageDebugEvent($"Сетка ордеров уже имеется. Pair: {pair}");
                 logService.Write($"Сетка ордеров уже имеется. Pair: {pair}");
             }
@@ -470,6 +465,8 @@ namespace Algoritms.Real
                             {
                                 indent = ((lastPrice - maxPrice) * 100) / maxPrice;
                             }
+
+                            var isReload = !takeProfitRepository.ExistsActive(tradeConfiguration.GetPair()); // если есть ТП, зпрещаем перестановку ордеров
                             logService.Write($"indent: {indent} tradeConfiguration.OrderReload: {tradeConfiguration.OrderReload} isReload: {isReload}");
 
                             if (indent > tradeConfiguration.OrderReload && tradeConfiguration.OrderReload > 0 && isReload)
@@ -516,7 +513,6 @@ namespace Algoritms.Real
                                         if (stopOrder.IsBuyOperation)
                                         {
                                             logService.Write($"Сработал стоп на открытие позиции: stopOrder.Pair: {stopOrder.Pair} stopOrder.IsBuyOperation: {stopOrder.IsBuyOperation} stopOrder.Amount: {stopOrder.Amount}");
-                                            isReload = false; // если есть иполнение запрещаем перестановку ордеров
 
                                             // обновляем стоп
                                             stopLimitRepository.DeactivateOrder(stopOrder.ID);
@@ -777,6 +773,8 @@ namespace Algoritms.Real
                             {
                                 indent = ((minPrice - lastPrice) * 100) / minPrice;
                             }
+
+                            var isReload = !takeProfitRepository.ExistsActive(tradeConfiguration.GetPair()); // если есть ТП, зпрещаем перестановку ордеров
                             logService.Write($"indent: {indent} tradeConfiguration.OrderReload: {tradeConfiguration.OrderReload} isReload: {isReload}");
 
                             if (indent > tradeConfiguration.OrderReload && tradeConfiguration.OrderReload > 0 && isReload)
@@ -823,7 +821,6 @@ namespace Algoritms.Real
                                         if (!stopOrder.IsBuyOperation)
                                         {
                                             logService.Write($"Сработал стоп на открытие позиции: stopOrder.Pair: {stopOrder.Pair} stopOrder.IsBuyOperation: {stopOrder.IsBuyOperation} stopOrder.Amount: {stopOrder.Amount}");
-                                            isReload = false; // если есть иполнение запрещаем перестановку ордеров
 
                                             // обновляем стоп
                                             stopLimitRepository.DeactivateOrder(stopOrder.ID);
