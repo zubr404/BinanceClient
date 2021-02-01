@@ -922,7 +922,7 @@
             </Grid>
 
             <!--Central Panel Scrin calculator  {Binding ScrinManager.ScrinCalculator.Visibility}-->
-            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}">
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}" Panel.ZIndex="99">
                 <Grid Margin="30,0,30,0">
                     <Grid.Resources>
                         <Style x:Key="WaterMarkTextBox" TargetType="Grid">
@@ -1180,18 +1180,30 @@
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                                 <ColumnDefinition Width="60"></ColumnDefinition>
                                 <ColumnDefinition Width="90"></ColumnDefinition>
+                                <ColumnDefinition Width="90"></ColumnDefinition>
+                                <ColumnDefinition Width="90"></ColumnDefinition>
                                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
                             <Label Foreground="#a5a5a5" FontSize="14" Padding="0">Cкачать историю с биржи</Label>
                             <Grid Grid.Column="1" Height="22" Width="50" Margin="0">
                                 <ToggleButton Style="{StaticResource SwitchTypeToggleButton}" IsChecked="{Binding CentralPanelScrinCalculator.IsCheckedDownloadHistory, Mode=TwoWay}" Command="{Binding CentralPanelScrinCalculator.TradeHistoryLoad}"></ToggleButton>
                             </Grid>
-                            <Grid Grid.Column="2" Width="70" Height="22" Style="{StaticResource WaterMarkTextBox}">
+                            <Grid Grid.Column="2" Width="75" Height="22" Style="{StaticResource WaterMarkTextBox}">
+                                <TextBox Focusable="False"></TextBox>
+                                <TextBlock Margin="5,2" Text="dd.mm.yyyy" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry14, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <TextBox Name="txtUserEntry14" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.DateStart, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid Grid.Column="3" Width="75" Height="22" Style="{StaticResource WaterMarkTextBox}">
+                                <TextBox Focusable="False"></TextBox>
+                                <TextBlock Margin="5,2" Text="dd.mm.yyyy" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry15, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <TextBox Name="txtUserEntry15" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.DateEnd, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid Grid.Column="4" Width="70" Height="22" Style="{StaticResource WaterMarkTextBox}">
                                 <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Main Coin" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry4, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry4" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.BaseAsset, Mode=TwoWay}"/>
                             </Grid>
-                            <Grid Grid.Column="3" Width="70" Height="22" Style="{StaticResource WaterMarkTextBox}">
+                            <Grid Grid.Column="5" Width="70" Height="22" Style="{StaticResource WaterMarkTextBox}">
                                 <TextBox Focusable="False"></TextBox>
                                 <TextBlock Margin="5,2" Text="Alt Coin" Foreground="White" Opacity="0.5" Visibility="{Binding ElementName=txtUserEntry5, Path=Text.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                 <TextBox Name="txtUserEntry5" Background="Transparent" BorderThickness="0" Text="{Binding CentralPanelScrinCalculator.GeneralSettingsView.QuoteAsset, Mode=TwoWay}"/>

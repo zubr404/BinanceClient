@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls.Primitives;
 
 namespace BinanceClient.ViewModel.ScrinCalculator
@@ -101,6 +102,17 @@ namespace BinanceClient.ViewModel.ScrinCalculator
             }
         }
 
+        private bool isLoadAll;
+        public bool IsLoadAll
+        {
+            get { return isLoadAll; }
+            set
+            {
+                isLoadAll = value;
+                base.NotifyPropertyChanged();
+            }
+        }
+
         // TODO: пара с морды
         private RelayCommand tradeHistoryLoad;
         public RelayCommand TradeHistoryLoad
@@ -121,11 +133,63 @@ namespace BinanceClient.ViewModel.ScrinCalculator
             }
         }
 
+        private DateTime? DateConvert(string donloadHistoryDate)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(donloadHistoryDate))
+                {
+                    return null;
+                }
+                return Convert.ToDateTime(donloadHistoryDate);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private async Task<int> StartLoadHistory()
         {
-            tradesHistory = new TradesHistory($"{GeneralSettingsView.BaseAsset}{GeneralSettingsView.QuoteAsset}", tradeHistoryRepository);
+            int result;
+            var dateStart = DateConvert(GeneralSettingsView.DateStart);
+            var dateEnd = DateConvert(GeneralSettingsView.DateEnd);
+
+            if (!isLoadAll)
+            {
+                if (!dateStart.HasValue)
+                {
+                    MessageBox.Show("Введена неверная стартовая дата.");
+                    IsCheckedDownloadHistory = false;
+                    return -1;
+                }
+                if (!dateEnd.HasValue)
+                {
+                    MessageBox.Show("Введена неверная конечная дата.");
+                    IsCheckedDownloadHistory = false;
+                    return -1;
+                }
+                if (dateStart.Value > dateEnd.Value)
+                {
+                    MessageBox.Show("Начальная дата больше конечной.");
+                    IsCheckedDownloadHistory = false;
+                    return -1;
+                }
+                if (dateStart.Value > DateTime.Now)
+                {
+                    MessageBox.Show("Начальная дата: введена дата из будущего.");
+                    IsCheckedDownloadHistory = false;
+                    return -1;
+                }
+                tradesHistory = new TradesHistory($"{GeneralSettingsView.BaseAsset}{GeneralSettingsView.QuoteAsset}", dateStart, dateEnd, tradeHistoryRepository);
+            }
+            else
+            {
+                tradesHistory = new TradesHistory($"{GeneralSettingsView.BaseAsset}{GeneralSettingsView.QuoteAsset}", null, null, tradeHistoryRepository);
+            }
+            
             tradesHistory.LoadStateEvent += TradesHistory_LoadStateEvent;
-            var result = await tradesHistory.Load();
+            result = await tradesHistory.Load();
             IsCheckedDownloadHistory = false;
             return result;
         }

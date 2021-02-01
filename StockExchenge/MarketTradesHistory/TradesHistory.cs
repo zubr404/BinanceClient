@@ -19,21 +19,169 @@ namespace StockExchenge.MarketTradesHistory
 	public class TradesHistory
     {
 		private readonly string pair;
+		private readonly DateTime? dateStart;
+		private readonly DateTime? dateEnd;
+		private long? dateStartUnix;
+		private long? dateEndUnix;
 		private readonly TradeHistoryRepository repository;
 		private long fromId;
 
 		public event EventHandler<string> LoadStateEvent;
-		public TradesHistory(string pair, TradeHistoryRepository repository)
+		public TradesHistory(string pair, DateTime? dateStart, DateTime? dateEnd, TradeHistoryRepository repository)
         {
 			LoadStateEvent = delegate { };
 			this.pair = pair.ToUpper();
+			this.dateStart = dateStart;
+			this.dateEnd = dateEnd;
 			this.repository = repository;
-			this.fromId = GetFromId();
+			fromId = GetFromId();
 		}
 
 		public bool IsActiveLoad { get; set; }
 
 		public async Task<int> Load()
+        {
+			if (dateStart.HasValue && dateEnd.HasValue)
+            {
+				dateStartUnix = dateStart.Value.ToUnixTime();
+				dateEndUnix = dateEnd.Value.ToUnixTime();
+				return await LoadByDate();
+            }
+            else
+            {
+				return await LoadAll();
+            }
+        }
+
+		/// <summary>
+		/// Скачиваем по датам
+		/// </summary>
+		/// <returns></returns>
+		private async Task<int> LoadByDate()
+        {
+			return await Task.Run(async () =>
+			{
+				fromId = SearchDateLoad(dateStartUnix.Value);
+				if(fromId > 0)
+                {
+					return await LoadAll();
+                }
+				return -1;
+			});
+        }
+
+		/// <summary>
+		/// Поиск Id сдлки, соответствующей стартовой даты скачивания
+		/// </summary>
+		/// <param name="queryDateLocal">Московское время, указанное пользователем</param>
+		/// <returns>Id сдлки, соответствующей искомому времени</returns>
+		private long SearchDateLoad(long queryDateLocal)
+		{
+			var firstTime = GetTimeTrade(GetUrlFromFirstTrade(pair), out _);
+			if (queryDateLocal < firstTime)
+			{
+				queryDateLocal = firstTime + 1;
+			}
+
+			// ID последней сделки
+			GetTimeTrade(GetUrlFromLastTrade(pair), out int lastTradeId);
+
+			var half = lastTradeId / 2;
+			var midleIndex = half;
+			var countStep = 0;
+			while (true)
+			{
+				countStep++;
+				half /= 2;
+				var searchTimeUnix = GetTimeTrade(GetUrl(pair, midleIndex), out lastTradeId);
+
+				if (searchTimeUnix == queryDateLocal)
+				{
+					OnLoadStateEvent($"Стартовая дата найдена   : {queryDateLocal}\t{countStep}");
+					return lastTradeId;
+				}
+				else if (searchTimeUnix < queryDateLocal)
+				{
+					midleIndex += half;
+					if (half == 0)
+					{
+						for (int i = midleIndex; i <= lastTradeId; i++)
+						{
+							countStep++;
+							searchTimeUnix = GetTimeTrade(GetUrl(pair, i), out lastTradeId);
+							if (searchTimeUnix >= queryDateLocal)
+							{
+								OnLoadStateEvent($"Стартовая дата найдена UP: {queryDateLocal}\t{countStep}");
+								return lastTradeId;
+							}
+						}
+					}
+				}
+				else
+				{
+					midleIndex -= half;
+					if (half == 0)
+					{
+						countStep++;
+						for (int i = midleIndex; i >= 0; i--)
+						{
+							searchTimeUnix = GetTimeTrade(GetUrl(pair, i), out lastTradeId);
+							if (searchTimeUnix <= queryDateLocal)
+							{
+								OnLoadStateEvent($"Стартовая дата найдена DW: {queryDateLocal}\t{countStep}");
+								return lastTradeId;
+							}
+						}
+					}
+				}
+				if (half == 0)
+				{
+					OnLoadStateEvent($"Стартовая дата не найдена!!!");
+					return 0;
+				}
+			}
+		}
+
+		private static long GetTimeTrade(string url, out int id)
+		{
+			Thread.Sleep(100);
+			var requester = new PublicKeyRequiredRequester();
+			var response = requester.Request(url, Resources.PUBLIC_KEY);
+			using (Stream stream = response.GetResponseStream())
+			{
+				StreamReader sr = new StreamReader(stream);
+				string s = sr.ReadToEnd();
+
+				List<StockExchenge.MarketTradesHistory.Trade> trades = null;
+				try
+				{
+					trades = JConverter.JsonConver<List<StockExchenge.MarketTradesHistory.Trade>>(s);
+				}
+				catch (Exception)
+				{
+					Console.WriteLine($"Response: {s}");
+				}
+
+				if (trades?.Count > 0)
+				{
+					var tradeFirst = trades.First();
+					id = tradeFirst.ID;
+					return tradeFirst.Time;
+				}
+				else
+				{
+					Console.WriteLine($"NOT FOUND");
+				}
+				id = 0;
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// Скачиваем все последователно
+		/// </summary>
+		/// <returns></returns>
+		private async Task<int> LoadAll()
         {
 			return await Task.Run(() =>
 			{
@@ -59,6 +207,11 @@ namespace StockExchenge.MarketTradesHistory
 
 							foreach (var trade in trades)
 							{
+								if(dateEndUnix.HasValue && trade.Time > dateEndUnix.Value)
+                                {
+									IsActiveLoad = false;
+									break;
+                                }
 								tradesDB.Add(new DataBaseWork.Models.TradeHistory()
 								{
 									TradeId = trade.ID,
@@ -72,7 +225,7 @@ namespace StockExchenge.MarketTradesHistory
 								});
 							}
 							repository.AddRange(tradesDB);
-							fromId += trades.Count();
+							fromId += trades.Count(); // альтернатива: max Id или last Id
 
 							var statusCode = (int)response.StatusCode;
 							if (statusCode == 418 || statusCode == 429)
@@ -121,9 +274,21 @@ namespace StockExchenge.MarketTradesHistory
 			});
         }
 
-		private string GetUrl()
+		private string GetUrl(int limit = 1000)
 		{
-			return $"{Resources.DOMAIN_V3}historicalTrades?symbol={pair}&fromId={fromId}&limit=1000";
+			return $"{Resources.DOMAIN_V3}historicalTrades?symbol={pair}&fromId={fromId}&limit={limit}";
+		}
+		private static string GetUrl(string pair, long fromId)
+		{
+			return $"{Resources.DOMAIN_V3}historicalTrades?symbol={pair}&fromId={fromId}&limit=1";
+		}
+		private static string GetUrlFromFirstTrade(string pair)
+		{
+			return $"{Resources.DOMAIN_V3}historicalTrades?symbol={pair}&fromId=0&limit=1";
+		}
+		private static string GetUrlFromLastTrade(string pair)
+		{
+			return $"{Resources.DOMAIN_V3}historicalTrades?symbol={pair}&limit=1";
 		}
 
 		private long GetFromId()

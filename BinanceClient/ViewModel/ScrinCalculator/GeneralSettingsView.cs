@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace BinanceClient.ViewModel.ScrinCalculator
 {
@@ -84,6 +86,45 @@ namespace BinanceClient.ViewModel.ScrinCalculator
             }
         }
 
+        #region Параметры скачивания истории
+        const string patternDate = @"^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$";
+
+        private string dateStart;
+        public string DateStart
+        {
+            get { return dateStart; }
+            set
+            {
+                if (Regex.IsMatch(value, patternDate))
+                {
+                    dateStart = value;
+                    base.NotifyPropertyChanged();
+                }
+                else
+                {
+                    MessageBox.Show("Дата введена неверно!");
+                }
+            }
+        }
+
+        private string dateEnd;
+        public string DateEnd
+        {
+            get { return dateEnd; }
+            set
+            {
+                if (Regex.IsMatch(value, patternDate))
+                {
+                    dateEnd = value;
+                    base.NotifyPropertyChanged();
+                }
+                else
+                {
+                    MessageBox.Show("Дата введена неверно!");
+                }
+            }
+        }
+
         private string baseAsset;
         public string BaseAsset
         {
@@ -105,5 +146,6 @@ namespace BinanceClient.ViewModel.ScrinCalculator
                 base.NotifyPropertyChanged();
             }
         }
+        #endregion
     }
 }
