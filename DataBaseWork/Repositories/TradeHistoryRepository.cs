@@ -88,29 +88,36 @@ namespace DataBaseWork.Repositories
             
         }
 
+        /// <summary>
+        /// Вставка с проверкой по Id
+        /// </summary>
+        /// <param name="trades"></param>
         public void AddRange(IEnumerable<TradeHistory> trades)
         {
             try
             {
                 using (var db = new DataBaseContext())
                 {
-                    db.TradeHistories.AddRange(trades);
-                    db.SaveChanges();
+                    var minId = trades.Min(x => x.TradeId);
+                    var maxId = trades.Max(x => x.TradeId);
+                    var tradesFromDb = db.TradeHistories.AsNoTracking().Where(x => x.TradeId >= minId && x.TradeId <= maxId);
+                    var exceptTrades = trades.Except(tradesFromDb);
+
+                    if(exceptTrades?.Count() > 0)
+                    {
+                        db.TradeHistories.AddRange(exceptTrades);
+                        db.SaveChanges();
+                    }
                 }
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
-                throw ex;
+                throw;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                throw ex;
+                throw;
             }
         }
-
-        // проверка вставки сделок:
-        // 1. получить сделки из БД в диапазоне trades
-        // 2. найти разность
-        // 3. встасить разность
     }
 }

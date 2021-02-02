@@ -24,6 +24,7 @@ namespace StockExchenge.MarketTradesHistory
 		private long? dateStartUnix;
 		private long? dateEndUnix;
 		private readonly TradeHistoryRepository repository;
+		private readonly TradeHistoryBuffer tradeHistoryBuffer;
 		private long fromId;
 
 		public event EventHandler<string> LoadStateEvent;
@@ -34,6 +35,7 @@ namespace StockExchenge.MarketTradesHistory
 			this.dateStart = dateStart;
 			this.dateEnd = dateEnd;
 			this.repository = repository;
+			tradeHistoryBuffer = new TradeHistoryBuffer(repository);
 			fromId = GetFromId();
 		}
 
@@ -224,7 +226,7 @@ namespace StockExchenge.MarketTradesHistory
 									IsBuyerMaker = trade.IsBuyerMaker
 								});
 							}
-							repository.AddRange(tradesDB);
+							tradeHistoryBuffer.AddRange(tradesDB);
 							fromId += trades.Count(); // альтернатива: max Id или last Id
 
 							var statusCode = (int)response.StatusCode;
