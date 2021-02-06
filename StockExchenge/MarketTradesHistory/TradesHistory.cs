@@ -95,12 +95,14 @@ namespace StockExchenge.MarketTradesHistory
 			{
 				countStep++;
 				half /= 2;
-				var searchTimeUnix = GetTimeTrade(GetUrl(pair, midleIndex), out lastTradeId);
+				int searchTradeId;
+				var searchTimeUnix = GetTimeTrade(GetUrl(pair, midleIndex), out searchTradeId);
+				//OnLoadStateEvent($"(1) {queryDateLocal} <-> {searchTimeUnix.UnixToDateTime()} {searchTimeUnix}"); // test
 
 				if (searchTimeUnix == queryDateLocal)
 				{
-					OnLoadStateEvent($"Стартовая дата найдена   : {queryDateLocal}\t{countStep}");
-					return lastTradeId;
+					OnLoadStateEvent($"Стартовая дата найдена   : {queryDateLocal.UnixToDateTime()}\t{countStep}");
+					return searchTradeId;
 				}
 				else if (searchTimeUnix < queryDateLocal)
 				{
@@ -110,11 +112,13 @@ namespace StockExchenge.MarketTradesHistory
 						for (int i = midleIndex; i <= lastTradeId; i++)
 						{
 							countStep++;
-							searchTimeUnix = GetTimeTrade(GetUrl(pair, i), out lastTradeId);
+							searchTimeUnix = GetTimeTrade(GetUrl(pair, i), out searchTradeId);
+							//OnLoadStateEvent($"(2) {queryDateLocal} <-> {searchTimeUnix.UnixToDateTime()} {searchTimeUnix}"); // test
+
 							if (searchTimeUnix >= queryDateLocal)
 							{
-								OnLoadStateEvent($"Стартовая дата найдена UP: {queryDateLocal}\t{countStep}");
-								return lastTradeId;
+								OnLoadStateEvent($"Стартовая дата найдена UP: {queryDateLocal.UnixToDateTime()}\t{countStep}");
+								return searchTradeId;
 							}
 						}
 					}
@@ -127,11 +131,13 @@ namespace StockExchenge.MarketTradesHistory
 						countStep++;
 						for (int i = midleIndex; i >= 0; i--)
 						{
-							searchTimeUnix = GetTimeTrade(GetUrl(pair, i), out lastTradeId);
+							searchTimeUnix = GetTimeTrade(GetUrl(pair, i), out searchTradeId);
+							//OnLoadStateEvent($"(3) {queryDateLocal} <-> {searchTimeUnix.UnixToDateTime()} {searchTimeUnix}"); // test
+
 							if (searchTimeUnix <= queryDateLocal)
 							{
-								OnLoadStateEvent($"Стартовая дата найдена DW: {queryDateLocal}\t{countStep}");
-								return lastTradeId;
+								OnLoadStateEvent($"Стартовая дата найдена DW: {queryDateLocal.UnixToDateTime()}\t{countStep}");
+								return searchTradeId;
 							}
 						}
 					}
@@ -212,6 +218,7 @@ namespace StockExchenge.MarketTradesHistory
 								if(dateEndUnix.HasValue && trade.Time > dateEndUnix.Value)
                                 {
 									IsActiveLoad = false;
+									OnLoadStateEvent($"TradesHistory загрузка завершена: время последней загруженной сделки = {trade.Time.UnixToDateTime()}");
 									break;
                                 }
 								tradesDB.Add(new DataBaseWork.Models.TradeHistory()
@@ -244,6 +251,7 @@ namespace StockExchenge.MarketTradesHistory
 								}
 								if (secondSleep == 0) { secondSleep = 60; }
 								Thread.Sleep(secondSleep * 1000);
+								OnLoadStateEvent($"Status Code: {statusCode}; secondSleep = {secondSleep * 1000}");
 							}
 							else if (statusCode == 200)
 							{
@@ -271,6 +279,7 @@ namespace StockExchenge.MarketTradesHistory
 						return -1;
                     }
 				}
+				tradeHistoryBuffer.Save();
 				OnLoadStateEvent("TradesHistory: STOP");
 				return 1;
 			});

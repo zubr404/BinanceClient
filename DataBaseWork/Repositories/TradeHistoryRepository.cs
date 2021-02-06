@@ -94,29 +94,45 @@ namespace DataBaseWork.Repositories
         /// <param name="trades"></param>
         public void AddRange(IEnumerable<TradeHistory> trades)
         {
-            try
+            if(trades?.Count() > 0) 
             {
-                using (var db = new DataBaseContext())
+                try
                 {
-                    var minId = trades.Min(x => x.TradeId);
-                    var maxId = trades.Max(x => x.TradeId);
-                    var tradesFromDb = db.TradeHistories.AsNoTracking().Where(x => x.TradeId >= minId && x.TradeId <= maxId);
-                    var exceptTrades = trades.Except(tradesFromDb);
-
-                    if(exceptTrades?.Count() > 0)
+                    using (var db = new DataBaseContext())
                     {
-                        db.TradeHistories.AddRange(exceptTrades);
-                        db.SaveChanges();
+                        var minId = trades.Min(x => x.TradeId);
+                        var maxId = trades.Max(x => x.TradeId);
+                        var tradesIdFromDb = db.TradeHistories.AsNoTracking().Where(x => x.TradeId >= minId && x.TradeId <= maxId)?.Select(x => x.TradeId).ToList();
+
+                        if (tradesIdFromDb?.Count() > 0)
+                        {
+                            var tradesIdNew = trades.Select(x => x.TradeId).ToList();
+                            var exeptId = tradesIdNew.Except(tradesIdFromDb).ToList();
+                            if(exeptId?.Count() > 0)
+                            {
+                                var tradesForLoadDb = trades.Where(x => exeptId.Contains(x.TradeId));
+                                if (tradesForLoadDb?.Count() > 0)
+                                {
+                                    db.TradeHistories.AddRange(tradesForLoadDb);
+                                    db.SaveChanges();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            db.TradeHistories.AddRange(trades);
+                            db.SaveChanges();
+                        }
                     }
                 }
-            }
-            catch (InvalidOperationException)
-            {
-                throw;
-            }
-            catch(Exception)
-            {
-                throw;
+                catch (InvalidOperationException)
+                {
+                    throw;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
         }
     }

@@ -89,7 +89,7 @@ namespace BinanceClient.ViewModel.ScrinCalculator
         #region Параметры скачивания истории
         const string patternDate = @"^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$";
 
-        private string dateStart;
+        private string dateStart = "01.01.2019";
         public string DateStart
         {
             get { return dateStart; }
@@ -107,7 +107,7 @@ namespace BinanceClient.ViewModel.ScrinCalculator
             }
         }
 
-        private string dateEnd;
+        private string dateEnd = "03.01.2019";
         public string DateEnd
         {
             get { return dateEnd; }
@@ -125,7 +125,7 @@ namespace BinanceClient.ViewModel.ScrinCalculator
             }
         }
 
-        private string baseAsset;
+        private string baseAsset = "BTC";
         public string BaseAsset
         {
             get { return baseAsset; }
@@ -136,7 +136,7 @@ namespace BinanceClient.ViewModel.ScrinCalculator
             }
         }
 
-        private string quoteAsset;
+        private string quoteAsset = "USDT";
         public string QuoteAsset
         {
             get { return quoteAsset; }

@@ -231,13 +231,27 @@ namespace TestApp
             //    }
             //}
 
-            long? numLong = null;
+            var values1 = new List<long>();
+            var values2 = new List<long>();
 
-            if (numLong.HasValue && numLong.Value < 1)
+            const int countI = 100;
+
+            for (int i = 0; i < countI; i++)
             {
-                Console.WriteLine("OK");
+                values1.Add(10 + i);
             }
-            
+            for (int i = 0; i < countI; i++)
+            {
+                values2.Add(50 + i);
+            }
+
+            var exepts = values1.Except(values2);
+
+            foreach (var item in exepts)
+            {
+                Console.WriteLine(item);
+            }
+
 
             var dtFinish = DateTime.Now;
             Console.WriteLine($">>> FINISH {dtFinish} ({dtFinish - dtStart})");

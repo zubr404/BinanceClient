@@ -27,5 +27,14 @@ namespace StockExchenge.MarketTradesHistory
             }
             TradeHistories.AddRange(trades);
         }
+
+        public void Save()
+        {
+            if(TradeHistories.Count > 0)
+            {
+                repository.AddRange(TradeHistories);
+                TradeHistories.Clear();
+            }
+        }
     }
 }
