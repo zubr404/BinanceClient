@@ -922,7 +922,7 @@
             </Grid>
 
             <!--Central Panel Scrin calculator  {Binding ScrinManager.ScrinCalculator.Visibility}-->
-            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}" Panel.ZIndex="99">
+            <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinCalculator.Visibility}">
                 <Grid Margin="30,0,30,0">
                     <Grid.Resources>
                         <Style x:Key="WaterMarkTextBox" TargetType="Grid">
@@ -1329,8 +1329,8 @@
                     </StackPanel>
                 </Grid>
 
-                <!--Отображение балансов-->
-                <Grid Height="Auto" Width="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DarkBrown}" Opacity="0.95" Visibility="{Binding KeyPanelScrin1.VisibilityShowPanelBalance}" Panel.ZIndex="2">
+                <!--Отображение балансов Visibility="{Binding KeyPanelScrin1.VisibilityShowPanelBalance}"-->
+                <Grid Height="Auto" Width="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DarkBrown}" Opacity="0.95" Visibility="Collapsed" Panel.ZIndex="2">
                     <StackPanel Margin="15">
                         <DataGrid Grid.Row="1" Width="450" Height="200" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" RowHeaderWidth="0"
                               Background="{StaticResource DarkBrown}" ItemsSource="{Binding KeyPanelScrin1.BalanceViews}" Margin="0,10,0,0"
@@ -1381,6 +1381,7 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition></RowDefinition>
                         <RowDefinition></RowDefinition>
                     </Grid.RowDefinitions>
 
@@ -1444,6 +1445,124 @@
                             <TextBox Foreground="{StaticResource DarkBrown}" Text="{Binding KeyPanelScrin1.SecretKey, Mode=TwoWay}"/>
                         </StackPanel>
                     </StackPanel>
+                    
+                    <!--Управление балансами купить/продать-->
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.Resources>
+                            <Style TargetType="{x:Type TextBox}">
+                                <Setter Property="FontSize" Value="21"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                <Setter Property="Padding" Value="5,0,0,0"/>
+                                <Setter Property="Background" Value="{StaticResource Brown}"/>
+                                <Setter Property="Foreground" Value="#c3c3c5"/>
+                                <Setter Property="BorderBrush" Value="#232323"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type TextBox}">
+                                            <Grid>
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Opacity="1">
+                                                    <Grid>
+                                                        <ScrollViewer x:Name="PART_ContentHost" Foreground="{TemplateBinding Foreground}" BorderThickness="0" IsTabStop="False" Margin="0" Padding="{TemplateBinding Padding}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Grid.Resources>
+                        
+                        <Label FontSize="{StaticResource FontSizeLabelConsole}" Foreground="{StaticResource SolidWhite}">Управление балансами ключей</Label>
+
+                        <Border Grid.Row="1" Background="{StaticResource DarkBrown}">
+                            <Grid Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+
+                                <!--Buy panel-->
+                                <Grid Grid.Column="0" Margin="10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <Label Grid.Row="0" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" Padding="5,5,5,0">Buy</Label>
+                                        <Label Grid.Row="1" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,0,3,3">Pair</Label>
+                                        
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                                            <ComboBox Grid.Column="1" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                                        </Grid>
+
+                                        <Label Grid.Row="3" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Price</Label>
+                                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+
+                                        <Label Grid.Row="5" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Amount</Label>
+                                        <TextBox Grid.Row="6" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+
+                                        <Button Grid.Row="7" Style="{StaticResource ElipseButtonMy}" Background="#FF43A447" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" FontWeight="Bold" Margin="0,8,0,0">BUY</Button>
+                                    </Grid>
+                                </Grid>
+
+                                <!--Sell panel-->
+                                <Grid Grid.Column="1" Margin="10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition Height="Auto"></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+
+                                        <Label Grid.Row="0" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" Padding="5,5,5,0">Sell</Label>
+                                        <Label Grid.Row="1" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,0,3,3">Pair</Label>
+
+                                        <Grid Grid.Row="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition></ColumnDefinition>
+                                                <ColumnDefinition></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                                            <ComboBox Grid.Column="1" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                                        </Grid>
+
+                                        <Label Grid.Row="3" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Price</Label>
+                                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+
+                                        <Label Grid.Row="5" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Amount</Label>
+                                        <TextBox Grid.Row="6" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+
+                                        <Button Grid.Row="7" Style="{StaticResource ElipseButtonMy}" Background="#FFAC3333" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" FontWeight="Bold" Margin="0,8,0,0">SELL</Button>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </Grid>
             </Grid>
 
