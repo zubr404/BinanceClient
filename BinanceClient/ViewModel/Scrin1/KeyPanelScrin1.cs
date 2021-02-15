@@ -3,6 +3,7 @@ using DataBaseWork.Models;
 using DataBaseWork.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows;
 
@@ -16,7 +17,15 @@ namespace BinanceClient.ViewModel.Scrin1
         {
             this.apiKeyRepository = apiKeyRepository;
             this.balanceRepository = balanceRepository;
+
+            ParametrBuy = new ParametrBuySellView();
+            ParametrSell = new ParametrBuySellView();
+            ParametrBuy.Coins = SetPairs();
+            ParametrSell.Coins = SetPairs();
         }
+
+        public ParametrBuySellView ParametrBuy { get; private set; }
+        public ParametrBuySellView ParametrSell { get; private set; }
 
         private List<APIKeyView> aPIKeyViews;
         public List<APIKeyView> APIKeyViews 
@@ -116,6 +125,50 @@ namespace BinanceClient.ViewModel.Scrin1
                     catch (ArgumentException ex)
                     {
                         MessageBox.Show(ex.Message);
+                    }
+                });
+            }
+        }
+
+        private RelayCommand buyCommand;
+        public RelayCommand BuyCommand
+        {
+            get
+            {
+                return buyCommand ?? new RelayCommand((object o) =>
+                {
+                    var messageBoxResult = MessageBox.Show(
+                        $"Подтвердите операцию:" +
+                        $"\nPair: {ParametrBuy.MainCoin}/{ParametrBuy.AltCoin}" +
+                        $"\nPrice: {ParametrBuy.Price}" +
+                        $"\nAmount: {ParametrBuy.Amount}",
+                        "BUY/SELL",
+                        MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    if(messageBoxResult == MessageBoxResult.OK)
+                    {
+                        MessageBox.Show("!!! BUY !!!");
+                    }
+                });
+            }
+        }
+
+        private RelayCommand sellCommand;
+        public RelayCommand SellCommand
+        {
+            get
+            {
+                return sellCommand ?? new RelayCommand((object o) =>
+                {
+                    var messageBoxResult = MessageBox.Show(
+                        $"Подтвердите операцию:" +
+                        $"\nPair: {ParametrSell.MainCoin}/{ParametrSell.AltCoin}" +
+                        $"\nPrice: {ParametrSell.Price}" +
+                        $"\nAmount: {ParametrSell.Amount}",
+                        "BUY/SELL",
+                        MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    if (messageBoxResult == MessageBoxResult.OK)
+                    {
+                        MessageBox.Show("!!! SELL !!!");
                     }
                 });
             }
@@ -287,6 +340,20 @@ namespace BinanceClient.ViewModel.Scrin1
                 secretKey = value;
                 base.NotifyPropertyChanged();
             }
+        }
+
+
+        private List<string> SetPairs()
+        {
+            var mainCoins = MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs.OrderBy(x => x.Pair).Select(x => x.BaseAsset).Distinct().ToList();
+            var altCoins = MainWindow.ExchangeInfo.AllPairsMarket.MarketPairs.OrderBy(x => x.Pair).Select(x => x.QuoteAsset);
+            var exceptCoins = altCoins.Except(mainCoins);
+            foreach (var altCoin in exceptCoins)
+            {
+                mainCoins.Add(altCoin);
+            }
+            mainCoins.Sort();
+            return mainCoins;
         }
     }
 }

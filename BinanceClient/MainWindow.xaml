@@ -1330,7 +1330,7 @@
                 </Grid>
 
                 <!--Отображение балансов Visibility="{Binding KeyPanelScrin1.VisibilityShowPanelBalance}"-->
-                <Grid Height="Auto" Width="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DarkBrown}" Opacity="0.95" Visibility="Collapsed" Panel.ZIndex="2">
+                <Grid Height="Auto" Width="Auto" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DarkBrown}" Opacity="0.95" Visibility="{Binding KeyPanelScrin1.VisibilityShowPanelBalance}" Panel.ZIndex="2">
                     <StackPanel Margin="15">
                         <DataGrid Grid.Row="1" Width="450" Height="200" AutoGenerateColumns="False" CanUserAddRows="False" BorderThickness="0" RowHeaderWidth="0"
                               Background="{StaticResource DarkBrown}" ItemsSource="{Binding KeyPanelScrin1.BalanceViews}" Margin="0,10,0,0"
@@ -1508,18 +1508,18 @@
                                                 <ColumnDefinition></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <ComboBox Grid.Column="0" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
-                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                              ItemsSource="{Binding KeyPanelScrin1.ParametrBuy.Coins}" SelectedItem="{Binding KeyPanelScrin1.ParametrBuy.MainCoin, Mode=TwoWay}"></ComboBox>
                                             <ComboBox Grid.Column="1" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
-                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                              ItemsSource="{Binding KeyPanelScrin1.ParametrBuy.Coins}" SelectedItem="{Binding KeyPanelScrin1.ParametrBuy.AltCoin, Mode=TwoWay}"></ComboBox>
                                         </Grid>
 
                                         <Label Grid.Row="3" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Price</Label>
-                                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+                                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding KeyPanelScrin1.ParametrBuy.Price, Mode=TwoWay}" MaxLength="15"/>
 
                                         <Label Grid.Row="5" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Amount</Label>
-                                        <TextBox Grid.Row="6" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+                                        <TextBox Grid.Row="6" Grid.Column="3" Text="{Binding KeyPanelScrin1.ParametrBuy.Amount, Mode=TwoWay}" MaxLength="15"/>
 
-                                        <Button Grid.Row="7" Style="{StaticResource ElipseButtonMy}" Background="#FF43A447" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" FontWeight="Bold" Margin="0,8,0,0">BUY</Button>
+                                        <Button Grid.Row="7" Style="{StaticResource ElipseButtonMy}" Background="#FF43A447" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" FontWeight="Bold" Margin="0,8,0,0" Command="{Binding KeyPanelScrin1.BuyCommand}" IsEnabled="{Binding KeyPanelScrin1.ParametrBuy.IsEnabled}">BUY</Button>
                                     </Grid>
                                 </Grid>
 
@@ -1546,18 +1546,18 @@
                                                 <ColumnDefinition></ColumnDefinition>
                                             </Grid.ColumnDefinitions>
                                             <ComboBox Grid.Column="0" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
-                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                              ItemsSource="{Binding KeyPanelScrin1.ParametrSell.Coins}" SelectedItem="{Binding KeyPanelScrin1.ParametrSell.MainCoin, Mode=TwoWay}"></ComboBox>
                                             <ComboBox Grid.Column="1" Style="{StaticResource ComboBoxBuySell}" Height="Auto" Width="Auto" Foreground="#c3c3c5" FontSize="21" HorizontalAlignment="Stretch"
-                              ItemsSource="{Binding CentralPanelScrin1.TradeConfigurationView.Coins}" SelectedItem="{Binding CentralPanelScrin1.TradeConfigurationView.AltCoin, Mode=TwoWay}"></ComboBox>
+                              ItemsSource="{Binding KeyPanelScrin1.ParametrSell.Coins}" SelectedItem="{Binding KeyPanelScrin1.ParametrSell.AltCoin, Mode=TwoWay}"></ComboBox>
                                         </Grid>
 
                                         <Label Grid.Row="3" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Price</Label>
-                                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+                                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding KeyPanelScrin1.ParametrSell.Price, Mode=TwoWay}" MaxLength="15"/>
 
                                         <Label Grid.Row="5" Foreground="{StaticResource SolidGray}" FontSize="{StaticResource FontSizeConsole}" Padding="5,8,5,3">Amount</Label>
-                                        <TextBox Grid.Row="6" Grid.Column="3" Text="{Binding CentralPanelScrin1.TradeConfigurationView.DepositLimit}"/>
+                                        <TextBox Grid.Row="6" Grid.Column="3" Text="{Binding KeyPanelScrin1.ParametrSell.Amount, Mode=TwoWay}" MaxLength="15"/>
 
-                                        <Button Grid.Row="7" Style="{StaticResource ElipseButtonMy}" Background="#FFAC3333" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" FontWeight="Bold" Margin="0,8,0,0">SELL</Button>
+                                        <Button Grid.Row="7" Style="{StaticResource ElipseButtonMy}" Background="#FFAC3333" Foreground="{StaticResource SolidWhite}" FontSize="{StaticResource FontSizeLabelConsole}" FontWeight="Bold" Margin="0,8,0,0" Command="{Binding KeyPanelScrin1.SellCommand}" IsEnabled="{Binding KeyPanelScrin1.ParametrSell.IsEnabled}">SELL</Button>
                                     </Grid>
                                 </Grid>
                             </Grid>
