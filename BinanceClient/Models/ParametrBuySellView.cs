@@ -79,7 +79,7 @@ namespace BinanceClient.Models
 
         public string GetPair()
         {
-            return $"{MainCoin}/{AltCoin}";
+            return $"{MainCoin}{AltCoin}";
         }
 
 

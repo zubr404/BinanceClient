@@ -1191,7 +1191,7 @@ namespace Algoritms.Real
         private OrderResponse SendOrder(string pair, bool isBuyer, double amount, string publicKey, string secretKey)
         {
             var orderSender = new OrderSender();
-            var parametrs = orderSender.GetTransacParam(pair, isBuyer, amount);
+            var parametrs = orderSender.GetTransacParamMarket(pair, isBuyer, amount);
 
             if(logService != null)
             {
@@ -1200,7 +1200,7 @@ namespace Algoritms.Real
                 logService.Write($"---------------------------------------------");
             }
             
-            var orderResponse = orderSender.Order(parametrs, publicKey, secretKey);
+            var orderResponse = orderSender.OrderMarket(parametrs, publicKey, secretKey);
             return orderResponse;
         }
 

@@ -1,6 +1,7 @@
 ﻿using BinanceClient.Models;
 using DataBaseWork.Models;
 using DataBaseWork.Repositories;
+using StockExchenge.Transaction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,7 +147,36 @@ namespace BinanceClient.ViewModel.Scrin1
                         MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                     if(messageBoxResult == MessageBoxResult.OK)
                     {
-                        MessageBox.Show("!!! BUY !!!");
+                        var apiKeys = GetKeys();
+                        if (apiKeys?.Count() > 0)
+                        {
+                            var orderSender = new OrderSender();
+                            foreach (var apiKey in apiKeys)
+                            {
+                                var parametr = orderSender.GetTransacParamLimit(ParametrBuy.GetPair(), true, ParametrBuy.Amount, ParametrBuy.Price);
+                                var response = orderSender.OrderLimit(parametr, apiKey.PublicKey, apiKey.SecretKey);
+
+                                if(response != null)
+                                {
+                                    if (string.IsNullOrWhiteSpace(response.Msg))
+                                    {
+                                        MessageBox.Show(response.OrderId);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show(response.Msg);
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Неизвестная ошибка.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Не найдено ни одного активного ключа в статусе ОК.", "BUY/SELL");
+                        }
                     }
                 });
             }
@@ -354,6 +384,11 @@ namespace BinanceClient.ViewModel.Scrin1
             }
             mainCoins.Sort();
             return mainCoins;
+        }
+
+        private IEnumerable<APIKey> GetKeys()
+        {
+            return apiKeyRepository.GetActiveStatusOk();
         }
     }
 }
