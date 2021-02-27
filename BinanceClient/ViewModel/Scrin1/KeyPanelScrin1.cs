@@ -138,45 +138,10 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 return buyCommand ?? new RelayCommand((object o) =>
                 {
-                    var messageBoxResult = MessageBox.Show(
-                        $"Подтвердите операцию:" +
-                        $"\nPair: {ParametrBuy.MainCoin}/{ParametrBuy.AltCoin}" +
-                        $"\nPrice: {ParametrBuy.Price}" +
-                        $"\nAmount: {ParametrBuy.Amount}",
-                        "BUY/SELL",
-                        MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-                    if(messageBoxResult == MessageBoxResult.OK)
+                    var isBuy = true;
+                    if(OperationAccept(isBuy))
                     {
-                        var apiKeys = GetKeys();
-                        if (apiKeys?.Count() > 0)
-                        {
-                            var orderSender = new OrderSender();
-                            foreach (var apiKey in apiKeys)
-                            {
-                                var parametr = orderSender.GetTransacParamLimit(ParametrBuy.GetPair(), true, ParametrBuy.Amount, ParametrBuy.Price);
-                                var response = orderSender.OrderLimit(parametr, apiKey.PublicKey, apiKey.SecretKey);
-
-                                if(response != null)
-                                {
-                                    if (string.IsNullOrWhiteSpace(response.Msg))
-                                    {
-                                        MessageBox.Show(response.OrderId);
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show(response.Msg);
-                                    }
-                                }
-                                else
-                                {
-                                    MessageBox.Show("Неизвестная ошибка.");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("Не найдено ни одного активного ключа в статусе ОК.", "BUY/SELL");
-                        }
+                        OperationSend(ParametrBuy, isBuy);
                     }
                 });
             }
@@ -189,18 +154,66 @@ namespace BinanceClient.ViewModel.Scrin1
             {
                 return sellCommand ?? new RelayCommand((object o) =>
                 {
-                    var messageBoxResult = MessageBox.Show(
-                        $"Подтвердите операцию:" +
-                        $"\nPair: {ParametrSell.MainCoin}/{ParametrSell.AltCoin}" +
-                        $"\nPrice: {ParametrSell.Price}" +
-                        $"\nAmount: {ParametrSell.Amount}",
-                        "BUY/SELL",
-                        MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-                    if (messageBoxResult == MessageBoxResult.OK)
+                    var isBuy = false;
+                    if (OperationAccept(isBuy))
                     {
-                        MessageBox.Show("!!! SELL !!!");
+                        OperationSend(ParametrSell, isBuy);
                     }
                 });
+            }
+        }
+
+        private bool OperationAccept(bool isBuy)
+        {
+            var operation = isBuy ? "Buy" : "Sell";
+            var messageBoxResult = MessageBox.Show(
+                        $"Подтвердите операцию {operation}:" +
+                        $"\nPair: {ParametrBuy.MainCoin}/{ParametrBuy.AltCoin}" +
+                        $"\nPrice: {ParametrBuy.Price}" +
+                        $"\nAmount: {ParametrBuy.Amount}",
+                        "BUY/SELL",
+                        MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (messageBoxResult == MessageBoxResult.OK)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void OperationSend(ParametrBuySellView parametrBuySell, bool isBuy)
+        {
+            var apiKeys = GetKeys();
+            if (apiKeys?.Count() > 0)
+            {
+                var orderSender = new OrderSender();
+                var resultSend = string.Empty;
+                foreach (var apiKey in apiKeys)
+                {
+                    var keyHidden = $"{apiKey.PublicKey.Substring(0, 4)}...{apiKey.PublicKey.Substring(apiKey.PublicKey.Length - 4, 4)}";
+                    var parametr = orderSender.GetTransacParamLimit(parametrBuySell.GetPair(), isBuy, parametrBuySell.Amount, parametrBuySell.Price);
+                    var response = orderSender.OrderLimit(parametr, apiKey.PublicKey, apiKey.SecretKey);
+
+                    if (response != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(response.Msg))
+                        {
+                            resultSend += $"{keyHidden} успешно: ордер № {response.OrderId}\n";
+                        }
+                        else
+                        {
+                            resultSend += $"{keyHidden} ошибка: {response.Msg}\n";
+                        }
+                    }
+                    else
+                    {
+                        resultSend += $"{keyHidden} Неизвестная ошибка\n";
+                    }
+                }
+                MessageBox.Show(resultSend, "BUY/SELL", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Не найдено ни одного активного ключа в статусе ОК.", "BUY/SELL", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
         #endregion

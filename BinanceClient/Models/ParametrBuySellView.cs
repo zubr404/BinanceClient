@@ -13,7 +13,7 @@ namespace BinanceClient.Models
 
         public List<string> Coins { get; set; }
 
-        private string mainCoin = "";
+        private string mainCoin = "BTC";
         public string MainCoin
         {
             get { return mainCoin; }
@@ -24,7 +24,7 @@ namespace BinanceClient.Models
                 SetIsEnabled();
             }
         }
-        private string altCoin = "";
+        private string altCoin = "USDT";
         public string AltCoin
         {
             get { return altCoin; }
@@ -36,7 +36,7 @@ namespace BinanceClient.Models
             }
         }
 
-        private double price;
+        private double price = 15000;
         public double Price
         {
             get { return price; }
@@ -51,7 +51,7 @@ namespace BinanceClient.Models
             }
         }
 
-        private double amount;
+        private double amount = 1;
         public double Amount
         {
             get { return amount; }

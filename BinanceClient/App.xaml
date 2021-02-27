@@ -255,8 +255,6 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
 
-
-
                             <Grid>
                                 <Rectangle x:Name="BackGrid" Fill="White" RadiusX="10" RadiusY="10" Opacity="0"></Rectangle>
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -265,7 +263,12 @@
                                 </ContentPresenter>
                             </Grid>
                         </Border>
-
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" TargetName="RootElement" Value="0.3" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
