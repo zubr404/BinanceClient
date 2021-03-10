@@ -1,0 +1,75 @@
+﻿<Window x:Class="z_ChartAppTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:z_ChartAppTest"
+        xmlns:models="clr-namespace:z_ChartAppTest.Models"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <local:ModelView x:Key="ViewModel"/>
+
+        <ItemsPanelTemplate x:Key="tplCanvas">
+            <Canvas/>
+        </ItemsPanelTemplate>
+        <Style TargetType="ItemsControl">
+            <Setter Property="ItemsPanel" Value="{StaticResource tplCanvas}" />
+        </Style>
+        
+        <Style x:Key="styCandle" TargetType="Shape">
+            <Setter Property="Stroke" Value="Red" />
+            <Setter Property="Fill" Value="Red" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsPositive}" Value="True">
+                    <Setter Property="Stroke" Value="Green" />
+                    <Setter Property="Fill" Value="Green" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <DataTemplate x:Key="tplCandleRect" DataType="models:CandleView">
+            <Rectangle Style="{StaticResource styCandle}" Width="6" Height="{Binding DeltaHeight}" Margin="-2 0 2 0" />
+        </DataTemplate>
+        <DataTemplate x:Key="tplCandleLine" DataType="models:CandleView">
+            <Rectangle Style="{StaticResource styCandle}" Width="2" Height="{Binding Height}" />
+        </DataTemplate>
+        
+        <Style x:Key="styCandleRect" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Left" Value="{Binding Date}" />
+            <Setter Property="Canvas.Top" Value="{Binding TopPoint}" />
+        </Style>
+        <!--<Style x:Key="styCandleLine" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Left" Value="{Binding Date}" />
+            <Setter Property="Canvas.Top" Value="{Binding Min}" />
+        </Style>-->
+
+        <DataTemplate x:Key="CandleDataTemlate">
+            <Canvas>
+                <Rectangle Style="{StaticResource styCandle}" Width="{Binding WidthRect}" Height="{Binding HeightRect}" Canvas.Top="{Binding TopPointRect}"/>
+                <Rectangle Style="{StaticResource styCandle}" Width="{Binding WitdhLine}" Height="{Binding HeightLine}" Canvas.Left="{Binding XLine}"/>
+            </Canvas>
+        </DataTemplate>
+        
+    </Window.Resources>
+    <Window.DataContext>
+        <Binding Source="{StaticResource ResourceKey=ViewModel}"/>
+    </Window.DataContext>
+    <Grid>
+        <!--ГРАФИК-->
+        <Grid Background="Black" Height="{Binding Candlestick.GridHeight}" Width="{Binding Candlestick.GridWidth}">
+            <!--<ItemsControl Grid.Column="1" ItemsSource="{Binding Candlestick.CandleViews}"
+                ItemTemplate="{StaticResource tplCandleLine}" ItemContainerStyle="{StaticResource styCandleLine}" />
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding Candlestick.CandleViews}"
+                ItemTemplate="{StaticResource tplCandleRect}" ItemContainerStyle="{StaticResource styCandleRect}" />-->
+            
+            
+
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding Candlestick.CandleViews}"
+                ItemTemplate="{StaticResource CandleDataTemlate}" ItemContainerStyle="{StaticResource styCandleRect}" />
+            <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
+                <Rectangle Canvas.Top="{Binding PriceCurrent}" Stroke="Blue" Width="500" Height="0.5" />
+            </Canvas>
+        </Grid>
+    </Grid>
+</Window>
