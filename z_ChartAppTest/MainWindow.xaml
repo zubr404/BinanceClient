@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:z_ChartAppTest"
         xmlns:models="clr-namespace:z_ChartAppTest.Models"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="850" Width="1200">
     <Window.Resources>
         <local:ModelView x:Key="ViewModel"/>
 
@@ -57,15 +57,15 @@
     </Window.DataContext>
     <Grid>
         <!--ГРАФИК-->
-        <Grid Background="Black" Height="{Binding Candlestick.GridHeight}" Width="{Binding Candlestick.GridWidth}">
-            <!--<ItemsControl Grid.Column="1" ItemsSource="{Binding Candlestick.CandleViews}"
+        <Grid Background="Black" Height="{Binding GridHeight}" Width="{Binding GridWidth}">
+            <!--<ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
                 ItemTemplate="{StaticResource tplCandleLine}" ItemContainerStyle="{StaticResource styCandleLine}" />
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding Candlestick.CandleViews}"
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
                 ItemTemplate="{StaticResource tplCandleRect}" ItemContainerStyle="{StaticResource styCandleRect}" />-->
             
             
 
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding Candlestick.CandleViews}"
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
                 ItemTemplate="{StaticResource CandleDataTemlate}" ItemContainerStyle="{StaticResource styCandleRect}" />
             <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
                 <Rectangle Canvas.Top="{Binding PriceCurrent}" Stroke="Blue" Width="500" Height="0.5" />
