@@ -57,7 +57,7 @@
     </Window.DataContext>
     <Grid>
         <!--ГРАФИК-->
-        <Grid Background="Black" Height="{Binding GridHeight}" Width="{Binding GridWidth}">
+        <Grid Height="{Binding GridHeight}" Width="{Binding GridWidth}">
             <!--<ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
                 ItemTemplate="{StaticResource tplCandleLine}" ItemContainerStyle="{StaticResource styCandleLine}" />
             <ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
