@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using z_ChartAppTest.Interfaces;
 
 namespace z_ChartAppTest.Models
 {
-    public class Candle
+    public class Candle : IElementChart
     {
+        public long TimeOpen { get { return timeOpen; } }
+        private long timeOpen;
         public double High { get { return high; } }
         private double high;
 
@@ -21,7 +24,7 @@ namespace z_ChartAppTest.Models
         public bool IsPositive { get { return ispositive; } }
         private bool ispositive;
 
-        public Candle(double high, double low, double open, double close)
+        public Candle(long timeOpen, double high, double low, double open, double close)
         {
             this.high = high;
             this.low = low;

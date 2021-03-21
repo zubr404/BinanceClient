@@ -17,10 +17,11 @@ namespace z_ChartAppTest
     {
         public double GridHeight { get; private set; }
         public double GridWidth { get; private set; }
-        public CandlestickService CandlestickService { get; private set; }
+        public ChartService ChartService { get; private set; }
 
         private Kline kline;
         private List<Candle> candles;
+        private Candlestick candlestick;
 
         private Dispatcher dispatcher;
         private Timer timer;
@@ -28,9 +29,10 @@ namespace z_ChartAppTest
         public ModelView()
         {
             dispatcher = Dispatcher.CurrentDispatcher;
-            GridHeight = 800;
+            GridHeight = 400;
             GridWidth = 1150;
-            CandlestickService = new CandlestickService();
+            candlestick = new Candlestick();
+            ChartService = new ChartService(candlestick);
 
             kline = new Kline("BTCUSDT", "1m");
             candles = new List<Candle>();
@@ -52,11 +54,8 @@ namespace z_ChartAppTest
                 GetHistoryCandle();
                 dispatcher.InvokeAsync(() =>
                 {
-                    CandlestickService.GetMaxAllChart(candles);
-                    CandlestickService.GetMinAllChart(candles);
-                    CandlestickService.GetDeltaAllChart(candles);
-                    CandlestickService.GetScaleIntervalPrice(GridHeight);
-                    CandlestickService.CreateChart(candles);
+                    candlestick.SetCandles(candles);
+                    ChartService.ChartBuild(candles, GridHeight, GridWidth, 2);
                 });
             });
         }
@@ -71,7 +70,9 @@ namespace z_ChartAppTest
 
                 foreach (var k in klines)
                 {
-                    var ohlcPoint = new Candle(Convert.ToDouble(k[2], new CultureInfo("en-US")),
+                    var ohlcPoint = new Candle(
+                        Convert.ToInt64(k[0], new CultureInfo("en-US")),
+                        Convert.ToDouble(k[2], new CultureInfo("en-US")),
                         Convert.ToDouble(k[3], new CultureInfo("en-US")),
                         Convert.ToDouble(k[1], new CultureInfo("en-US")),
                         Convert.ToDouble(k[4], new CultureInfo("en-US")));

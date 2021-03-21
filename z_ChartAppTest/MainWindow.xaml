@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:z_ChartAppTest"
         xmlns:models="clr-namespace:z_ChartAppTest.Models"
         mc:Ignorable="d"
-        Title="MainWindow" Height="850" Width="1200">
+        Title="MainWindow" Height="700" Width="1400">
     <Window.Resources>
         <local:ModelView x:Key="ViewModel"/>
 
@@ -16,7 +16,7 @@
         <Style TargetType="ItemsControl">
             <Setter Property="ItemsPanel" Value="{StaticResource tplCanvas}" />
         </Style>
-        
+
         <Style x:Key="styCandle" TargetType="Shape">
             <Setter Property="Stroke" Value="Red" />
             <Setter Property="Fill" Value="Red" />
@@ -27,14 +27,34 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        
-        <DataTemplate x:Key="tplCandleRect" DataType="models:CandleView">
+
+        <Style x:Key="styHorizontalLine" TargetType="Shape">
+            <Setter Property="Stroke" Value="Gray"/>
+            <Setter Property="StrokeDashArray" Value="4 8"/>
+            <Setter Property="StrokeThickness" Value="0.5"/>
+        </Style>
+        <Style x:Key="styLabelHorizontalLine" TargetType="Label">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="Padding" Value="15,0,0,0"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Content" Value="{Binding PriceLabel}"/>
+        </Style>
+
+        <Style x:Key="styHorLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Top" Value="{Binding TopPointLine}"/>
+        </Style>
+        <Style x:Key="styLabelHorLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Top" Value="{Binding TopPointLabel}"/>
+            <Setter Property="Canvas.Left" Value="{Binding WidthLine}"/>
+        </Style>
+
+        <!--<DataTemplate x:Key="tplCandleRect" DataType="models:CandleView">
             <Rectangle Style="{StaticResource styCandle}" Width="6" Height="{Binding DeltaHeight}" Margin="-2 0 2 0" />
         </DataTemplate>
         <DataTemplate x:Key="tplCandleLine" DataType="models:CandleView">
             <Rectangle Style="{StaticResource styCandle}" Width="2" Height="{Binding Height}" />
-        </DataTemplate>
-        
+        </DataTemplate>-->
+
         <Style x:Key="styCandleRect" TargetType="ContentPresenter">
             <Setter Property="Canvas.Left" Value="{Binding Date}" />
             <Setter Property="Canvas.Top" Value="{Binding TopPoint}" />
@@ -50,26 +70,52 @@
                 <Rectangle Style="{StaticResource styCandle}" Width="{Binding WitdhLine}" Height="{Binding HeightLine}" Canvas.Left="{Binding XLine}"/>
             </Canvas>
         </DataTemplate>
-        
+
+        <DataTemplate x:Key="HorizotalLineTemplate">
+            <Rectangle Style="{StaticResource styHorizontalLine}" Width="{Binding WidthLine}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="LabelHorizotalLineTemplate">
+            <Label Style="{StaticResource styLabelHorizontalLine}"/>
+        </DataTemplate>
+
     </Window.Resources>
     <Window.DataContext>
         <Binding Source="{StaticResource ResourceKey=ViewModel}"/>
     </Window.DataContext>
-    <Grid>
-        <!--ГРАФИК-->
-        <Grid Height="{Binding GridHeight}" Width="{Binding GridWidth}">
-            <!--<ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
-                ItemTemplate="{StaticResource tplCandleLine}" ItemContainerStyle="{StaticResource styCandleLine}" />
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
-                ItemTemplate="{StaticResource tplCandleRect}" ItemContainerStyle="{StaticResource styCandleRect}" />-->
-            
-            
+    <Grid Background="SaddleBrown">
+        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="Black">
+            <Grid Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="100"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="100"></RowDefinition>
+                </Grid.RowDefinitions>
 
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding CandlestickService.CandleViews}"
+                <!--ГОРИЗОНТАЛЬНАЯ СЕТКА-->
+                <Grid Grid.ColumnSpan="2" Height="{Binding GridHeight}" Background="Black">
+                    <ItemsControl ItemsSource="{Binding ChartService.ScaleHorizontal.LineScaleHorizontals}"
+                          ItemTemplate="{StaticResource HorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styHorLineContent}"/>
+                    <ItemsControl ItemsSource="{Binding ChartService.ScaleHorizontal.LineScaleHorizontals}"
+                          ItemTemplate="{StaticResource LabelHorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styLabelHorLineContent}"/>
+                </Grid>
+
+                <!--ГРАФИК-->
+                <Grid Height="{Binding GridHeight}" Width="{Binding GridWidth}">
+                    <ItemsControl ItemsSource="{Binding ChartService.Chart.CandleViews}"
                 ItemTemplate="{StaticResource CandleDataTemlate}" ItemContainerStyle="{StaticResource styCandleRect}" />
-            <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
-                <Rectangle Canvas.Top="{Binding PriceCurrent}" Stroke="Blue" Width="500" Height="0.5" />
-            </Canvas>
-        </Grid>
+                    <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
+                        <Rectangle Canvas.Top="{Binding PriceCurrent}" Stroke="Blue" Width="500" Height="0.5" />
+                    </Canvas>
+                </Grid>
+                <!--<TextBlock HorizontalAlignment="Right" Margin="0,0,0,0" Text="{Binding ChartService.Chart.TestMonitor.TextMonitor}" TextWrapping="Wrap" VerticalAlignment="Top" Background="AliceBlue" Height="250" Width="250"/>-->
+
+
+            </Grid>
+        </Border>
     </Grid>
 </Window>
