@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using z_ChartAppTest.Interfaces;
 using z_ChartAppTest.Models;
+using Services;
 
 namespace z_ChartAppTest.Services
 {
@@ -17,17 +19,27 @@ namespace z_ChartAppTest.Services
             LineScaleVerticals = new ObservableCollection<LineScaleVertical>();
         }
 
-        public void ScaleBuild(IEnumerable<Candle> candles, double heightPanel, double widhPanel)
+        public void ScaleBuild(IEnumerable<IElementChartView> candles, double heightPanel, double widhPanel)
         {
             if(candles?.Count() > 0)
             {
+                LineScaleVerticals.Clear();
                 int lenCandles = candles.Count();
                 int intervalCandles = (int)(lenCandles / COUNT_DIVISION);
                 for (int i = 0; i <= lenCandles; i += intervalCandles)
                 {
-                    LineScaleVerticals.Add(new LineScaleVertical() 
+                    if (i == intervalCandles)
                     {
-                    
+                        i--;
+                    }
+                    var candle = candles.ElementAt(i);
+                    var timeOpen = candle.TimeOpen.UnixToDateTime();
+                    LineScaleVerticals.Add(new LineScaleVertical()
+                    {
+                        LeftPointLine = candle.LeftPoint + candle.Width / 2,
+                        HeighLine = heightPanel,
+                        TopPointLabel = heightPanel,
+                        TimeLabel = $"{timeOpen.Date:dd.MM.yyyy}\n{timeOpen.TimeOfDay}"
                     });
                 }
             }

@@ -14,12 +14,12 @@ namespace z_ChartAppTest.Services
     public class Candlestick : IChart
     {
         private const double WIDTH_RECT = 7;
-        public ObservableCollection<CandleView> CandleViews { get; private set; }
+        public ObservableCollection<IElementChartView> ElementChartViews { get; set; }
         private IEnumerable<Candle> candles;
 
         public Candlestick()
         {
-            CandleViews = new ObservableCollection<CandleView>();
+            ElementChartViews = new ObservableCollection<IElementChartView>();
             candles = new List<Candle>();
         }
 
@@ -35,7 +35,7 @@ namespace z_ChartAppTest.Services
         {
             if (candles.Count() > 0)
             {
-                CandleViews.Clear();
+                ElementChartViews.Clear();
                 var candleList = candles.ToList();
                 var previosDate = 20;
                 foreach (var candle in candleList)
@@ -43,13 +43,13 @@ namespace z_ChartAppTest.Services
                     var date = previosDate;
                     previosDate += 10;
 
-                    CandleViews.Add(new CandleView()
+                    ElementChartViews.Add(new CandleView(candle.TimeOpen, candle.High, candle.Low, candle.Open, candle.Close)
                     {
-                        Date = date,
+                        LeftPoint = date,
                         TopPoint = GetTopPoint(candle.High, maxAllChart, scaleIntervalPrice),
-                        HeightLine = GetHeightLine(candle.High, candle.Low, scaleIntervalPrice),
+                        Height = GetHeightLine(candle.High, candle.Low, scaleIntervalPrice),
                         HeightRect = GetHeightRect(candle.Open, candle.Close, scaleIntervalPrice),
-                        WidthRect = WIDTH_RECT,
+                        Width = WIDTH_RECT,
                         TopPointRect = GetTopPointRect(candle.High, candle.Open, candle.Close, candle.IsPositive, scaleIntervalPrice),
                         IsPositive = candle.IsPositive
                     });

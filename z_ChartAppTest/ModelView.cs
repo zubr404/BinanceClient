@@ -34,7 +34,7 @@ namespace z_ChartAppTest
             candlestick = new Candlestick();
             ChartService = new ChartService(candlestick);
 
-            kline = new Kline("BTCUSDT", "1m");
+            kline = new Kline("BTCUSDT", "1M");
             candles = new List<Candle>();
 
             timer = new Timer(2000);

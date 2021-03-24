@@ -33,11 +33,22 @@
             <Setter Property="StrokeDashArray" Value="4 8"/>
             <Setter Property="StrokeThickness" Value="0.5"/>
         </Style>
+        <Style x:Key="styVerticalLine" TargetType="Shape">
+            <Setter Property="Stroke" Value="Gray"/>
+            <Setter Property="StrokeDashArray" Value="4 8"/>
+            <Setter Property="StrokeThickness" Value="0.3"/>
+        </Style>
         <Style x:Key="styLabelHorizontalLine" TargetType="Label">
             <Setter Property="Foreground" Value="Gray"/>
             <Setter Property="Padding" Value="15,0,0,0"/>
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="Content" Value="{Binding PriceLabel}"/>
+        </Style>
+        <Style x:Key="styLabelVerticalLine" TargetType="Label">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Content" Value="{Binding TimeLabel}"/>
         </Style>
 
         <Style x:Key="styHorLineContent" TargetType="ContentPresenter">
@@ -46,6 +57,14 @@
         <Style x:Key="styLabelHorLineContent" TargetType="ContentPresenter">
             <Setter Property="Canvas.Top" Value="{Binding TopPointLabel}"/>
             <Setter Property="Canvas.Left" Value="{Binding WidthLine}"/>
+        </Style>
+        
+        <Style x:Key="styVertLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Left" Value="{Binding LeftPointLine}"/>
+        </Style>
+        <Style x:Key="styLabelVertLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Top" Value="{Binding TopPointLabel}"/>
+            <Setter Property="Canvas.Left" Value="{Binding LeftPointLine}"/>
         </Style>
 
         <!--<DataTemplate x:Key="tplCandleRect" DataType="models:CandleView">
@@ -56,7 +75,7 @@
         </DataTemplate>-->
 
         <Style x:Key="styCandleRect" TargetType="ContentPresenter">
-            <Setter Property="Canvas.Left" Value="{Binding Date}" />
+            <Setter Property="Canvas.Left" Value="{Binding LeftPoint}" />
             <Setter Property="Canvas.Top" Value="{Binding TopPoint}" />
         </Style>
         <!--<Style x:Key="styCandleLine" TargetType="ContentPresenter">
@@ -66,8 +85,10 @@
 
         <DataTemplate x:Key="CandleDataTemlate">
             <Canvas>
-                <Rectangle Style="{StaticResource styCandle}" Width="{Binding WidthRect}" Height="{Binding HeightRect}" Canvas.Top="{Binding TopPointRect}"/>
-                <Rectangle Style="{StaticResource styCandle}" Width="{Binding WitdhLine}" Height="{Binding HeightLine}" Canvas.Left="{Binding XLine}"/>
+                <!--Тело свечи-->
+                <Rectangle Style="{StaticResource styCandle}" Width="{Binding Width}" Height="{Binding HeightRect}" Canvas.Top="{Binding TopPointRect}"/>
+                <!--Хвост свечи-->
+                <Rectangle Style="{StaticResource styCandle}" Width="{Binding WitdhLine}" Height="{Binding Height}" Canvas.Left="{Binding XLine}"/>
             </Canvas>
         </DataTemplate>
 
@@ -76,6 +97,13 @@
         </DataTemplate>
         <DataTemplate x:Key="LabelHorizotalLineTemplate">
             <Label Style="{StaticResource styLabelHorizontalLine}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="VerticalLineTemplate">
+            <Rectangle Style="{StaticResource styVerticalLine}" Height="{Binding HeighLine}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="LabelVerticalLineTemplate">
+            <Label Style="{StaticResource styLabelVerticalLine}"/>
         </DataTemplate>
 
     </Window.Resources>
@@ -104,9 +132,19 @@
                           ItemContainerStyle="{StaticResource styLabelHorLineContent}"/>
                 </Grid>
 
+                <!--ВЕРТИКАЛЬНАЯ СЕТКА-->
+                <Grid Grid.Row="0" Grid.RowSpan="2" Width="{Binding GridWidth}" HorizontalAlignment="Left">
+                    <ItemsControl ItemsSource="{Binding ChartService.ScaleVertical.LineScaleVerticals}"
+                          ItemTemplate="{StaticResource VerticalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styVertLineContent}"/>
+                    <ItemsControl ItemsSource="{Binding ChartService.ScaleVertical.LineScaleVerticals}"
+                          ItemTemplate="{StaticResource LabelVerticalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styLabelVertLineContent}"/>
+                </Grid>
+
                 <!--ГРАФИК-->
                 <Grid Height="{Binding GridHeight}" Width="{Binding GridWidth}">
-                    <ItemsControl ItemsSource="{Binding ChartService.Chart.CandleViews}"
+                    <ItemsControl ItemsSource="{Binding ChartService.Chart.ElementChartViews}"
                 ItemTemplate="{StaticResource CandleDataTemlate}" ItemContainerStyle="{StaticResource styCandleRect}" />
                     <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
                         <Rectangle Canvas.Top="{Binding PriceCurrent}" Stroke="Blue" Width="500" Height="0.5" />

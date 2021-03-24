@@ -26,6 +26,7 @@ namespace z_ChartAppTest.Models
 
         public Candle(long timeOpen, double high, double low, double open, double close)
         {
+            this.timeOpen = timeOpen;
             this.high = high;
             this.low = low;
             this.open = open;

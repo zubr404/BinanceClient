@@ -12,11 +12,13 @@ namespace z_ChartAppTest.Services
     {
         public IChart Chart { get; private set; }
         public ScaleHorizontal ScaleHorizontal { get; private set; }
+        public ScaleVertical ScaleVertical { get; private set; }
 
         public ChartService(IChart chart)
         {
             Chart = chart;
             ScaleHorizontal = new ScaleHorizontal();
+            ScaleVertical = new ScaleVertical();
         }
 
         public void ChartBuild(IEnumerable<IElementChart> candles, double heightPanel, double widthPanel, int digits)
@@ -29,11 +31,12 @@ namespace z_ChartAppTest.Services
             // строим горизонтальную сетку
             ScaleHorizontal.ScaleBuild(heightPanel, widthPanel, MaxAllChart, DeltaAllChart, digits);
 
-            // строим вертикальную сетку
-
-
             // строим основной график
             Chart.Create(MaxAllChart, ScaleIntervalPrice);
+
+            // строим вертикальную сетку
+            ScaleVertical.ScaleBuild(Chart.ElementChartViews, heightPanel, widthPanel);
+
         }
 
         public double MaxAllChart { get { return maxAllChart; } }

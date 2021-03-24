@@ -8,7 +8,7 @@ namespace Services
     {
         public static string ToStringTime(DateTime time)
         {
-            return $"{time.Year}-{time.Month.ToString("00")}-{time.Day.ToString("00")} {time.Hour.ToString("00")}:{time.Minute.ToString("00")}:{time.Second.ToString("00")}";
+            return $"{time.Year}-{time.Month:00}-{time.Day:00} {time.Hour:00}:{time.Minute:00}:{time.Second:00}";
         }
     }
 }

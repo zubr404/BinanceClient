@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using z_ChartAppTest.Interfaces;
 
 namespace z_ChartAppTest.Models
 {
-    public class CandleView
+    public class CandleView : IElementChartView
     {
         /// <summary>
         /// Координата времени - ось X
         /// </summary>
-        public double Date { get; set; }
+        public double LeftPoint { get; set; }
         /// <summary>
         /// Координата верхней точки свечи - ось Y
         /// </summary>
@@ -27,7 +28,7 @@ namespace z_ChartAppTest.Models
         /// <summary>
         /// Ширина тела свечи
         /// </summary>
-        public double WidthRect
+        public double Width
         {
             get { return widthRect; }
             set
@@ -41,7 +42,7 @@ namespace z_ChartAppTest.Models
         /// <summary>
         /// Высота хвоста свечи
         /// </summary>
-        public double HeightLine { get; set; }
+        public double Height { get; set; }
         /// <summary>
         /// Ширина хвоста свечи
         /// </summary>
@@ -51,10 +52,32 @@ namespace z_ChartAppTest.Models
         /// </summary>
         public double XLine { get; private set; }
 
-
         /// <summary>
         /// Черная/белая
         /// </summary>
         public bool IsPositive { get; set; }
+
+        public long TimeOpen { get { return timeOpen; } }
+        private long timeOpen;
+        public double High { get { return high; } }
+        private double high;
+
+        public double Low { get { return low; } }
+        private double low;
+
+        public double Open { get { return open; } }
+        private double open;
+
+        public double Close { get { return close; } }
+        private double close;
+
+        public CandleView(long timeOpen, double high, double low, double open, double close)
+        {
+            this.timeOpen = timeOpen;
+            this.high = high;
+            this.low = low;
+            this.open = open;
+            this.close = close;
+        }
     }
 }

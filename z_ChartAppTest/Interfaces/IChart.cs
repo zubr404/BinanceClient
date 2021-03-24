@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace z_ChartAppTest.Interfaces
@@ -9,6 +10,7 @@ namespace z_ChartAppTest.Interfaces
     /// </summary>
     public interface IChart
     {
+        public ObservableCollection<IElementChartView> ElementChartViews { get; }
         /// <summary>
         /// Создать график
         /// </summary>

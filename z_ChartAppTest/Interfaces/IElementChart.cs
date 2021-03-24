@@ -5,7 +5,7 @@ using System.Text;
 namespace z_ChartAppTest.Interfaces
 {
     /// <summary>
-    /// Елемент основного графика: линии, точки, свечи и т.д.
+    /// Элемент основного графика: линии, точки, свечи и т.д.
     /// </summary>
     public interface IElementChart
     {
