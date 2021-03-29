@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Windows.Media;
 using z_ChartAppTest.Models;
 
 namespace z_ChartAppTest.Services
@@ -31,15 +32,13 @@ namespace z_ChartAppTest.Services
                     TopPointLine = i,
                     WidthLine = widhPanel,
                     TopPointLabel = i,
-                    PriceLabel = Math.Round(maxAllChart - pi, digits).ToString()
+                    PriceLabel = Math.Round(maxAllChart - pi, digits).ToString(),
+                    ColorLine = Brushes.Gray,
+                    StrokeDashArray = new DoubleCollection(new double[] { 10 }),
+                    FontSize = 15
                 });
                 pi += deltaPrice;
             }
-        }
-
-        private void CreateLines()
-        {
-
         }
     }
 }

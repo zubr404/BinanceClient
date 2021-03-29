@@ -766,11 +766,18 @@ namespace Algoritms.BackTest
         private double GetAvgPriceOrders(List<StopLimitOrderTest> orders)
         {
             double result = 0;
-            if (orders != null)
+            try
             {
-                var sumMoney = orders.Sum(x => x.StopPrice * x.Amount);
-                var sumAmount = orders.Sum(x => x.Amount);
-                result = (double)((decimal)sumMoney / (decimal)sumAmount);
+                if (orders != null)
+                {
+                    var sumMoney = Math.Round(orders.Sum(x => x.StopPrice * x.Amount), 10);
+                    var sumAmount = Math.Round(orders.Sum(x => x.Amount), 10);
+                    result = (double)Math.Round(((decimal)sumMoney / (decimal)sumAmount), 10);
+                }
+            }
+            catch (Exception)
+            {
+
             }
             return result;
         }

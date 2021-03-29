@@ -13,15 +13,19 @@ namespace z_ChartAppTest.Services
         public IChart Chart { get; private set; }
         public ScaleHorizontal ScaleHorizontal { get; private set; }
         public ScaleVertical ScaleVertical { get; private set; }
+        public HorizontalLinePrice HorizontalLinePrice { get; private set; }
+        public AdditionalHorizontalLine AdditionalHorizontalLine { get; private set; }
 
         public ChartService(IChart chart)
         {
             Chart = chart;
             ScaleHorizontal = new ScaleHorizontal();
             ScaleVertical = new ScaleVertical();
+            HorizontalLinePrice = new HorizontalLinePrice();
+            AdditionalHorizontalLine = new AdditionalHorizontalLine();
         }
 
-        public void ChartBuild(IEnumerable<IElementChart> candles, double heightPanel, double widthPanel, int digits)
+        public void ChartBuild(IEnumerable<IElementChart> candles, double heightPanel, double widthPanel, double currentPrice, int digits)
         {
             GetMaxAllChart(candles);
             GetMinAllChart(candles);
@@ -37,6 +41,29 @@ namespace z_ChartAppTest.Services
             // строим вертикальную сетку
             ScaleVertical.ScaleBuild(Chart.ElementChartViews, heightPanel, widthPanel);
 
+            // отображение текущей цены
+            HorizontalLinePrice.LineCurrentPriceBuild(widthPanel, MaxAllChart, currentPrice, ScaleIntervalPrice);
+
+            // отображение сделок
+            var trades = new List<BuySellView>();
+            for (int i = 0; i < candles.Count(); i++)
+            {
+                if (i % 13 == 0)
+                {
+                    var isBuy = false;
+                    if (i%2 == 0)
+                    {
+                        isBuy = true;
+                    }
+                    trades.Add(new BuySellView()
+                    {
+                        Price = candles.ElementAt(i).High,
+                        IsBuy = isBuy
+                    });
+                }
+            }
+            AdditionalHorizontalLine.AdditionalLinesBuild(trades, widthPanel, MaxAllChart, ScaleIntervalPrice);
+            //------
         }
 
         public double MaxAllChart { get { return maxAllChart; } }

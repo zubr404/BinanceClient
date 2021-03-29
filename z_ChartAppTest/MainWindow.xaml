@@ -29,19 +29,22 @@
         </Style>
 
         <Style x:Key="styHorizontalLine" TargetType="Shape">
-            <Setter Property="Stroke" Value="Gray"/>
-            <Setter Property="StrokeDashArray" Value="4 8"/>
-            <Setter Property="StrokeThickness" Value="0.5"/>
+            <Setter Property="Stroke" Value="{Binding ColorLine}"/>
+            <Setter Property="StrokeDashArray" Value="{Binding StrokeDashArray}"/>
+            <Setter Property="StrokeThickness" Value="0.3"/>
         </Style>
         <Style x:Key="styVerticalLine" TargetType="Shape">
             <Setter Property="Stroke" Value="Gray"/>
-            <Setter Property="StrokeDashArray" Value="4 8"/>
+            <Setter Property="StrokeDashArray" Value="10"/>
             <Setter Property="StrokeThickness" Value="0.3"/>
         </Style>
         <Style x:Key="styLabelHorizontalLine" TargetType="Label">
+            <Setter Property="Background" Value="{Binding BackgroundLabel}"/>
+            <Setter Property="BorderBrush" Value="{Binding BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
             <Setter Property="Foreground" Value="Gray"/>
-            <Setter Property="Padding" Value="15,0,0,0"/>
-            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="{Binding Padding}"/>
+            <Setter Property="FontSize" Value="{Binding FontSize}"/>
             <Setter Property="Content" Value="{Binding PriceLabel}"/>
         </Style>
         <Style x:Key="styLabelVerticalLine" TargetType="Label">
@@ -132,6 +135,16 @@
                           ItemContainerStyle="{StaticResource styLabelHorLineContent}"/>
                 </Grid>
 
+                <!--ГОРИЗОНТАЛЬНАЯ TRADES-->
+                <Grid Grid.ColumnSpan="2" Height="{Binding GridHeight}">
+                    <ItemsControl ItemsSource="{Binding ChartService.AdditionalHorizontalLine.AdditionalHorizontalLines}"
+                          ItemTemplate="{StaticResource HorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styHorLineContent}"/>
+                    <ItemsControl ItemsSource="{Binding ChartService.AdditionalHorizontalLine.AdditionalHorizontalLines}"
+                          ItemTemplate="{StaticResource LabelHorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styLabelHorLineContent}"/>
+                </Grid>
+
                 <!--ВЕРТИКАЛЬНАЯ СЕТКА-->
                 <Grid Grid.Row="0" Grid.RowSpan="2" Width="{Binding GridWidth}" HorizontalAlignment="Left">
                     <ItemsControl ItemsSource="{Binding ChartService.ScaleVertical.LineScaleVerticals}"
@@ -146,10 +159,20 @@
                 <Grid Height="{Binding GridHeight}" Width="{Binding GridWidth}">
                     <ItemsControl ItemsSource="{Binding ChartService.Chart.ElementChartViews}"
                 ItemTemplate="{StaticResource CandleDataTemlate}" ItemContainerStyle="{StaticResource styCandleRect}" />
+                </Grid>
+
+                <!--Текущая цена-->
+                <Grid Grid.ColumnSpan="2" Background="AliceBlue" VerticalAlignment="Top">
                     <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
-                        <Rectangle Canvas.Top="{Binding PriceCurrent}" Stroke="Blue" Width="500" Height="0.5" />
+                        <Rectangle Canvas.Top="{Binding ChartService.HorizontalLinePrice.LineCurrentPrice.TopPointLine}"
+                                   Stroke="DimGray" Width="{Binding ChartService.HorizontalLinePrice.LineCurrentPrice.WidthLine}" Height="1" />
+                        <Label Foreground="Gray" Background="Black" BorderBrush="White" BorderThickness="0.5"
+                               Canvas.Left="{Binding ChartService.HorizontalLinePrice.LineCurrentPrice.WidthLine}"
+                               Canvas.Top="{Binding ChartService.HorizontalLinePrice.LineCurrentPrice.TopPointLabel}"
+                               Content="{Binding ChartService.HorizontalLinePrice.LineCurrentPrice.PriceLabel}"></Label>
                     </Canvas>
                 </Grid>
+                
                 <!--<TextBlock HorizontalAlignment="Right" Margin="0,0,0,0" Text="{Binding ChartService.Chart.TestMonitor.TextMonitor}" TextWrapping="Wrap" VerticalAlignment="Top" Background="AliceBlue" Height="250" Width="250"/>-->
 
 

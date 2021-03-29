@@ -3,6 +3,7 @@ using StockExchenge.Charts;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -34,7 +35,7 @@ namespace z_ChartAppTest
             candlestick = new Candlestick();
             ChartService = new ChartService(candlestick);
 
-            kline = new Kline("BTCUSDT", "1M");
+            kline = new Kline("BTCUSDT", "1m");
             candles = new List<Candle>();
 
             timer = new Timer(2000);
@@ -55,7 +56,7 @@ namespace z_ChartAppTest
                 dispatcher.InvokeAsync(() =>
                 {
                     candlestick.SetCandles(candles);
-                    ChartService.ChartBuild(candles, GridHeight, GridWidth, 2);
+                    ChartService.ChartBuild(candles, GridHeight, GridWidth, candles.Last().Close, 2);
                 });
             });
         }
