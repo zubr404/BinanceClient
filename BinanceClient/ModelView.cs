@@ -31,6 +31,7 @@ namespace BinanceClient
         //private readonly ConnectedPairRepository connectedPairRepository;
         //private readonly StopLimitOrderRepository stopLimitOrderRepository;
         //private readonly TakeProfitOrderRepository takeProfitOrderRepository;
+        //public ChartServiceLiveCharts ChartService { get; private set; }
         public ChartService ChartService { get; private set; }
         private readonly Algoritms.Real.Martingale martingaleReal;
         private readonly Algoritms.BackTest.Martingale martingaleBackTest;
@@ -93,11 +94,12 @@ namespace BinanceClient
             RightPanelScrin1 = new RightPanelScrin1();
             CentralPanelScrin1 = new CentralPanelScrin1(accountInfo, tradeAccountInfo, currentTrades, userStreamData, new TradeConfigRepository(), martingaleReal, KeyPanelScrin1, RightPanelScrin1);
             PairPanelScrin1 = new PairPanelScrin1(new ConnectedPairRepository());
-            ChartService = new ChartService(dispatcher);
+            ChartService = new ChartService(dispatcher, 230, 810);
             CentralPanelScrinCalculator = new CentralPanelScrinCalculator(martingaleBackTest, currentGridStatistics, new TradeHistoryRepository());
 
-            ChartService.LoadChart(CentralPanelScrin1.TradeConfigurationView.MainCoin + CentralPanelScrin1.TradeConfigurationView.AltCoin);
-            CentralPanelScrin1.loadChart = ChartService.LoadChart;
+            ChartService.SelectedPair = CentralPanelScrin1.TradeConfigurationView.MainCoin + CentralPanelScrin1.TradeConfigurationView.AltCoin;
+            //CentralPanelScrin1.loadChart = ChartService.LoadChart;
+            CentralPanelScrin1.ChartService = ChartService;
         }
 
         private void MartingaleReal_MessageDebugEvent(object sender, string e)

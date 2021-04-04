@@ -15,4 +15,8 @@
     <ProjectReference Include="..\StockExchenge\StockExchenge.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Charts\" />
+  </ItemGroup>
+
 </Project>

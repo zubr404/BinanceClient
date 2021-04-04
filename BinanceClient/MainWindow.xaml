@@ -522,7 +522,7 @@
             </Grid>
 
             <!--Central Panel Scrin1-->
-            <Grid Grid.Column="1" Grid.Row="1" Visibility="{Binding ScrinManager.Scrin1.Visibility}">
+            <Grid Grid.Column="1" Grid.Row="1" Visibility="{Binding ScrinManager.Scrin1.Visibility}" Panel.ZIndex="999">
                 <Grid.Resources>
                     <sys:Double x:Key="WidthGrid">920</sys:Double>
 
@@ -578,18 +578,19 @@
 
                     <StackPanel Orientation="Horizontal" Background="#161515">
                         <ComboBox Width="45" Foreground="#99FFFFFF" Style="{StaticResource ComboBoxChart}" ItemsSource="{Binding ChartService.Timeframes}" SelectedItem="{Binding ChartService.SelectedInterval}"/>
-                        <Button Width="75" Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}" Command="{Binding ChartService.RefrashChart}">Refrash</Button>
+                        <Label Margin="15,0,0,0" Foreground="White" Content="{Binding ChartService.SelectedPair}"></Label>
+                        <!--<Button Width="75" Foreground="{StaticResource SolidGray}" Style="{StaticResource RectangleButtonMy}" Command="{Binding ChartService.RefrashChart}">Refrash</Button>-->
                     </StackPanel>
-                    <Grid Grid.Row="1" Background="{StaticResource DarkBrown}">
+                    <!--<Grid Grid.Row="1" Background="{StaticResource DarkBrown}">
                         <lvc:CartesianChart x:Name="ChartMy" Margin="5,0,5,0" Background="{StaticResource DarkBrown}" Series="{Binding ChartService.Series}" DisableAnimations="False">
-                            <!--<lvc:CartesianChart.Series>
+                            --><!--<lvc:CartesianChart.Series>
                             <lvc:CandleSeries Values="{Binding ChartService.OhclValues}" StrokeThickness="1" Stroke="#6BBA45"/>
                             -->
                             <!--
                             <lvc:LineSeries Values="{Binding Values2}" StrokeThickness="1" Stroke="Red"
                                 Fill="Transparent" PointGeometry="{x:Null}" StrokeDashArray="2"/>-->
                             <!--
-                        </lvc:CartesianChart.Series>-->
+                        </lvc:CartesianChart.Series>--><!--
                             <lvc:CartesianChart.AxisX>
                                 <lvc:Axis IsMerged="True" Labels="{Binding ChartService.LabelsX}">
                                     <lvc:Axis.Separator>
@@ -605,7 +606,68 @@
                                 </lvc:Axis>
                             </lvc:CartesianChart.AxisY>
                         </lvc:CartesianChart>
-                    </Grid>
+                    </Grid>-->
+
+                    <Border Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#161515">
+                        <Grid Margin="15" Width="900">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="100"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="100"></RowDefinition>
+                            </Grid.RowDefinitions>
+
+                            <!--ГОРИЗОНТАЛЬНАЯ СЕТКА-->
+                            <Grid Grid.ColumnSpan="2" Height="{Binding ChartService.GridHeight}" Background="#161515">
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.ScaleHorizontal.LineScaleHorizontals}"
+                          ItemTemplate="{StaticResource HorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styHorLineContent}"/>
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.ScaleHorizontal.LineScaleHorizontals}"
+                          ItemTemplate="{StaticResource LabelHorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styLabelHorLineContent}"/>
+                            </Grid>
+
+                            <!--ГОРИЗОНТАЛЬНАЯ TRADES-->
+                            <Grid Grid.ColumnSpan="2" Height="{Binding GridHeight}">
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.AdditionalHorizontalLine.AdditionalHorizontalLines}"
+                          ItemTemplate="{StaticResource HorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styHorLineContent}"/>
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.AdditionalHorizontalLine.AdditionalHorizontalLines}"
+                          ItemTemplate="{StaticResource LabelHorizotalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styLabelHorLineContent}"/>
+                            </Grid>
+
+                            <!--ВЕРТИКАЛЬНАЯ СЕТКА-->
+                            <Grid Grid.Row="0" Grid.RowSpan="2" Width="{Binding GridWidth}" HorizontalAlignment="Left">
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.ScaleVertical.LineScaleVerticals}"
+                          ItemTemplate="{StaticResource VerticalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styVertLineContent}"/>
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.ScaleVertical.LineScaleVerticals}"
+                          ItemTemplate="{StaticResource LabelVerticalLineTemplate}"
+                          ItemContainerStyle="{StaticResource styLabelVertLineContent}"/>
+                            </Grid>
+
+                            <!--ГРАФИК-->
+                            <Grid Height="{Binding GridHeight}" Width="{Binding GridWidth}">
+                                <ItemsControl ItemsSource="{Binding ChartService.ChartServ.Chart.ElementChartViews}"
+                ItemTemplate="{StaticResource CandleDataTemlate}" ItemContainerStyle="{StaticResource styCandleRect}" />
+                            </Grid>
+
+                            <!--Текущая цена-->
+                            <Grid Grid.ColumnSpan="2" Background="AliceBlue" VerticalAlignment="Top">
+                                <Canvas Grid.Column="1" Background="Beige" VerticalAlignment="Top">
+                                    <Rectangle Canvas.Top="{Binding ChartService.ChartServ.HorizontalLinePrice.LineCurrentPrice.TopPointLine}"
+                                   Stroke="DimGray" Width="{Binding ChartService.ChartServ.HorizontalLinePrice.LineCurrentPrice.WidthLine}" Height="1" />
+                                    <Label Foreground="Gray" Background="Black" BorderBrush="White" BorderThickness="0.5"
+                               Canvas.Left="{Binding ChartService.ChartServ.HorizontalLinePrice.LineCurrentPrice.WidthLine}"
+                               Canvas.Top="{Binding ChartService.ChartServ.HorizontalLinePrice.LineCurrentPrice.TopPointLabel}"
+                               Content="{Binding ChartService.ChartServ.HorizontalLinePrice.LineCurrentPrice.PriceLabel}"></Label>
+                                </Canvas>
+                            </Grid>
+                        </Grid>
+                    </Border>
 
                 </Grid>
 
@@ -1317,7 +1379,7 @@
 
             </Grid>-->
 
-            <!--Central Panel Менеджер ключей-->
+            <!--Central Panel Менеджер ключей Visibility="{Binding ScrinManager.ScrinKeyManager.Visibility}"-->
             <Grid Grid.Column="1" Grid.Row="1" Background="{StaticResource Brown}" Visibility="{Binding ScrinManager.ScrinKeyManager.Visibility}">
 
                 <!--Отображение ключей-->

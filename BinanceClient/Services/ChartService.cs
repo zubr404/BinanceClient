@@ -1,66 +1,55 @@
-﻿using LiveCharts;
-using LiveCharts.Defaults;
+﻿using Charts.Services;
+using Services;
+using StockExchenge;
+using StockExchenge.Charts;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using StockExchenge;
-using Services;
-using System.Linq;
 using System.Collections.ObjectModel;
-using LiveCharts.Wpf;
-using System.Drawing;
-using System.Windows.Media;
 using System.Globalization;
-using System.Windows.Threading;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using StockExchenge.Charts;
-using System.Threading;
-using DataBaseWork.Repositories;
-using DataBaseWork.Models;
+using System.Timers;
+using System.Windows.Threading;
 
 namespace BinanceClient.Services
 {
-    class ChartService : PropertyChangedBase
+    public class ChartService : PropertyChangedBase
     {
-        /*
-         Вынос собственных сделок на график:
-        можно проверять какое-нибудь хранилище (скорее всего БД)
-        при обновлении сокета по свече
-        или
-        днлать запрос на биржу о собственных сделках.
-        Сокет скорее всего сюда по сделкам лепить не буду.
-         */
         public ReadOnlyCollection<string> Timeframes { get; set; }
-        public List<string> PairSelecteds { get; set; }
-        public ChartValues<OhlcPoint> OhclValues { get; set; }
-        public List<string> LabelsX { get; set; }
-        public Func<double, string> FormatterY { get; set; }
-        public SeriesCollection Series { get; set; }
-        public CandleSeries CandleSeries { get; set; }
+        public double GridHeight { get; private set; }
+        public double GridWidth { get; private set; }
 
+        public Charts.Services.ChartService ChartServ { get; private set; }
 
         private Kline kline;
-        private bool isClose = false;   // признак, что предыдущая свеча закрыта
-        private string formatX = "";
+        private List<Charts.Models.Candle> candles;
+        private Candlestick candlestick;
+
+        private Dispatcher dispatcher;
+        private Timer timer;
         private int quotePrecision;
-        private string pair = "";
 
-        readonly Dispatcher dispatcher;
-
-        private RelayCommand refrashChart;
-        public RelayCommand RefrashChart
+        public ChartService(Dispatcher dispatcher, double gridHeight, double gridWidth)
         {
-            get
-            {
-                return refrashChart ?? new RelayCommand((object o) =>
-                {
-                    LoadChart(pair);
-                });
-            }
+            this.dispatcher = dispatcher;
+            GridHeight = gridHeight;
+            GridWidth = gridWidth;
+            candlestick = new Candlestick();
+            ChartServ = new Charts.Services.ChartService(candlestick);
+
+            candles = new List<Charts.Models.Candle>();
+
+            Timeframes = KlineType.Intervals;
+            SelectedInterval = Timeframes.First();
+
+            timer = new Timer(2000);
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
         }
 
         #region Properties
-        private string selectedInterval;
+        private string selectedInterval = "1m";
         public string SelectedInterval
         {
             get { return selectedInterval; }
@@ -68,14 +57,6 @@ namespace BinanceClient.Services
             {
                 selectedInterval = value;
                 base.NotifyPropertyChanged();
-
-                SetFormatterX(value);
-
-                Task.Run(() =>
-                {
-                    GetExchangeInfo();
-                    LoadChart(pair);
-                });
             }
         }
         private string selectedPair = PairsMy.Pairs.First();
@@ -86,321 +67,29 @@ namespace BinanceClient.Services
             {
                 selectedPair = value;
                 base.NotifyPropertyChanged();
-
-                SetFormatterX(selectedInterval);
-
-                Task.Run(() =>
-                {
-                    GetExchangeInfo();
-                    //LoadChart(value);
-                });
             }
         }
         #endregion
 
-        public ChartService(Dispatcher dispatcher)
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            this.dispatcher = dispatcher;
-
-            OhclValues = new ChartValues<OhlcPoint>();
-            LabelsX = new List<string>();
-
-            Timeframes = KlineType.Intervals;
-            SelectedInterval = Timeframes.First();
-            PairSelecteds = PairsMy.Pairs;
-
-            Series = new SeriesCollection();
-            CreateCandleSeries();
+            ChartStart();
         }
 
-        #region добавляет линии на график
-        private void CreateLineSeries(ChartValues<double> values, bool isBuyer, string name)
+        private async Task ChartStart()
         {
-            dispatcher.InvokeAsync(() =>
-            {
-                SolidColorBrush brush = Brushes.Red;
-                if (isBuyer)
-                {
-                    brush = Brushes.Green;
-                }
-                if(!Series.Any(x=>x.Title == name))
-                {
-                    Series.Add(new LineSeries()
-                    {
-                        Values = values,
-                        StrokeThickness = 1,
-                        Stroke = brush,
-                        PointGeometry = null,
-                        StrokeDashArray = new DoubleCollection() { 4 },
-                        Fill = Brushes.Transparent,
-                        Title = name
-                    });
-                }
-            });
-        }
-
-        private async Task<List<TradeLine>> GetTrades(string simbol, double minPrice, double maxPrice)
-        {
-            var result = new List<TradeLine>();
             await Task.Run(() =>
             {
-                var tradeRepository = new TradeRepository();
-                var trades = tradeRepository.Get(simbol, minPrice, maxPrice).ToList();
-                var resGroup = trades.GroupBy(x => new {x.Price, x.IsBuyer }).ToList();
-                foreach (var item in resGroup)
+                GetHistoryCandle();
+                GetExchangeInfo();
+                dispatcher.InvokeAsync(() =>
                 {
-                    result.Add(new TradeLine()
-                    {
-                        Price = item.Key.Price,
-                        IsBuyer = item.Key.IsBuyer
-                    });
-                }
-            });
-            return result;
-        }
-
-        private async Task CreateChartValuesLines()
-        {
-            await Task.Run(async () =>
-            {
-                var trades = await GetTrades(pair, OhclValues.Min(x => x.Low), OhclValues.Max(x => x.High));
-
-                foreach (var trade in trades)
-                {
-                    var values = new ChartValues<double>();
-                    for (int i = 0; i < OhclValues.Count; i++)
-                    {
-                        values.Add(trade.Price);
-                    }
-                    CreateLineSeries(values, trade.IsBuyer, trade.Price.ToString());
-                }
+                    candlestick.SetCandles(candles);
+                    ChartServ.ChartBuild(candles, SelectedPair, GridHeight, GridWidth, candles.Last().Close, quotePrecision);
+                });
             });
         }
-        #endregion
 
-        private void CreateCandleSeries()
-        {
-            CandleSeries = new CandleSeries();
-            CandleSeries.Values = OhclValues;
-            CandleSeries.StrokeThickness = 1;
-            CandleSeries.Stroke = (Brush)new BrushConverter().ConvertFromString("#6BBA45");
-            Series.Add(CandleSeries);
-        }
-
-        public void LoadChart(string pair)
-        {
-            this.pair = pair;
-            var formatPrecision = PrecisionFormatting();
-            FormatterY = value => Math.Round(value, quotePrecision).ToString(formatPrecision); // настроить величину оеругления в зависимоти от спецификации инструмента
-            isClose = false;
-
-            if (kline != null)
-            {
-                kline.MessageEvent -= Kline_MessageEvent;
-                kline.ConnectStateEvent -= Kline_ConnectStateEvent;
-                kline.ConnectEvent -= Kline_ConnectEvent;
-                kline = null;
-            }
-            kline = new Kline(pair, selectedInterval);
-            kline.MessageEvent += Kline_MessageEvent;
-            kline.ConnectStateEvent += Kline_ConnectStateEvent;
-            kline.ConnectEvent += Kline_ConnectEvent;
-            kline.SocketOpen();
-        }
-
-        private void Kline_ConnectEvent(object sender, EventArgs e)
-        {
-            OhclValues.Clear();
-            LabelsX.Clear();
-            GetHistoryCandle();
-        }
-
-        private void Kline_ConnectStateEvent(object sender, string e)
-        {
-            ModelView.ConsoleScrin1.Message = e;
-        }
-
-        private void Kline_MessageEvent(object sender, KlineEventArgs e)
-        {
-            try
-            {
-                Candle candle = JConverter.JsonConver<Candle>(e.Message);
-                var ohlcPoint = new OhlcPoint()
-                {
-                    Open = candle.k.o,
-                    High = candle.k.h,
-                    Low = candle.k.l,
-                    Close = candle.k.c
-                };
-
-                var firstCandle = OhclValues.FirstOrDefault();
-                if (isClose)
-                {
-                    OhclValues.Add(ohlcPoint);
-                    OhclValues.Remove(firstCandle);
-                    LabelsX.Add(candle.k.t.UnixToDateTime().ToString(formatX));
-                    isClose = false;
-                }
-                else
-                {
-                    if (OhclValues.Count > 0)
-                    {
-                        var lastOhlc = OhclValues.Last();
-                        lastOhlc.Open = ohlcPoint.Open;
-                        lastOhlc.High = ohlcPoint.High;
-                        lastOhlc.Low = ohlcPoint.Low;
-                        lastOhlc.Close = ohlcPoint.Close;
-                    }
-                    else
-                    {
-                        OhclValues.Add(ohlcPoint);
-                        LabelsX.Add(candle.k.t.UnixToDateTime().ToString(formatX));
-                    }
-                }
-
-                if (candle.k.x) // проверка должна быть после добавления, иначе добавим закрытую свечу
-                {
-                    isClose = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                //TODO: запись логов в БД
-            }
-            //CreateChartValuesLines();
-        }
-
-        private void GetHistoryCandle()
-        {
-            try
-            {
-                var klineString = kline.GetHistory();
-                var klines = JConverter.JsonConver<List<object[]>>(klineString);
-
-                foreach (var k in klines)
-                {
-                    var ohlcPoint = new OhlcPoint()
-                    {
-                        Open = Convert.ToDouble(k[1], new CultureInfo("en-US")),
-                        High = Convert.ToDouble(k[2], new CultureInfo("en-US")),
-                        Low = Convert.ToDouble(k[3], new CultureInfo("en-US")),
-                        Close = Convert.ToDouble(k[4], new CultureInfo("en-US"))
-                    };
-                    OhclValues.Add(ohlcPoint);
-                    LabelsX.Add(Convert.ToInt64(k[0]).UnixToDateTime().ToString(formatX));
-                }
-            }
-            catch (Exception ex)
-            {
-                // запись логов в БД
-            }
-        }
-
-        private void SetFormatterX(string interval)
-        {
-            const string format1 = "HH:mm";
-            const string format2 = "dd.MM.yyyy HH:mm";
-            const string format3 = "dd.MM.yyyy";
-
-            switch (interval)
-            {
-                case KlineType.m1:
-                    formatX = format1;
-                    break;
-                case KlineType.m3:
-                    formatX = format1;
-                    break;
-                case KlineType.m5:
-                    formatX = format1;
-                    break;
-                case KlineType.m15:
-                    formatX = format1;
-                    break;
-                case KlineType.m30:
-                    formatX = format1;
-                    break;
-                case KlineType.h1:
-                    formatX = format2;
-                    break;
-                case KlineType.h2:
-                    formatX = format2;
-                    break;
-                case KlineType.h4:
-                    formatX = format2;
-                    break;
-                case KlineType.h6:
-                    formatX = format2;
-                    break;
-                case KlineType.h8:
-                    formatX = format2;
-                    break;
-                case KlineType.h12:
-                    formatX = format2;
-                    break;
-                case KlineType.d1:
-                    formatX = format3;
-                    break;
-                case KlineType.w1:
-                    formatX = format3;
-                    break;
-                case KlineType.M1:
-                    formatX = format3;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-
-        #region Пример ответа
-        /*
-         {
-  "timezone": "UTC",
-  "serverTime": 1508631584636,
-  "rateLimits": [{
-      "rateLimitType": "REQUESTS",
-      "interval": "MINUTE",
-      "limit": 1200
-    },
-    {
-      "rateLimitType": "ORDERS",
-      "interval": "SECOND",
-      "limit": 10
-    },
-    {
-      "rateLimitType": "ORDERS",
-      "interval": "DAY",
-      "limit": 100000
-    }
-  ],
-  "exchangeFilters": [],
-  "symbols": [{
-    "symbol": "ETHBTC",
-    "status": "TRADING",
-    "baseAsset": "ETH",
-    "baseAssetPrecision": 8,
-    "quoteAsset": "BTC",
-    "quotePrecision": 8,
-    "orderTypes": ["LIMIT", "MARKET"],
-    "icebergAllowed": false,
-    "filters": [{
-      "filterType": "PRICE_FILTER",
-      "minPrice": "0.00000100",
-      "maxPrice": "100000.00000000",
-      "tickSize": "0.00000100"
-    }, {
-      "filterType": "LOT_SIZE",
-      "minQty": "0.00100000",
-      "maxQty": "100000.00000000",
-      "stepSize": "0.00100000"
-    }, {
-      "filterType": "MIN_NOTIONAL",
-      "minNotional": "0.00100000"
-    }]
-  }]
-}
-         */
-        #endregion
         private void GetExchangeInfo()
         {
             try
@@ -424,14 +113,30 @@ namespace BinanceClient.Services
             }
         }
 
-        private string PrecisionFormatting()
+        private void GetHistoryCandle()
         {
-            var result = "0.#";
-            for (int i = 0; i < quotePrecision - 1; i++)
+            try
             {
-                result += "#";
+                candles.Clear();
+                kline = new Kline(SelectedPair, SelectedInterval);
+                var klineString = kline.GetHistory();
+                var klines = JConverter.JsonConver<List<object[]>>(klineString);
+
+                foreach (var k in klines)
+                {
+                    var ohlcPoint = new Charts.Models.Candle(
+                        Convert.ToInt64(k[0], new CultureInfo("en-US")),
+                        Convert.ToDouble(k[2], new CultureInfo("en-US")),
+                        Convert.ToDouble(k[3], new CultureInfo("en-US")),
+                        Convert.ToDouble(k[1], new CultureInfo("en-US")),
+                        Convert.ToDouble(k[4], new CultureInfo("en-US")));
+                    candles.Add(ohlcPoint);
+                }
             }
-            return result;
+            catch (Exception ex)
+            {
+                // запись логов в БД
+            }
         }
     }
 }

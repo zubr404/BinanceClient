@@ -36,6 +36,8 @@ namespace BinanceClient.ViewModel.Scrin1
         public StartButton StartButton { get; set; }
         public StopButton StopButton { get; set; }
 
+        public ChartService ChartService { get; set; }
+
         Task task;
 
         public CentralPanelScrin1(
@@ -205,6 +207,11 @@ namespace BinanceClient.ViewModel.Scrin1
                             martingale.CancelAllTakeProfitOrder();
 
                             loadChart?.Invoke(TradeConfigurationView.MainCoin + TradeConfigurationView.AltCoin);
+
+                            if(ChartService != null)
+                            {
+                                ChartService.SelectedPair = TradeConfigurationView.MainCoin + TradeConfigurationView.AltCoin;
+                            }
                         }
                         catch (Exception ex)
                         {

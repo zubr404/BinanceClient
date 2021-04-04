@@ -78,7 +78,7 @@ namespace StockExchenge.Charts
         {
             try
             {
-                return publicRequester.RequestPublicApi($"{Resources.DOMAIN_V1}klines?symbol={pair.ToUpper()}&interval={interval}&limit=100");
+                return publicRequester.RequestPublicApi($"{Resources.DOMAIN_V1}klines?symbol={pair.ToUpper()}&interval={interval}&limit=70");
             }
             catch (Exception ex)
             {

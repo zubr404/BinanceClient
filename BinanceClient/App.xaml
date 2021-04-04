@@ -1337,5 +1337,94 @@
 
         <!-- END TOGLE-->
         
+        <!--ГРАФИК-->
+        <ItemsPanelTemplate x:Key="tplCanvas">
+            <Canvas/>
+        </ItemsPanelTemplate>
+        <Style TargetType="ItemsControl">
+            <Setter Property="ItemsPanel" Value="{StaticResource tplCanvas}" />
+        </Style>
+
+        <Style x:Key="styCandle" TargetType="Shape">
+            <Setter Property="Stroke" Value="Red" />
+            <Setter Property="Fill" Value="Red" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsPositive}" Value="True">
+                    <Setter Property="Stroke" Value="Green" />
+                    <Setter Property="Fill" Value="Green" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="styHorizontalLine" TargetType="Shape">
+            <Setter Property="Stroke" Value="{Binding ColorLine}"/>
+            <Setter Property="StrokeDashArray" Value="{Binding StrokeDashArray}"/>
+            <Setter Property="StrokeThickness" Value="0.3"/>
+        </Style>
+        <Style x:Key="styVerticalLine" TargetType="Shape">
+            <Setter Property="Stroke" Value="Gray"/>
+            <Setter Property="StrokeDashArray" Value="10"/>
+            <Setter Property="StrokeThickness" Value="0.3"/>
+        </Style>
+        <Style x:Key="styLabelHorizontalLine" TargetType="Label">
+            <Setter Property="Background" Value="{Binding BackgroundLabel}"/>
+            <Setter Property="BorderBrush" Value="{Binding BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="Padding" Value="{Binding Padding}"/>
+            <Setter Property="FontSize" Value="{Binding FontSize}"/>
+            <Setter Property="Content" Value="{Binding PriceLabel}"/>
+        </Style>
+        <Style x:Key="styLabelVerticalLine" TargetType="Label">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Content" Value="{Binding TimeLabel}"/>
+        </Style>
+
+        <Style x:Key="styHorLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Top" Value="{Binding TopPointLine}"/>
+        </Style>
+        <Style x:Key="styLabelHorLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Top" Value="{Binding TopPointLabel}"/>
+            <Setter Property="Canvas.Left" Value="{Binding WidthLine}"/>
+        </Style>
+
+        <Style x:Key="styVertLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Left" Value="{Binding LeftPointLine}"/>
+        </Style>
+        <Style x:Key="styLabelVertLineContent" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Top" Value="{Binding TopPointLabel}"/>
+            <Setter Property="Canvas.Left" Value="{Binding LeftPointLine}"/>
+        </Style>
+        <Style x:Key="styCandleRect" TargetType="ContentPresenter">
+            <Setter Property="Canvas.Left" Value="{Binding LeftPoint}" />
+            <Setter Property="Canvas.Top" Value="{Binding TopPoint}" />
+        </Style>
+
+        <DataTemplate x:Key="CandleDataTemlate">
+            <Canvas>
+                <!--Тело свечи-->
+                <Rectangle Style="{StaticResource styCandle}" Width="{Binding Width}" Height="{Binding HeightRect}" Canvas.Top="{Binding TopPointRect}"/>
+                <!--Хвост свечи-->
+                <Rectangle Style="{StaticResource styCandle}" Width="{Binding WitdhLine}" Height="{Binding Height}" Canvas.Left="{Binding XLine}"/>
+            </Canvas>
+        </DataTemplate>
+
+        <DataTemplate x:Key="HorizotalLineTemplate">
+            <Rectangle Style="{StaticResource styHorizontalLine}" Width="{Binding WidthLine}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="LabelHorizotalLineTemplate">
+            <Label Style="{StaticResource styLabelHorizontalLine}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="VerticalLineTemplate">
+            <Rectangle Style="{StaticResource styVerticalLine}" Height="{Binding HeighLine}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="LabelVerticalLineTemplate">
+            <Label Style="{StaticResource styLabelVerticalLine}"/>
+        </DataTemplate>
+        <!--END ГРАФИК-->
+        
     </Application.Resources>
 </Application>
